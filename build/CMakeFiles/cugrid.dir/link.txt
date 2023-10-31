@@ -1,0 +1,2 @@
+/usr/bin/ar qc libcugrid.a CMakeFiles/cugrid.dir/src/lattice.cu.o CMakeFiles/cugrid.dir/src/grid.cu.o CMakeFiles/cugrid.dir/src/tensor.cu.o CMakeFiles/cugrid.dir/src/simd.cu.o
+/usr/bin/ranlib libcugrid.a
