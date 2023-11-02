@@ -155,102 +155,6 @@ test2/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/build
 .PHONY : test2/fast
 
-src/grid.o: src/grid.cu.o
-.PHONY : src/grid.o
-
-# target to build an object file
-src/grid.cu.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/src/grid.cu.o
-.PHONY : src/grid.cu.o
-
-src/grid.i: src/grid.cu.i
-.PHONY : src/grid.i
-
-# target to preprocess a source file
-src/grid.cu.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/src/grid.cu.i
-.PHONY : src/grid.cu.i
-
-src/grid.s: src/grid.cu.s
-.PHONY : src/grid.s
-
-# target to generate assembly for a file
-src/grid.cu.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/src/grid.cu.s
-.PHONY : src/grid.cu.s
-
-src/lattice.o: src/lattice.cu.o
-.PHONY : src/lattice.o
-
-# target to build an object file
-src/lattice.cu.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/src/lattice.cu.o
-.PHONY : src/lattice.cu.o
-
-src/lattice.i: src/lattice.cu.i
-.PHONY : src/lattice.i
-
-# target to preprocess a source file
-src/lattice.cu.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/src/lattice.cu.i
-.PHONY : src/lattice.cu.i
-
-src/lattice.s: src/lattice.cu.s
-.PHONY : src/lattice.s
-
-# target to generate assembly for a file
-src/lattice.cu.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/src/lattice.cu.s
-.PHONY : src/lattice.cu.s
-
-src/simd.o: src/simd.cu.o
-.PHONY : src/simd.o
-
-# target to build an object file
-src/simd.cu.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/src/simd.cu.o
-.PHONY : src/simd.cu.o
-
-src/simd.i: src/simd.cu.i
-.PHONY : src/simd.i
-
-# target to preprocess a source file
-src/simd.cu.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/src/simd.cu.i
-.PHONY : src/simd.cu.i
-
-src/simd.s: src/simd.cu.s
-.PHONY : src/simd.s
-
-# target to generate assembly for a file
-src/simd.cu.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/src/simd.cu.s
-.PHONY : src/simd.cu.s
-
-src/tensor.o: src/tensor.cu.o
-.PHONY : src/tensor.o
-
-# target to build an object file
-src/tensor.cu.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/src/tensor.cu.o
-.PHONY : src/tensor.cu.o
-
-src/tensor.i: src/tensor.cu.i
-.PHONY : src/tensor.i
-
-# target to preprocess a source file
-src/tensor.cu.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/src/tensor.cu.i
-.PHONY : src/tensor.cu.i
-
-src/tensor.s: src/tensor.cu.s
-.PHONY : src/tensor.s
-
-# target to generate assembly for a file
-src/tensor.cu.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/src/tensor.cu.s
-.PHONY : src/tensor.cu.s
-
 test/test1.o: test/test1.cu.o
 .PHONY : test/test1.o
 
@@ -310,18 +214,6 @@ help:
 	@echo "... cugrid"
 	@echo "... test1"
 	@echo "... test2"
-	@echo "... src/grid.o"
-	@echo "... src/grid.i"
-	@echo "... src/grid.s"
-	@echo "... src/lattice.o"
-	@echo "... src/lattice.i"
-	@echo "... src/lattice.s"
-	@echo "... src/simd.o"
-	@echo "... src/simd.i"
-	@echo "... src/simd.s"
-	@echo "... src/tensor.o"
-	@echo "... src/tensor.i"
-	@echo "... src/tensor.s"
 	@echo "... test/test1.o"
 	@echo "... test/test1.i"
 	@echo "... test/test1.s"

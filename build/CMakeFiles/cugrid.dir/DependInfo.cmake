@@ -8,10 +8,6 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/tobias/phd/cuda_grid/src/grid.cu" "CMakeFiles/cugrid.dir/src/grid.cu.o" "gcc" "CMakeFiles/cugrid.dir/src/grid.cu.o.d"
-  "/home/tobias/phd/cuda_grid/src/lattice.cu" "CMakeFiles/cugrid.dir/src/lattice.cu.o" "gcc" "CMakeFiles/cugrid.dir/src/lattice.cu.o.d"
-  "/home/tobias/phd/cuda_grid/src/simd.cu" "CMakeFiles/cugrid.dir/src/simd.cu.o" "gcc" "CMakeFiles/cugrid.dir/src/simd.cu.o.d"
-  "/home/tobias/phd/cuda_grid/src/tensor.cu" "CMakeFiles/cugrid.dir/src/tensor.cu.o" "gcc" "CMakeFiles/cugrid.dir/src/tensor.cu.o.d"
   )
 
 # Targets to which this target links.

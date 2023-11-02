@@ -1,4 +1,4 @@
-CMakeFiles/cugrid.dir/src/lattice.cu.o : /home/tobias/phd/cuda_grid/src/lattice.cu \
+CMakeFiles/test2.dir/test/test2.cu.o : /home/tobias/phd/cuda_grid/test/test2.cu \
     /usr/include/stdc-predef.h \
     /usr/include/cuda_runtime.h \
     /usr/include/crt/host_config.h \

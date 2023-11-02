@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcuda_grid.a CMakeFiles/cuda_grid.dir/src/lattice.cu.o CMakeFiles/cuda_grid.dir/src/grid.cu.o CMakeFiles/cuda_grid.dir/src/tensor.cu.o CMakeFiles/cuda_grid.dir/src/simd.cu.o
-/usr/bin/ranlib libcuda_grid.a

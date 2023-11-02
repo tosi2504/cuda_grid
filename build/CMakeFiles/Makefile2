@@ -85,12 +85,12 @@ clean: CMakeFiles/test2.dir/clean
 CMakeFiles/cugrid.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=1,2,3,4,5 "Built target cugrid"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num= "Built target cugrid"
 .PHONY : CMakeFiles/cugrid.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/cugrid.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 5
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 0
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/cugrid.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 0
 .PHONY : CMakeFiles/cugrid.dir/rule
@@ -108,10 +108,10 @@ CMakeFiles/cugrid.dir/clean:
 # Target rules for target CMakeFiles/test1.dir
 
 # All Build rule for target.
-CMakeFiles/test1.dir/all:
+CMakeFiles/test1.dir/all: CMakeFiles/cugrid.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=6,7 "Built target test1"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=1,2 "Built target test1"
 .PHONY : CMakeFiles/test1.dir/all
 
 # Build rule for subdir invocation for target.
@@ -134,10 +134,10 @@ CMakeFiles/test1.dir/clean:
 # Target rules for target CMakeFiles/test2.dir
 
 # All Build rule for target.
-CMakeFiles/test2.dir/all:
+CMakeFiles/test2.dir/all: CMakeFiles/cugrid.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=8,9 "Built target test2"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=3,4 "Built target test2"
 .PHONY : CMakeFiles/test2.dir/all
 
 # Build rule for subdir invocation for target.
