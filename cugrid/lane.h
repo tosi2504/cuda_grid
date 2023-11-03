@@ -33,9 +33,6 @@ class Lane {
 	// contructor
 	__host__ __device__ Lane() {}
 
-	// lenLane
-	constexpr unsigned len = lenLane;
-	
 	// getter and setter
 	__host__ __device__ T& operator [] (unsigned index) { return data[index]; }
 	__host__ __device__ T& operator [] (unsigned index) const { return data[index]; }
