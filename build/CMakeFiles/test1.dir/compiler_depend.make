@@ -181,6 +181,7 @@ CMakeFiles/test1.dir/test/test1.cu.o: ../test/test1.cu \
   /usr/include/surface_indirect_functions.h \
   /usr/include/device_launch_parameters.h \
   ../cugrid/lane.h \
+  ../cugrid/errorcheck.h \
   /usr/include/c++/11/iostream \
   /usr/include/c++/11/ostream \
   /usr/include/c++/11/ios \
@@ -295,6 +296,8 @@ CMakeFiles/test1.dir/test/test1.cu.o: ../test/test1.cu \
 
 /usr/include/c++/11/streambuf:
 
+/usr/include/c++/11/stdexcept:
+
 /usr/include/crt/math_functions.h:
 
 /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h:
@@ -382,6 +385,8 @@ CMakeFiles/test1.dir/test/test1.cu.o: ../test/test1.cu \
 /usr/include/x86_64-linux-gnu/bits/types/FILE.h:
 
 /usr/include/cuda_device_runtime_api.h:
+
+../cugrid/errorcheck.h:
 
 /usr/include/x86_64-linux-gnu/bits/local_lim.h:
 
@@ -816,5 +821,3 @@ CMakeFiles/test1.dir/test/test1.cu.o: ../test/test1.cu \
 /usr/include/c++/11/bits/charconv.h:
 
 /usr/include/c++/11/bits/basic_string.tcc:
-
-/usr/include/c++/11/stdexcept:

@@ -1,47 +1,17 @@
 #include "../cugrid/lane.h" 
+#include "../cugrid/errorcheck.h" 
 
 #include <iostream>
-
-#define CCE(val) check((val), #val, __FILE__, __LINE__)
-template <typename T>
-void check(T err, const char* const func, const char* const file,
-           const int line)
-{
-    if (err != cudaSuccess)
-    {
-        std::cerr << "CUDA Runtime Error at: " << file << ":" << line
-                  << std::endl;
-        std::cerr << cudaGetErrorString(err) << " " << func << std::endl;
-        // We don't exit when we encounter CUDA errors in this example.
-        // std::exit(EXIT_FAILURE);
-    }
-}
-
-#define CLCE() checkLast(__FILE__, __LINE__)
-void checkLast(const char* const file, const int line)
-{
-    cudaError_t err{cudaGetLastError()};
-    if (err != cudaSuccess)
-    {
-        std::cerr << "CUDA Runtime Error at: " << file << ":" << line
-                  << std::endl;
-        std::cerr << cudaGetErrorString(err) << std::endl;
-        // We don't exit when we encounter CUDA errors in this example.
-        // std::exit(EXIT_FAILURE);
-    }
-}
-
 
 template<class T>
 __global__ void fillLanes(Lane<T> * d_lanes) {
 	warpInfo w;
-	printf("%u", w.laneIdx);
-	d_lanes[w.warpIdx].setByThread(threadIdx.x*0.1);
+	d_lanes[w.warpIdx].setByThread(w, w.laneIdx*0.1);
 }
 
 template<class T>
 __global__ void addLanes(Lane<T> * d_ret, const Lane<T> * d_lhs, const Lane<T> * d_rhs) {
-	
+	Lane<T>::add(warpInfo(), d_ret, d_lhs, d_rhs);
 }
 
 int main () {
@@ -60,8 +30,11 @@ int main () {
 	CLCE();
 	cudaDeviceSynchronize();
 
+
+	std::cout << "Lanes filled!" << std::endl;
+
 	// run addLanes kernel
-	addLanes<double><<<1,32*3>>>(d_lanes+0, d_lanes+1, d_lanes+2);
+	addLanes<double><<<1,32>>>(d_lanes+0, d_lanes+1, d_lanes+2);
 	CLCE();
 	cudaDeviceSynchronize();
 

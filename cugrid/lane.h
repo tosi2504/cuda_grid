@@ -32,32 +32,30 @@ class Lane {
 	public:
 	// contructor
 	__host__ __device__ Lane() {}
+
+	// lenLane
+	constexpr unsigned len = lenLane;
 	
 	// getter and setter
 	__host__ __device__ T& operator [] (unsigned index) { return data[index]; }
 	__host__ __device__ T& operator [] (unsigned index) const { return data[index]; }
-	__device__ void setByThread(const T & val) { warpInfo w; data[w.laneIdx] = val; }
-	__device__ T & getByThread() { warpInfo w; return data[w.laneIdx]; }
+	__device__ void setByThread(const warpInfo<lenLane> & w, const T & val) { data[w.laneIdx] = val; }
+	__device__ T & getByThread(const warpInfo<lenLane> & w) const { return data[w.laneIdx]; }
 
 	// arithmetic operations
-	static __device__ void add(Lane * res, const Lane * lhs, const Lane * rhs) {
-		warpInfo w;
+	static __device__ void add(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
 		res->data[w.laneIdx] = lhs->data[w.laneIdx] + rhs->data[w.laneIdx];
 	}
-	static __device__ void sub(Lane * res, const Lane * lhs, const Lane * rhs) {
-		warpInfo w;
+	static __device__ void sub(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
 		res->data[w.laneIdx] = lhs->data[w.laneIdx] - rhs->data[w.laneIdx];
 	}
-	static __device__ void mul(Lane * res, const Lane * lhs, const Lane * rhs) {
-		warpInfo w;
+	static __device__ void mul(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
 		res->data[w.laneIdx] = lhs->data[w.laneIdx] * rhs->data[w.laneIdx];
 	}
-	static __device__ void mac(Lane * res, const Lane * lhs, const Lane * rhs) {
-		warpInfo w;
+	static __device__ void mac(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
 		res->data[w.laneIdx] += lhs->data[w.laneIdx] * rhs->data[w.laneIdx];
 	}
-	static __device__ void div(Lane * res, const Lane * lhs, const Lane * rhs) {
-		warpInfo w;
+	static __device__ void div(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
 		res->data[w.laneIdx] = lhs->data[w.laneIdx] / rhs->data[w.laneIdx];
 	}
 };

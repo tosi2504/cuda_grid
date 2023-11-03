@@ -178,6 +178,7 @@ CMakeFiles/test1.dir/test/test1.cu.o : /home/tobias/phd/cuda_grid/test/test1.cu 
     /usr/include/surface_indirect_functions.h \
     /usr/include/device_launch_parameters.h \
     /home/tobias/phd/cuda_grid/test/../cugrid/lane.h \
+    /home/tobias/phd/cuda_grid/test/../cugrid/errorcheck.h \
     /usr/include/c++/11/iostream \
     /usr/include/c++/11/ostream \
     /usr/include/c++/11/ios \
