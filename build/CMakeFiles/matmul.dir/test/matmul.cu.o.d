@@ -1,4 +1,4 @@
-CMakeFiles/test1.dir/test/test1.cu.o : /home/tobias/phd/cuda_grid/test/test1.cu \
+CMakeFiles/matmul.dir/test/matmul.cu.o : /home/tobias/phd/cuda_grid/test/matmul.cu \
     /usr/include/stdc-predef.h \
     /usr/include/cuda_runtime.h \
     /usr/include/crt/host_config.h \

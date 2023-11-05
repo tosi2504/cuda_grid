@@ -43,6 +43,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/cugrid.dir/DependInfo.cmake"
-  "CMakeFiles/test1.dir/DependInfo.cmake"
-  "CMakeFiles/test2.dir/DependInfo.cmake"
+  "CMakeFiles/vector_add.dir/DependInfo.cmake"
+  "CMakeFiles/matmul.dir/DependInfo.cmake"
   )

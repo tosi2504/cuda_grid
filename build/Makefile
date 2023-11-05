@@ -130,78 +130,78 @@ cugrid/fast:
 .PHONY : cugrid/fast
 
 #=============================================================================
-# Target rules for targets named test1
+# Target rules for targets named vector_add
 
 # Build rule for target.
-test1: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test1
-.PHONY : test1
+vector_add: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 vector_add
+.PHONY : vector_add
 
 # fast build rule for target.
-test1/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/build
-.PHONY : test1/fast
+vector_add/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vector_add.dir/build.make CMakeFiles/vector_add.dir/build
+.PHONY : vector_add/fast
 
 #=============================================================================
-# Target rules for targets named test2
+# Target rules for targets named matmul
 
 # Build rule for target.
-test2: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test2
-.PHONY : test2
+matmul: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 matmul
+.PHONY : matmul
 
 # fast build rule for target.
-test2/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/build
-.PHONY : test2/fast
+matmul/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.dir/build.make CMakeFiles/matmul.dir/build
+.PHONY : matmul/fast
 
-test/test1.o: test/test1.cu.o
-.PHONY : test/test1.o
-
-# target to build an object file
-test/test1.cu.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/test/test1.cu.o
-.PHONY : test/test1.cu.o
-
-test/test1.i: test/test1.cu.i
-.PHONY : test/test1.i
-
-# target to preprocess a source file
-test/test1.cu.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/test/test1.cu.i
-.PHONY : test/test1.cu.i
-
-test/test1.s: test/test1.cu.s
-.PHONY : test/test1.s
-
-# target to generate assembly for a file
-test/test1.cu.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/test/test1.cu.s
-.PHONY : test/test1.cu.s
-
-test/test2.o: test/test2.cu.o
-.PHONY : test/test2.o
+test/matmul.o: test/matmul.cu.o
+.PHONY : test/matmul.o
 
 # target to build an object file
-test/test2.cu.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/test/test2.cu.o
-.PHONY : test/test2.cu.o
+test/matmul.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.dir/build.make CMakeFiles/matmul.dir/test/matmul.cu.o
+.PHONY : test/matmul.cu.o
 
-test/test2.i: test/test2.cu.i
-.PHONY : test/test2.i
+test/matmul.i: test/matmul.cu.i
+.PHONY : test/matmul.i
 
 # target to preprocess a source file
-test/test2.cu.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/test/test2.cu.i
-.PHONY : test/test2.cu.i
+test/matmul.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.dir/build.make CMakeFiles/matmul.dir/test/matmul.cu.i
+.PHONY : test/matmul.cu.i
 
-test/test2.s: test/test2.cu.s
-.PHONY : test/test2.s
+test/matmul.s: test/matmul.cu.s
+.PHONY : test/matmul.s
 
 # target to generate assembly for a file
-test/test2.cu.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/test/test2.cu.s
-.PHONY : test/test2.cu.s
+test/matmul.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.dir/build.make CMakeFiles/matmul.dir/test/matmul.cu.s
+.PHONY : test/matmul.cu.s
+
+test/vector_add.o: test/vector_add.cu.o
+.PHONY : test/vector_add.o
+
+# target to build an object file
+test/vector_add.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vector_add.dir/build.make CMakeFiles/vector_add.dir/test/vector_add.cu.o
+.PHONY : test/vector_add.cu.o
+
+test/vector_add.i: test/vector_add.cu.i
+.PHONY : test/vector_add.i
+
+# target to preprocess a source file
+test/vector_add.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vector_add.dir/build.make CMakeFiles/vector_add.dir/test/vector_add.cu.i
+.PHONY : test/vector_add.cu.i
+
+test/vector_add.s: test/vector_add.cu.s
+.PHONY : test/vector_add.s
+
+# target to generate assembly for a file
+test/vector_add.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vector_add.dir/build.make CMakeFiles/vector_add.dir/test/vector_add.cu.s
+.PHONY : test/vector_add.cu.s
 
 # Help Target
 help:
@@ -212,14 +212,14 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... cugrid"
-	@echo "... test1"
-	@echo "... test2"
-	@echo "... test/test1.o"
-	@echo "... test/test1.i"
-	@echo "... test/test1.s"
-	@echo "... test/test2.o"
-	@echo "... test/test2.i"
-	@echo "... test/test2.s"
+	@echo "... matmul"
+	@echo "... vector_add"
+	@echo "... test/matmul.o"
+	@echo "... test/matmul.i"
+	@echo "... test/matmul.s"
+	@echo "... test/vector_add.o"
+	@echo "... test/vector_add.i"
+	@echo "... test/vector_add.s"
 .PHONY : help
 
 
