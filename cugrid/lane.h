@@ -15,13 +15,17 @@
 
 template<unsigned lenLane = 32>
 struct warpInfo {
-	unsigned warpIdx;
-	unsigned laneIdx;
+	const unsigned warpIdx;
+	const unsigned laneIdx;
+	const unsigned warpNum;
+	const unsigned warpIdxGlobal;
 
-	__device__ warpInfo() {
-		warpIdx = threadIdx.x / lenLane;
-		laneIdx = threadIdx.x % lenLane;
-	}
+	__device__ warpInfo(): 
+		warpIdx(threadIdx.x / lenLane),
+		laneIdx(threadIdx.x % lenLane),
+		warpNum(blockDim.x  / lenLane),
+		warpIdxGlobal(warpNum*blockIdx.x + warpIdx)
+	{}
 };
 
 template<class T, unsigned lenLane = 32>
@@ -30,12 +34,14 @@ class Lane {
 	T data[lenLane];
 
 	public:
+	static constexpr unsigned _lenLane = lenLane;
+
 	// contructor
 	__host__ __device__ Lane() {}
 
 	// getter and setter
 	__host__ __device__ T& operator [] (unsigned index) { return data[index]; }
-	__host__ __device__ T& operator [] (unsigned index) const { return data[index]; }
+	__host__ __device__ const T& operator [] (unsigned index) const { return data[index]; }
 	__device__ void setByThread(const warpInfo<lenLane> & w, const T & val) { data[w.laneIdx] = val; }
 	__device__ T & getByThread(const warpInfo<lenLane> & w) const { return data[w.laneIdx]; }
 

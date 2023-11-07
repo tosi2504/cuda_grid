@@ -155,6 +155,43 @@ matmul/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.dir/build.make CMakeFiles/matmul.dir/build
 .PHONY : matmul/fast
 
+#=============================================================================
+# Target rules for targets named lattice_mem
+
+# Build rule for target.
+lattice_mem: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lattice_mem
+.PHONY : lattice_mem
+
+# fast build rule for target.
+lattice_mem/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lattice_mem.dir/build.make CMakeFiles/lattice_mem.dir/build
+.PHONY : lattice_mem/fast
+
+test/lattice_mem.o: test/lattice_mem.cu.o
+.PHONY : test/lattice_mem.o
+
+# target to build an object file
+test/lattice_mem.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lattice_mem.dir/build.make CMakeFiles/lattice_mem.dir/test/lattice_mem.cu.o
+.PHONY : test/lattice_mem.cu.o
+
+test/lattice_mem.i: test/lattice_mem.cu.i
+.PHONY : test/lattice_mem.i
+
+# target to preprocess a source file
+test/lattice_mem.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lattice_mem.dir/build.make CMakeFiles/lattice_mem.dir/test/lattice_mem.cu.i
+.PHONY : test/lattice_mem.cu.i
+
+test/lattice_mem.s: test/lattice_mem.cu.s
+.PHONY : test/lattice_mem.s
+
+# target to generate assembly for a file
+test/lattice_mem.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lattice_mem.dir/build.make CMakeFiles/lattice_mem.dir/test/lattice_mem.cu.s
+.PHONY : test/lattice_mem.cu.s
+
 test/matmul.o: test/matmul.cu.o
 .PHONY : test/matmul.o
 
@@ -212,8 +249,12 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... cugrid"
+	@echo "... lattice_mem"
 	@echo "... matmul"
 	@echo "... vector_add"
+	@echo "... test/lattice_mem.o"
+	@echo "... test/lattice_mem.i"
+	@echo "... test/lattice_mem.s"
 	@echo "... test/matmul.o"
 	@echo "... test/matmul.i"
 	@echo "... test/matmul.s"

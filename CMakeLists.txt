@@ -4,12 +4,20 @@ project(cuda_grid LANGUAGES CXX CUDA)
 
 add_library(cugrid INTERFACE 
 	cugrid/lane.h
+	cugrid/tensor.h
+	cugrid/errorcheck.h
+	cugrid/grid.h
+	cugrid/lattice.h
 	)
 
-add_executable(test1 test/test1.cu)
-target_link_libraries(test1 cugrid)
-add_executable(test2 test/test2.cu)
-target_link_libraries(test2 cugrid)
+add_executable(vector_add test/vector_add.cu)
+target_link_libraries(vector_add cugrid)
+target_compile_features(vector_add PUBLIC cxx_std_11)
 
-target_compile_features(test1 PUBLIC cxx_std_11)
-target_compile_features(test2 PUBLIC cxx_std_11)
+add_executable(matmul test/matmul.cu)
+target_link_libraries(matmul cugrid)
+target_compile_features(matmul PUBLIC cxx_std_11)
+
+add_executable(lattice_mem test/lattice_mem.cu)
+target_link_libraries(lattice_mem cugrid)
+target_compile_features(lattice_mem PUBLIC cxx_std_11)

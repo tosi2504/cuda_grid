@@ -66,6 +66,7 @@ CMAKE_BINARY_DIR = /home/tobias/phd/cuda_grid/build
 all: CMakeFiles/cugrid.dir/all
 all: CMakeFiles/vector_add.dir/all
 all: CMakeFiles/matmul.dir/all
+all: CMakeFiles/lattice_mem.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -76,6 +77,7 @@ preinstall:
 clean: CMakeFiles/cugrid.dir/clean
 clean: CMakeFiles/vector_add.dir/clean
 clean: CMakeFiles/matmul.dir/clean
+clean: CMakeFiles/lattice_mem.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -111,7 +113,7 @@ CMakeFiles/cugrid.dir/clean:
 CMakeFiles/vector_add.dir/all: CMakeFiles/cugrid.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vector_add.dir/build.make CMakeFiles/vector_add.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vector_add.dir/build.make CMakeFiles/vector_add.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=3,4 "Built target vector_add"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=5,6 "Built target vector_add"
 .PHONY : CMakeFiles/vector_add.dir/all
 
 # Build rule for subdir invocation for target.
@@ -137,7 +139,7 @@ CMakeFiles/vector_add.dir/clean:
 CMakeFiles/matmul.dir/all: CMakeFiles/cugrid.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.dir/build.make CMakeFiles/matmul.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.dir/build.make CMakeFiles/matmul.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=1,2 "Built target matmul"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=3,4 "Built target matmul"
 .PHONY : CMakeFiles/matmul.dir/all
 
 # Build rule for subdir invocation for target.
@@ -155,6 +157,32 @@ matmul: CMakeFiles/matmul.dir/rule
 CMakeFiles/matmul.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.dir/build.make CMakeFiles/matmul.dir/clean
 .PHONY : CMakeFiles/matmul.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/lattice_mem.dir
+
+# All Build rule for target.
+CMakeFiles/lattice_mem.dir/all: CMakeFiles/cugrid.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lattice_mem.dir/build.make CMakeFiles/lattice_mem.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lattice_mem.dir/build.make CMakeFiles/lattice_mem.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=1,2 "Built target lattice_mem"
+.PHONY : CMakeFiles/lattice_mem.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/lattice_mem.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/lattice_mem.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 0
+.PHONY : CMakeFiles/lattice_mem.dir/rule
+
+# Convenience name for target.
+lattice_mem: CMakeFiles/lattice_mem.dir/rule
+.PHONY : lattice_mem
+
+# clean rule for target.
+CMakeFiles/lattice_mem.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lattice_mem.dir/build.make CMakeFiles/lattice_mem.dir/clean
+.PHONY : CMakeFiles/lattice_mem.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
