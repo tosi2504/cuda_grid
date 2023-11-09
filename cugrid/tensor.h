@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lane.h"
+#include "random.h"
 
 #include <iostream>
 
@@ -45,13 +46,6 @@ class iVector {
 	}
 
 	// lin alg operations
-	// this is kernel parameter critial -> i.e. it needs to be called correctly
-	// the correct call would be one kernel call per LinAlg operation
-	// since iVector effectively contains 32 vectors, this is efficient
-	// blocks * numWarps = blocks * (threads_per_block % lenLane) needs to be equal to N
-	// here a metafunction to calculate the number of blocks required
-	// do we really need a metafunction though xDDDDDDD
-	// fuck yeah, we do! (no, we don't)
 	template<unsigned _blocksize = 512>
 	struct add_prms {
 		static_assert(_blocksize % lobj::_lenLane == 0, "blocksize not divisible by warp size");
@@ -65,6 +59,13 @@ class iVector {
 		const unsigned i = w.warpIdxGlobal;
 		lobj::add(w, &res->data[i], &lhs->data[i], &rhs->data[i]);
 	} 
+
+    // random number function for host
+    __host__ void fill_random(std::mt19937 & gen, typename lobj::_T min, typename lobj::_T max) {
+        for (unsigned i = 0; i < N; i++) {
+            data[i].fill_random(gen, min, max);
+        }
+    }
 };
 
 template<class lobj, unsigned N>
@@ -88,7 +89,7 @@ class iMatrix {
 	__host__ __device__  lobj * operator [] (unsigned index) { return &data[index][0]; }
 	__host__ __device__  const lobj * operator [] (unsigned index) const { return &data[index][0]; }
 
-	// lin alg
+	// lin alg operations
 	template<unsigned _blocksize>
 	struct matmul_prms {
 		static_assert(_blocksize % lobj::_lenLane == 0, "blocksize not divisible by warp size");
@@ -105,6 +106,15 @@ class iMatrix {
 			lobj::mac(w, &res->data[i], &lhs->data[i][j], &rhs->data[j]);
 		}
 	}
+
+    // random number function for host
+    __host__ void fill_random(std::mt19937 & gen, typename lobj::_T min, typename lobj::_T max) {
+        for (unsigned i = 0; i < N; i++) {
+            for (unsigned j = 0; j < N; j++) {
+                data[i][j].fill_random(gen, min, max);
+            }
+        }
+    }
 };
 
 template<class lobj, unsigned N>

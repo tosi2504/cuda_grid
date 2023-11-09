@@ -8,6 +8,7 @@ add_library(cugrid INTERFACE
 	cugrid/errorcheck.h
 	cugrid/grid.h
 	cugrid/lattice.h
+    cugrid/random.h
 	)
 
 add_executable(vector_add test/vector_add.cu)

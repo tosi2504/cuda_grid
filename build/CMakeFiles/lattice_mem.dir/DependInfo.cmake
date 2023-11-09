@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/tobias/phd/cuda_grid/test/lattice_mem.cu" "CMakeFiles/lattice_mem.dir/test/lattice_mem.cu.o" "gcc" "CMakeFiles/lattice_mem.dir/test/lattice_mem.cu.o.d"
+  "/home/athena/phd/cuda_grid/test/lattice_mem.cu" "CMakeFiles/lattice_mem.dir/test/lattice_mem.cu.o" "gcc" "CMakeFiles/lattice_mem.dir/test/lattice_mem.cu.o.d"
   )
 
 # Targets to which this target links.

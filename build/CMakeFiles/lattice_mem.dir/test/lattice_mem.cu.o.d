@@ -1,4 +1,4 @@
-CMakeFiles/lattice_mem.dir/test/lattice_mem.cu.o : /home/tobias/phd/cuda_grid/test/lattice_mem.cu \
+CMakeFiles/lattice_mem.dir/test/lattice_mem.cu.o : /home/athena/phd/cuda_grid/test/lattice_mem.cu \
     /usr/include/stdc-predef.h \
     /usr/include/cuda_runtime.h \
     /usr/include/crt/host_config.h \
@@ -177,7 +177,7 @@ CMakeFiles/lattice_mem.dir/test/lattice_mem.cu.o : /home/tobias/phd/cuda_grid/te
     /usr/include/texture_indirect_functions.h \
     /usr/include/surface_indirect_functions.h \
     /usr/include/device_launch_parameters.h \
-    /home/tobias/phd/cuda_grid/test/../cugrid/lattice.h \
+    /home/athena/phd/cuda_grid/test/../cugrid/lattice.h \
     /usr/include/cuda.h \
     /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h \
     /usr/include/stdint.h \
@@ -248,7 +248,7 @@ CMakeFiles/lattice_mem.dir/test/lattice_mem.cu.o : /home/tobias/phd/cuda_grid/te
     /usr/include/x86_64-linux-gnu/bits/types/error_t.h \
     /usr/include/c++/11/bits/charconv.h \
     /usr/include/c++/11/bits/basic_string.tcc \
-    /home/tobias/phd/cuda_grid/test/../cugrid/errorcheck.h \
+    /home/athena/phd/cuda_grid/test/../cugrid/errorcheck.h \
     /usr/include/c++/11/iostream \
     /usr/include/c++/11/ostream \
     /usr/include/c++/11/ios \
@@ -272,6 +272,50 @@ CMakeFiles/lattice_mem.dir/test/lattice_mem.cu.o : /home/tobias/phd/cuda_grid/te
     /usr/include/c++/11/bits/ostream.tcc \
     /usr/include/c++/11/istream \
     /usr/include/c++/11/bits/istream.tcc \
-    /home/tobias/phd/cuda_grid/test/../cugrid/grid.h \
-    /home/tobias/phd/cuda_grid/test/../cugrid/tensor.h \
-    /home/tobias/phd/cuda_grid/test/../cugrid/lane.h
+    /home/athena/phd/cuda_grid/test/../cugrid/grid.h \
+    /home/athena/phd/cuda_grid/test/../cugrid/tensor.h \
+    /home/athena/phd/cuda_grid/test/../cugrid/lane.h \
+    /home/athena/phd/cuda_grid/test/../cugrid/random.h \
+    /usr/include/c++/11/random \
+    /usr/include/c++/11/bits/random.h \
+    /usr/include/c++/11/vector \
+    /usr/include/c++/11/bits/stl_uninitialized.h \
+    /usr/include/c++/11/bits/stl_vector.h \
+    /usr/include/c++/11/bits/stl_bvector.h \
+    /usr/include/c++/11/bits/vector.tcc \
+    /usr/include/c++/11/bits/uniform_int_dist.h \
+    /usr/include/x86_64-linux-gnu/c++/11/bits/opt_random.h \
+    /usr/include/c++/11/bits/random.tcc \
+    /usr/include/c++/11/numeric \
+    /usr/include/c++/11/bits/stl_numeric.h \
+    /usr/include/c++/11/bit \
+    /usr/include/c++/11/pstl/glue_numeric_defs.h \
+    /usr/include/c++/11/pstl/execution_defs.h \
+    /usr/include/cuda/std/complex \
+    /usr/include/cuda/std/cmath \
+    /usr/include/cuda/std/limits \
+    /usr/include/cuda/std/type_traits \
+    /usr/include/cuda/std/cstddef \
+    /usr/include/c++/11/cstddef \
+    /usr/include/cuda/std/version \
+    /usr/include/cuda/std/detail/__config \
+    /usr/include/cuda/std/detail/libcxx/include/__config \
+    /usr/include/nv/target \
+    /usr/include/nv/detail/__target_macros \
+    /usr/include/nv/detail/__preprocessor \
+    /usr/include/cuda/std/detail/__pragma_push \
+    /usr/include/cuda/std/detail/libcxx/include/__pragma_push \
+    /usr/include/cuda/std/detail/libcxx/include/__undef_macros \
+    /usr/include/cuda/std/detail/libcxx/include/version \
+    /usr/include/cuda/std/detail/__pragma_pop \
+    /usr/include/cuda/std/detail/libcxx/include/__pragma_pop \
+    /usr/include/cuda/std/detail/libcxx/include/cstddef \
+    /usr/include/cuda/std/detail/libcxx/include/type_traits \
+    /usr/include/cuda/std/detail/libcxx/include/limits \
+    /usr/include/cuda/std/detail/libcxx/include/cmath \
+    /usr/include/cuda/std/cstdint \
+    /usr/include/cuda/std/climits \
+    /usr/include/c++/11/climits \
+    /usr/include/cuda/std/detail/libcxx/include/climits \
+    /usr/include/cuda/std/detail/libcxx/include/cstdint \
+    /usr/include/cuda/std/detail/libcxx/include/complex

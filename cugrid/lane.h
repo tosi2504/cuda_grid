@@ -1,5 +1,7 @@
 #pragma once
 
+#include "random.h"
+
 // okay, so how do we do this?
 // we want a simd object with operator overloads
 // how to we get the simd lane length though??
@@ -35,6 +37,7 @@ class Lane {
 
 	public:
 	static constexpr unsigned _lenLane = lenLane;
+    using _T = T;
 
 	// contructor
 	__host__ __device__ Lane() {}
@@ -61,4 +64,11 @@ class Lane {
 	static __device__ void div(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
 		res->data[w.laneIdx] = lhs->data[w.laneIdx] / rhs->data[w.laneIdx];
 	}
+
+    // random number filling
+    __host__ void fill_random(std::mt19937 & gen, T min, T max) {
+        for (unsigned i = 0; i < lenLane; i++) {
+            data[i] = get_random_value<T>(gen, min, max);
+        }
+    }
 };
