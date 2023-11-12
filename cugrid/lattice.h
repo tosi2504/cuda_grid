@@ -23,6 +23,7 @@ class Lattice {
 	tobj * d_data, * h_data;
 
 	public:
+
 	using _tobj = tobj;
     using _T = typename tobj::_lobj::_T;
 	Lattice(const Grid<lenLane> & grid):
@@ -38,14 +39,11 @@ class Lattice {
 	}
 
 	// getters and setters ... for now only on host
-    // Problem: should they already incorporate the 4d structure?
-    // Bc that would be quite tricky -> would need to both implement grid structure and a tensor view object
-    // for now only naive getters and setters
     const tobj & operator [] (unsigned idx) const {
-        return d_data[idx];
+        return h_data[idx];
     }
     tobj & operator [] (unsigned idx) {
-        return d_data[idx];
+        return h_data[idx];
     }
     
 

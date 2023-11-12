@@ -1,0 +1,20 @@
+This is the notes file for cugrid
+
+
+TODO:
+    - test matmul of matrix*vector
+    - bench matmul of matrix*vector
+
+
+
+THOUGHTS:
+    How are we gonna test the matmul for correctness? Maybe assist by numpy, or use some mathematical property?
+    -> Fill vector with 1s and the rows of the matrices with numbers that we now the sum of and then check if the correct value of the sum is in the resulting vector
+    -> Worked very nicely. I am convinced that malmul produces correct results
+
+    Now we need to benchmark the matrix vector multiplication. But how?
+    -> Just repeated matmul on several lattice sizes?
+    -> Also want to test the effect of lenLane, even though this is not so important. Especially bc atm it needs to be set to the number of threads in one warp.
+
+    Okay, the code seems to work. But how do I calculate the bandwidth and the flops? I have a grid of 8*16*16*32 with 64 dimensions (i.e. matrices: 64x64 and vector: 64) (double prec.) and 50 matmul operations took 2.405 sec. 
+    So. How much bandwidth did we employ? To my understanding one matrix - vector multiplication takes N^2 + N memory loads. I.e. a total of (N^2 + N)*sizeof(double) bytes. But do I need to also take into account the write operation into the resulting vector? I do not think so. Okay, so ... with our parameters thats a total of sizeof(double)*(N^2 + N)*8*16*16*32.

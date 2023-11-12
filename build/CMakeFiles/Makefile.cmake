@@ -46,4 +46,6 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/vector_add.dir/DependInfo.cmake"
   "CMakeFiles/matmul.dir/DependInfo.cmake"
   "CMakeFiles/lattice_mem.dir/DependInfo.cmake"
+  "CMakeFiles/lattice_matmul.dir/DependInfo.cmake"
+  "CMakeFiles/bench_matmul.dir/DependInfo.cmake"
   )

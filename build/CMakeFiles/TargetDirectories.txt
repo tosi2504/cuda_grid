@@ -2,5 +2,7 @@
 /home/athena/phd/cuda_grid/build/CMakeFiles/vector_add.dir
 /home/athena/phd/cuda_grid/build/CMakeFiles/matmul.dir
 /home/athena/phd/cuda_grid/build/CMakeFiles/lattice_mem.dir
+/home/athena/phd/cuda_grid/build/CMakeFiles/lattice_matmul.dir
+/home/athena/phd/cuda_grid/build/CMakeFiles/bench_matmul.dir
 /home/athena/phd/cuda_grid/build/CMakeFiles/edit_cache.dir
 /home/athena/phd/cuda_grid/build/CMakeFiles/rebuild_cache.dir

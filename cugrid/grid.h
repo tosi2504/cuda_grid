@@ -32,11 +32,11 @@ class Grid {
 	// okay so what do we need?
 	// -> the lattice dimensions
 	private:
-	const unsigned Lx, Ly, Lz, Lt;
-	const unsigned vol;
 	using vLayout = virtualLayout<lenLane>;
 	
 	public:
+	const unsigned Lx, Ly, Lz, Lt;
+	const unsigned vol;
 	Grid(unsigned Lx, unsigned Ly, unsigned Lz, unsigned Lt):
 		Lx(Lx), Ly(Ly), Lz(Lz), Lt(Lt), vol(Lx*Ly*Lz*Lt)
 	{}

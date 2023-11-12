@@ -22,3 +22,11 @@ target_compile_features(matmul PUBLIC cxx_std_11)
 add_executable(lattice_mem test/lattice_mem.cu)
 target_link_libraries(lattice_mem cugrid)
 target_compile_features(lattice_mem PUBLIC cxx_std_11)
+
+add_executable(lattice_matmul test/lattice_matmul.cu)
+target_link_libraries(lattice_matmul cugrid)
+target_compile_features(lattice_matmul PUBLIC cxx_std_11)
+
+add_executable(bench_matmul test/bench_matmul.cu)
+target_link_libraries(bench_matmul cugrid)
+target_compile_features(bench_matmul PUBLIC cxx_std_11)
