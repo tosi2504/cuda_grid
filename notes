@@ -18,3 +18,9 @@ THOUGHTS:
 
     Okay, the code seems to work. But how do I calculate the bandwidth and the flops? I have a grid of 8*16*16*32 with 64 dimensions (i.e. matrices: 64x64 and vector: 64) (double prec.) and 50 matmul operations took 2.405 sec. 
     So. How much bandwidth did we employ? To my understanding one matrix - vector multiplication takes N^2 + N memory loads. I.e. a total of (N^2 + N)*sizeof(double) bytes. But do I need to also take into account the write operation into the resulting vector? I do not think so. Okay, so ... with our parameters thats a total of sizeof(double)*(N^2 + N)*8*16*16*32.
+    The result is not very nice: something around 50 Gb/s ... meh.
+    What about the flops? And how would it perform on an A100? Lets do flops first. So ... we have N^2 additions and multiplications. That makes a total of 2*N^2 flops per lattice site.
+    Flops are bad ... like really bad. Out of the 20.31 TFlops, I get 500 MFlops. For 4-byte float that is.
+    Okay, now we want to run this on juwels-booster. To this end we need to ssh into one of the computers of the physics CIP pool and set it up there.
+    -> I made it into juwels-booster! The trick is to specify the key, that one wants to use, i.e., ssh sizmann1@juwels-booster.fz-juelich.de -i juwelsbooster.
+    The next step is to build a source script and get an interactive session for one A100. 

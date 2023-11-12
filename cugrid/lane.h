@@ -22,7 +22,7 @@ struct warpInfo {
 	const unsigned warpNum;
 	const unsigned warpIdxGlobal;
 
-	__device__ warpInfo(): 
+	__device__ inline warpInfo(): 
 		warpIdx(threadIdx.x / lenLane),
 		laneIdx(threadIdx.x % lenLane),
 		warpNum(blockDim.x  / lenLane),
@@ -49,19 +49,19 @@ class Lane {
 	__device__ T & getByThread(const warpInfo<lenLane> & w) const { return data[w.laneIdx]; }
 
 	// arithmetic operations
-	static __device__ void add(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
+	static __device__ inline void add(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
 		res->data[w.laneIdx] = lhs->data[w.laneIdx] + rhs->data[w.laneIdx];
 	}
-	static __device__ void sub(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
+	static __device__ inline void sub(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
 		res->data[w.laneIdx] = lhs->data[w.laneIdx] - rhs->data[w.laneIdx];
 	}
-	static __device__ void mul(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
+	static __device__ inline void mul(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
 		res->data[w.laneIdx] = lhs->data[w.laneIdx] * rhs->data[w.laneIdx];
 	}
-	static __device__ void mac(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
+	static __device__ inline void mac(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
 		res->data[w.laneIdx] += lhs->data[w.laneIdx] * rhs->data[w.laneIdx];
 	}
-	static __device__ void div(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
+	static __device__ inline void div(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
 		res->data[w.laneIdx] = lhs->data[w.laneIdx] / rhs->data[w.laneIdx];
 	}
 

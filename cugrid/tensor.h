@@ -54,7 +54,7 @@ class iVector {
 		static constexpr unsigned blocksize = _blocksize;
 		static constexpr unsigned numBlocks = N / lanes_per_block;
 	};
-	static __device__ void add(const warpInfo<lobj::_lenLane> & w, iVector *res, const iVector * lhs, const iVector * rhs) {
+	static __device__ inline void add(const warpInfo<lobj::_lenLane> & w, iVector *res, const iVector * lhs, const iVector * rhs) {
 		// Do we need explicit template instantiation or is the type inferred from the arguments?
 		const unsigned i = w.warpIdxGlobal;
 		lobj::add(w, &res->data[i], &lhs->data[i], &rhs->data[i]);
@@ -98,7 +98,7 @@ class iMatrix {
 		static constexpr unsigned blocksize = _blocksize;
 		static constexpr unsigned numBlocks = N / lanes_per_block;
 	};
-	static __device__ void matmul(const warpInfo<lobj::_lenLane> & w, iVector<lobj, N> * res, const iMatrix<lobj, N> * lhs, const iVector<lobj, N> * rhs) {
+	static __device__ inline void matmul(const warpInfo<lobj::_lenLane> & w, iVector<lobj, N> * res, const iMatrix<lobj, N> * lhs, const iVector<lobj, N> * rhs) {
 		// first iteration: use add
 		const unsigned i = w.warpIdxGlobal;
 		lobj::mul(w, &res->data[i], &lhs->data[i][0], &rhs->data[0]);

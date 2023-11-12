@@ -38,7 +38,8 @@ int main () {
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
     std::cout << "DURATION: " << duration.count() << std::endl;
-    std::cout << "BANDWIDTH: " << grid.vol*(N*N + N)*sizeof(T_arithm)*reps/duration.count() << " MBytes/sec" << std::endl;
+    std::cout << "BANDWIDTH: " << grid.vol*(2*N*N + N)*sizeof(T_arithm)*reps/(float)duration.count() << " MBytes/sec" << std::endl;
+    std::cout << "ARITHMETICS: " << grid.vol * (2*N*N) * reps / (float)duration.count() << " Mflops" << std::endl;
 
 	vfield1.download();
 }
