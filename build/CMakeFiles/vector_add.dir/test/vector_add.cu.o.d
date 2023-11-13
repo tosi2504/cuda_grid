@@ -1,4 +1,4 @@
-CMakeFiles/vector_add.dir/test/vector_add.cu.o : /home/athena/phd/cuda_grid/test/vector_add.cu \
+CMakeFiles/vector_add.dir/test/vector_add.cu.o : /home/tobias/phd/cuda_grid/test/vector_add.cu \
     /usr/include/stdc-predef.h \
     /usr/include/cuda_runtime.h \
     /usr/include/crt/host_config.h \
@@ -177,8 +177,8 @@ CMakeFiles/vector_add.dir/test/vector_add.cu.o : /home/athena/phd/cuda_grid/test
     /usr/include/texture_indirect_functions.h \
     /usr/include/surface_indirect_functions.h \
     /usr/include/device_launch_parameters.h \
-    /home/athena/phd/cuda_grid/test/../cugrid/lane.h \
-    /home/athena/phd/cuda_grid/test/../cugrid/random.h \
+    /home/tobias/phd/cuda_grid/test/../cugrid/lane.h \
+    /home/tobias/phd/cuda_grid/test/../cugrid/random.h \
     /usr/include/c++/11/random \
     /usr/include/c++/11/string \
     /usr/include/c++/11/bits/stringfwd.h \
@@ -285,7 +285,7 @@ CMakeFiles/vector_add.dir/test/vector_add.cu.o : /home/athena/phd/cuda_grid/test
     /usr/include/cuda/std/detail/libcxx/include/climits \
     /usr/include/cuda/std/detail/libcxx/include/cstdint \
     /usr/include/cuda/std/detail/libcxx/include/complex \
-    /home/athena/phd/cuda_grid/test/../cugrid/tensor.h \
+    /home/tobias/phd/cuda_grid/test/../cugrid/tensor.h \
     /usr/include/c++/11/iostream \
     /usr/include/c++/11/ostream \
     /usr/include/c++/11/ios \
@@ -315,4 +315,4 @@ CMakeFiles/vector_add.dir/test/vector_add.cu.o : /home/athena/phd/cuda_grid/test
     /usr/include/c++/11/bits/ostream.tcc \
     /usr/include/c++/11/istream \
     /usr/include/c++/11/bits/istream.tcc \
-    /home/athena/phd/cuda_grid/test/../cugrid/errorcheck.h
+    /home/tobias/phd/cuda_grid/test/../cugrid/errorcheck.h

@@ -89,7 +89,7 @@ void add(Lattice<iVector<lobj, N>> * res, const Lattice<iVector<lobj, N>> * lhs,
 template<class lobj, unsigned N>
 void matmul(Lattice<iVector<lobj, N>> * res, const Lattice<iMatrix<lobj, N>> * lhs, const Lattice<iVector<lobj, N>> * rhs) {
 	if (res->grid != lhs->grid or res->grid != rhs->grid) throw std::logic_error("Grids do not match!");
-	using prms = typename iMatrix<lobj, N>::matmul_prms<512>;
+	using prms = typename iMatrix<lobj, N>::matmul_prms<256>;
 	for (unsigned int x = 0; x < res->lenBuffer; x++) {
 		run_matmul<<<prms::numBlocks, prms::blocksize>>>(&res->d_data[x], &lhs->d_data[x], &rhs->d_data[x]);
 	}

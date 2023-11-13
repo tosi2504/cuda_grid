@@ -17,7 +17,7 @@ THOUGHTS:
     -> Also want to test the effect of lenLane, even though this is not so important. Especially bc atm it needs to be set to the number of threads in one warp.
 
     Okay, the code seems to work. But how do I calculate the bandwidth and the flops? I have a grid of 8*16*16*32 with 64 dimensions (i.e. matrices: 64x64 and vector: 64) (double prec.) and 50 matmul operations took 2.405 sec. 
-    So. How much bandwidth did we employ? To my understanding one matrix - vector multiplication takes N^2 + N memory loads. I.e. a total of (N^2 + N)*sizeof(double) bytes. But do I need to also take into account the write operation into the resulting vector? I do not think so. Okay, so ... with our parameters thats a total of sizeof(double)*(N^2 + N)*8*16*16*32.
+    So. How much bandwidth did we employ? To my understanding one matrix - vector multiplication takes N^2 + N memory loads. I.e. a total of (N^2 + N)*sizeof(double) bytes. But do I need to also take into account the write operation into the resulting vector? I do not think so. Okay, so ... with our parameters thats a total of sizeof(double)*(N^2 + 2*N)*8*16*16*32.
     The result is not very nice: something around 50 Gb/s ... meh.
     What about the flops? And how would it perform on an A100? Lets do flops first. So ... we have N^2 additions and multiplications. That makes a total of 2*N^2 flops per lattice site.
     Flops are bad ... like really bad. Out of the 20.31 TFlops, I get 500 MFlops. For 4-byte float that is.
@@ -32,4 +32,8 @@ THOUGHTS:
         BANDWIDTH: 30169 MBytes/sec
         ARITHMETICS: 299.351 Mflops
 
-    I need to use diagnostics to find out what is going on.
+    I need to use diagnostics to find out what is going on. What about nsight? Let's find out!
+	-> got it to work. The executable is /opt/nvidia/nsight-compute/2022.4.1/ncu-ui and needs to be executed with root privileges. The autoprofiling option together with the jump-to-next-kernel-call-button provides details about the kernel call. The program warns that the kernel calls are too small. 
+	My suspicion about the kernel call overhead might have been right. In order to check that, we need to rewrite the code a little bit. I am thinking about employing the grid structure of cuda here, since it would require the least amount of rewriting. Without using this, I would need to substanially rethink on how to do the element indexing by thread identifier.
+
+	Here is an important finding: Making the grid super small (2.2.2.4) and the matrix super large (N = 1024) makes the kernel very efficient in terms of memory bandwidth (also blocksize = 256). This means that indeed the number of kernel calls is problematic.

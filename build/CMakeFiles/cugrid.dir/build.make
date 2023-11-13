@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/athena/phd/cuda_grid
+CMAKE_SOURCE_DIR = /home/tobias/phd/cuda_grid
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/athena/phd/cuda_grid/build
+CMAKE_BINARY_DIR = /home/tobias/phd/cuda_grid/build
 
 # Utility rule file for cugrid.
 
@@ -78,6 +78,6 @@ CMakeFiles/cugrid.dir/clean:
 .PHONY : CMakeFiles/cugrid.dir/clean
 
 CMakeFiles/cugrid.dir/depend:
-	cd /home/athena/phd/cuda_grid/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/athena/phd/cuda_grid /home/athena/phd/cuda_grid /home/athena/phd/cuda_grid/build /home/athena/phd/cuda_grid/build /home/athena/phd/cuda_grid/build/CMakeFiles/cugrid.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/tobias/phd/cuda_grid/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/tobias/phd/cuda_grid /home/tobias/phd/cuda_grid /home/tobias/phd/cuda_grid/build /home/tobias/phd/cuda_grid/build /home/tobias/phd/cuda_grid/build/CMakeFiles/cugrid.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/cugrid.dir/depend
 

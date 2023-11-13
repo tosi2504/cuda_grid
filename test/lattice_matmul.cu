@@ -8,7 +8,7 @@
 
 
 constexpr unsigned lenLane = 32;
-constexpr unsigned N = 64;
+constexpr unsigned N = 1024;
 // using T_arithm = cuda::std::complex<double>;
 using T_arithm = double;
 using lRealD = Lane<T_arithm, lenLane>;
@@ -16,7 +16,7 @@ using iVecRealD = iVector<lRealD, N>;
 using iMatRealD = iMatrix<lRealD, N>;
 
 int main () {
-	Grid<lenLane> grid(4,4,4,4);
+	Grid<lenLane> grid(2,2,2,4);
 	Lattice<iVecRealD> vfield1(grid), vfield2(grid);
 	Lattice<iMatRealD> mfield(grid);
 
