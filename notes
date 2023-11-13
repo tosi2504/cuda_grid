@@ -21,6 +21,15 @@ THOUGHTS:
     The result is not very nice: something around 50 Gb/s ... meh.
     What about the flops? And how would it perform on an A100? Lets do flops first. So ... we have N^2 additions and multiplications. That makes a total of 2*N^2 flops per lattice site.
     Flops are bad ... like really bad. Out of the 20.31 TFlops, I get 500 MFlops. For 4-byte float that is.
+
     Okay, now we want to run this on juwels-booster. To this end we need to ssh into one of the computers of the physics CIP pool and set it up there.
     -> I made it into juwels-booster! The trick is to specify the key, that one wants to use, i.e., ssh sizmann1@juwels-booster.fz-juelich.de -i juwelsbooster.
-    The next step is to build a source script and get an interactive session for one A100. 
+    The next step is to build a source script and get an interactive session for one A100.
+    -> got the session with $salloc --account=gm2dwf --gres=gpu:1 --nodes=1 --time=01:00:00 
+        and ran the benchmark with srun ./bench_matmul
+    -> Managed to do that :) But results were horrific:
+        DURATION: 3586898
+        BANDWIDTH: 30169 MBytes/sec
+        ARITHMETICS: 299.351 Mflops
+
+    I need to use diagnostics to find out what is going on.
