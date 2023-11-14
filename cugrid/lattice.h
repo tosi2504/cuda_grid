@@ -56,10 +56,10 @@ class Lattice {
 	}
 
 	// arithmetic operations
-	template<class lobj, unsigned N>
+	template<class lobj, unsigned N, unsigned blocksize>
 	friend void add(Lattice<iVector<lobj, N>> * res, const Lattice<iVector<lobj, N>> * lhs, const Lattice<iVector<lobj, N>> * rhs);
 
-	template<class lobj, unsigned N>
+	template<class lobj, unsigned N, unsigned blocksize>
 	friend void matmul(Lattice<iVector<lobj, N>> * res, const Lattice<iMatrix<lobj, N>> * lhs, const Lattice<iVector<lobj, N>> * rhs);
 
 
@@ -76,20 +76,20 @@ class Lattice {
 };
 
 // arithmetic operations
-template<class lobj, unsigned N>
+template<class lobj, unsigned N, unsigned blocksize = 256>
 void add(Lattice<iVector<lobj, N>> * res, const Lattice<iVector<lobj, N>> * lhs, const Lattice<iVector<lobj, N>> * rhs) {
 	if (res->grid != lhs->grid or res->grid != rhs->grid) throw std::logic_error("Grids do not match!");
-	using prms = typename iVector<lobj, N>::add_prms<512>;
+	using prms = typename iVector<lobj, N>::add_prms<blocksize>;
 	for (unsigned int x = 0; x < res->lenBuffer; x++) {
 		run_add<<<prms::numBlocks, prms::blocksize>>>(&res->d_data[x], &lhs->d_data[x], &rhs->d_data[x]);
 	}
 	CLCE();
 	CCE(cudaDeviceSynchronize());
 }
-template<class lobj, unsigned N>
+template<class lobj, unsigned N, unsigned blocksize = 256>
 void matmul(Lattice<iVector<lobj, N>> * res, const Lattice<iMatrix<lobj, N>> * lhs, const Lattice<iVector<lobj, N>> * rhs) {
 	if (res->grid != lhs->grid or res->grid != rhs->grid) throw std::logic_error("Grids do not match!");
-	using prms = typename iMatrix<lobj, N>::matmul_prms<256>;
+	using prms = typename iMatrix<lobj, N>::matmul_prms<blocksize>;
 	for (unsigned int x = 0; x < res->lenBuffer; x++) {
 		run_matmul<<<prms::numBlocks, prms::blocksize>>>(&res->d_data[x], &lhs->d_data[x], &rhs->d_data[x]);
 	}

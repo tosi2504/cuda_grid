@@ -2,8 +2,13 @@ This is the notes file for cugrid
 
 
 TODO:
-    - test matmul of matrix*vector
-    - bench matmul of matrix*vector
+	- make slides to describe the current situation
+		- description of grid and tensor setup
+		- screenshot of nsight
+		- benchmark times
+	- then proceed to rewrite the kernel calls
+		- read about and test the grid structure
+		- if that does not work ... rewrite to for loop over virtual nodes inside of kernel
 
 
 
@@ -37,3 +42,5 @@ THOUGHTS:
 	My suspicion about the kernel call overhead might have been right. In order to check that, we need to rewrite the code a little bit. I am thinking about employing the grid structure of cuda here, since it would require the least amount of rewriting. Without using this, I would need to substanially rethink on how to do the element indexing by thread identifier.
 
 	Here is an important finding: Making the grid super small (2.2.2.4) and the matrix super large (N = 1024) makes the kernel very efficient in terms of memory bandwidth (also blocksize = 256). This means that indeed the number of kernel calls is problematic.
+
+	
