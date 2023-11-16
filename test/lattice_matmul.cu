@@ -8,7 +8,7 @@
 
 
 constexpr unsigned lenLane = 32;
-constexpr unsigned N = 1024;
+constexpr unsigned N = 64;
 // using T_arithm = cuda::std::complex<double>;
 using T_arithm = double;
 using lRealD = Lane<T_arithm, lenLane>;
@@ -16,14 +16,14 @@ using iVecRealD = iVector<lRealD, N>;
 using iMatRealD = iMatrix<lRealD, N>;
 
 int main () {
-	Grid<lenLane> grid(2,2,2,4);
+	Grid<lenLane> grid(16,16,16,16);
 	Lattice<iVecRealD> vfield1(grid), vfield2(grid);
 	Lattice<iMatRealD> mfield(grid);
 
     std::cout << "Starting with filling" << std::endl;
 
     // fill the vector and matrix
-    for (unsigned x = 0; x < grid.calcLatticeBufferSize(); x++) {
+    for (unsigned x = 0; x < grid.calcNumVNodes(); x++) {
         std::cout << "x=" << x << std::endl;
         for (unsigned l = 0; l < lenLane; l++) {
             // vector
@@ -42,15 +42,17 @@ int main () {
 
 	mfield.upload();
 	vfield2.upload();
-	for (int i = 0; i < 3; i++)
-	matmul(&vfield1, &mfield, &vfield2);
+	std::cout << "lattices uploaded -> starting matmul" << std::endl;
+	for (int i = 0; i < 1; i++);
+	matmul_opt(vfield1, mfield, vfield2);
+	std::cout << "matmul finished -> downloading lattice" << std::endl;
 	vfield1.download();
 
 
     unsigned x, l, i;
-    x = 7;
-    l = 9;
-    i = 1;
+    x = 200;
+    l = 31;
+    i = 63;
     std::cout << "expected: " << x*32 + l + 0.01*i + 0.00005*(N)*(N-1) << std::endl;
     std::cout << "result:   " << vfield1[x][i][l] << std::endl;
 }

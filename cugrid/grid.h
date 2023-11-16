@@ -40,7 +40,7 @@ class Grid {
 	Grid(unsigned Lx, unsigned Ly, unsigned Lz, unsigned Lt):
 		Lx(Lx), Ly(Ly), Lz(Lz), Lt(Lt), vol(Lx*Ly*Lz*Lt)
 	{}
-	unsigned calcLatticeBufferSize() const {
+	unsigned calcNumVNodes() const {
 		if (vol % lenLane != 0) {
 			throw std::logic_error("Grid dimensions not compatible with lenLane");
 		}

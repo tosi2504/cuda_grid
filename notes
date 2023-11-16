@@ -3,11 +3,11 @@ This is the notes file for cugrid
 
 TODO:
 	- make slides to describe the current situation
-		- description of grid and tensor setup
-		- screenshot of nsight
-		- benchmark times
+		- description of grid and tensor setup -> done
+		- screenshot of nsight -> done
+		- benchmark times -> done
 	- then proceed to rewrite the kernel calls
-		- read about and test the grid structure
+		- read about and test the grid structure -> not gonna do that
 		- if that does not work ... rewrite to for loop over virtual nodes inside of kernel
 
 
@@ -41,6 +41,19 @@ THOUGHTS:
 	-> got it to work. The executable is /opt/nvidia/nsight-compute/2022.4.1/ncu-ui and needs to be executed with root privileges. The autoprofiling option together with the jump-to-next-kernel-call-button provides details about the kernel call. The program warns that the kernel calls are too small. 
 	My suspicion about the kernel call overhead might have been right. In order to check that, we need to rewrite the code a little bit. I am thinking about employing the grid structure of cuda here, since it would require the least amount of rewriting. Without using this, I would need to substanially rethink on how to do the element indexing by thread identifier.
 
-	Here is an important finding: Making the grid super small (2.2.2.4) and the matrix super large (N = 1024) makes the kernel very efficient in terms of memory bandwidth (also blocksize = 256). This means that indeed the number of kernel calls is problematic.
+	Here is an important finding: Making the grid super small (2.2.2.4) and the matrix super large (N = 1024) makes the kernel very efficient in terms of memory bandwidth (also blocksize = 256). This means that indeed the number of kernel calls is problematic. Interestingly on the 3070mobile the performance descreases with N = 2048 and larger.
 
-	
+	So ... in order to rewrite everything to a singular kernel call we need to remap the looping domains to the threads. We have blockIdx, threadIdx and subsequentially laneIdx in terms of threads. Also we have latticeIdx, tensorIdcs and laneIdx. TensorIdcs become warp indices etc ... but how? Lets assume a given blocksize(bs) and therefore a given number of lanes per block (#lpb)
+	We have x -> numVNodes, i(,j) -> N, l -> lenLane. This means we have numVNodes*N "lane calls", ergo numVNodes*N/#lpb blocks. What do we do if the division does not work out? -> add access guards! The kernel call becomes:
+		blocks : (numVNodes*N + #lpb - 1)/#lpb
+		threads: bs
+		ker_matmul<<<blocks, threads>>>(res, mfield, vfield);
+	The matmul function in iMatrix needs to change at well, or maybe we pull all the code into the Lattice class. Lets assume we do the second: 
+		Then we first calculate the global warpIdx by warpIdxGlobal = blockIdx.x * #lpb + warpIdx. 
+		From there we can calculate the vNodeIdx(i.e. x) x = warpIdxGlobal / N;
+		Also we can calculate the tensorIdx i = warpIdxGlobal % N;
+	Here we need the access guards: I.e. if (x < numVNodes) do_the_matmul(...);
+
+
+
+

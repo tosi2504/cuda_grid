@@ -19,7 +19,7 @@ class Lattice {
 	constexpr static unsigned lenLane = tobj::_lobj::_lenLane; 
 	const Grid<lenLane> grid;
 
-	unsigned lenBuffer;
+	unsigned numVNodes;
 	tobj * d_data, * h_data;
 
 	public:
@@ -29,9 +29,9 @@ class Lattice {
 	Lattice(const Grid<lenLane> & grid):
 		grid(grid)
 	{
-		lenBuffer = grid.calcLatticeBufferSize();
-		h_data = new tobj[lenBuffer];
-		CCE(cudaMalloc(&d_data, lenBuffer*sizeof(tobj)));
+		numVNodes = grid.calcNumVNodes();
+		h_data = new tobj[numVNodes];
+		CCE(cudaMalloc(&d_data, numVNodes*sizeof(tobj)));
 	}
 	~Lattice() {
 		delete[] h_data;
@@ -49,10 +49,10 @@ class Lattice {
 
 	// memory management
 	void upload() {
-		CCE(cudaMemcpy(d_data, h_data, lenBuffer*sizeof(tobj), cudaMemcpyHostToDevice));
+		CCE(cudaMemcpy(d_data, h_data, numVNodes*sizeof(tobj), cudaMemcpyHostToDevice));
 	}
 	void download() {
-		CCE(cudaMemcpy(h_data, d_data, lenBuffer*sizeof(tobj), cudaMemcpyDeviceToHost));
+		CCE(cudaMemcpy(h_data, d_data, numVNodes*sizeof(tobj), cudaMemcpyDeviceToHost));
 	}
 
 	// arithmetic operations
@@ -62,6 +62,10 @@ class Lattice {
 	template<class lobj, unsigned N, unsigned blocksize>
 	friend void matmul(Lattice<iVector<lobj, N>> * res, const Lattice<iMatrix<lobj, N>> * lhs, const Lattice<iVector<lobj, N>> * rhs);
 
+	// optimized arithmetic operations
+	template<class lobj, unsigned N, unsigned blocksize>
+	friend void matmul_opt(Lattice<iVector<lobj, N>> & res, const Lattice<iMatrix<lobj, N>> & lhs, const Lattice<iVector<lobj, N>> & rhs);
+
 
     // fill random
     void fill_random(unsigned seed, _T min, _T max) {
@@ -69,7 +73,7 @@ class Lattice {
         // the problem is that lobj could have any of the fundamental data types int, float, double, complex<>
         // so I need a random number generator for each of these types
         std::mt19937 gen(seed);
-        for (unsigned x = 0; x < lenBuffer; x++) {
+        for (unsigned x = 0; x < numVNodes; x++) {
             h_data[x].fill_random(gen, min, max);
         } 
     }
@@ -80,7 +84,7 @@ template<class lobj, unsigned N, unsigned blocksize = 256>
 void add(Lattice<iVector<lobj, N>> * res, const Lattice<iVector<lobj, N>> * lhs, const Lattice<iVector<lobj, N>> * rhs) {
 	if (res->grid != lhs->grid or res->grid != rhs->grid) throw std::logic_error("Grids do not match!");
 	using prms = typename iVector<lobj, N>::add_prms<blocksize>;
-	for (unsigned int x = 0; x < res->lenBuffer; x++) {
+	for (unsigned int x = 0; x < res->numVNodes; x++) {
 		run_add<<<prms::numBlocks, prms::blocksize>>>(&res->d_data[x], &lhs->d_data[x], &rhs->d_data[x]);
 	}
 	CLCE();
@@ -90,10 +94,37 @@ template<class lobj, unsigned N, unsigned blocksize = 256>
 void matmul(Lattice<iVector<lobj, N>> * res, const Lattice<iMatrix<lobj, N>> * lhs, const Lattice<iVector<lobj, N>> * rhs) {
 	if (res->grid != lhs->grid or res->grid != rhs->grid) throw std::logic_error("Grids do not match!");
 	using prms = typename iMatrix<lobj, N>::matmul_prms<blocksize>;
-	for (unsigned int x = 0; x < res->lenBuffer; x++) {
+	for (unsigned int x = 0; x < res->numVNodes; x++) {
 		run_matmul<<<prms::numBlocks, prms::blocksize>>>(&res->d_data[x], &lhs->d_data[x], &rhs->d_data[x]);
 	}
 	CLCE();
+	CCE(cudaDeviceSynchronize());
+}
+
+// optimized arithmetic operations
+template<class lobj, unsigned N>
+__global__ void ker_matmul(iVector<lobj, N> * d_res, const iMatrix<lobj, N> * d_lhs, const iVector<lobj, N> * d_rhs, unsigned numVNodes) {
+	warpInfo w;
+	unsigned x = w.warpIdxGlobal / N; // vNode index
+	unsigned i = w.warpIdxGlobal % N; // iTensor index
+	if (x < numVNodes) {
+		lobj::mul(w, &d_res[x][i], &d_lhs[x][i][0], &d_rhs[x][0]);	
+		for (unsigned j = 1; j < N; j++) {
+			lobj::mac(w, &d_res[x][i], &d_lhs[x][i][j], &d_rhs[x][j]);	
+		}
+	}
+}
+template<class lobj, unsigned N, unsigned blocksize = 256>
+void matmul_opt(Lattice<iVector<lobj, N>> & res, const Lattice<iMatrix<lobj, N>> & lhs, const Lattice<iVector<lobj, N>> & rhs) {
+	static_assert(blocksize % lobj::_lenLane == 0, "Length of lane does not divide the blocksize. Change blocksize or lane length!");
+	if (res.grid != lhs.grid or res.grid != rhs.grid) throw std::logic_error("Grids do not match!");
+	unsigned lanes_per_block = blocksize / lobj::_lenLane;
+	unsigned blocks = (res.numVNodes*N + lanes_per_block - 1)/lanes_per_block;
+	std::cout << "calling ker_matmul with:" << std::endl;
+	std::cout << "    blocks  : " << blocks << std::endl;
+	std::cout << "    threads : " << blocksize << std::endl;
+	std::cout << "    #lpb    : " << lanes_per_block << std::endl;
+	ker_matmul<lobj, N><<< blocks , blocksize >>>(res.d_data, lhs.d_data, rhs.d_data, res.numVNodes);
 	CCE(cudaDeviceSynchronize());
 }
 

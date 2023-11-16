@@ -9,7 +9,7 @@ using namespace std::chrono;
 
 
 constexpr unsigned lenLane = 32;
-constexpr unsigned N = 1024;
+constexpr unsigned N = 64;
 // using T_arithm = cuda::std::complex<double>;
 using T_arithm = float;
 using lRealD = Lane<T_arithm, lenLane>;
@@ -17,7 +17,7 @@ using iVecRealD = iVector<lRealD, N>;
 using iMatRealD = iMatrix<lRealD, N>;
 
 int main () {
-	Grid<lenLane> grid(2,2,2,4);
+	Grid<lenLane> grid(16,16,16,16);
 	Lattice<iVecRealD> vfield1(grid), vfield2(grid);
 	Lattice<iMatRealD> mfield(grid);
 
@@ -33,7 +33,7 @@ int main () {
     std::cout << "TIMING STARTED" << std::endl;
     auto start = high_resolution_clock::now();
 	for (unsigned i = 0; i < reps; i++) {
-	    matmul(&vfield1, &mfield, &vfield2);
+	    matmul_opt(vfield1, mfield, vfield2);
     }
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
