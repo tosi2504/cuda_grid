@@ -6,5 +6,5 @@ CUDA_DEFINES =
 
 CUDA_INCLUDES = 
 
-CUDA_FLAGS =  --generate-code=arch=compute_52,code=[compute_52,sm_52]
+CUDA_FLAGS =  --generate-code=arch=compute_52,code=[compute_52,sm_52] -fopenmp
 

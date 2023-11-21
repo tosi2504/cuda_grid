@@ -11,22 +11,24 @@ add_library(cugrid INTERFACE
     cugrid/random.h
 	)
 
+add_compile_options(-fopenmp)
+
 add_executable(vector_add test/vector_add.cu)
 target_link_libraries(vector_add cugrid)
+target_link_libraries(vector_add gomp)
 target_compile_features(vector_add PUBLIC cxx_std_11)
 
 add_executable(matmul test/matmul.cu)
 target_link_libraries(matmul cugrid)
+target_link_libraries(matmul gomp)
 target_compile_features(matmul PUBLIC cxx_std_11)
-
-add_executable(lattice_mem test/lattice_mem.cu)
-target_link_libraries(lattice_mem cugrid)
-target_compile_features(lattice_mem PUBLIC cxx_std_11)
 
 add_executable(lattice_matmul test/lattice_matmul.cu)
 target_link_libraries(lattice_matmul cugrid)
+target_link_libraries(lattice_matmul gomp)
 target_compile_features(lattice_matmul PUBLIC cxx_std_11)
 
 add_executable(bench_matmul test/bench_matmul.cu)
 target_link_libraries(bench_matmul cugrid)
+target_link_libraries(bench_matmul gomp)
 target_compile_features(bench_matmul PUBLIC cxx_std_11)

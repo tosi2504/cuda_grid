@@ -1,1 +1,1 @@
-/usr/lib/nvidia-cuda-toolkit/bin/g++ CMakeFiles/bench_matmul.dir/test/bench_matmul.cu.o -o bench_matmul  -lcudadevrt -lcudart_static -lrt -lpthread -ldl  -L"/usr/lib/x86_64-linux-gnu/stubs" -L"/usr/lib/x86_64-linux-gnu"
+/usr/lib/nvidia-cuda-toolkit/bin/g++ CMakeFiles/bench_matmul.dir/test/bench_matmul.cu.o -o bench_matmul  -lgomp -lcudadevrt -lcudart_static -lrt -lpthread -ldl  -L"/usr/lib/x86_64-linux-gnu/stubs" -L"/usr/lib/x86_64-linux-gnu"

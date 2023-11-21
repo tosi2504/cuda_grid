@@ -11,7 +11,7 @@ using namespace std::chrono;
 constexpr unsigned lenLane = 32;
 constexpr unsigned N = 64;
 // using T_arithm = cuda::std::complex<double>;
-using T_arithm = float;
+using T_arithm = double;
 using lRealD = Lane<T_arithm, lenLane>;
 using iVecRealD = iVector<lRealD, N>;
 using iMatRealD = iMatrix<lRealD, N>;
@@ -22,11 +22,15 @@ int main () {
 	Lattice<iMatRealD> mfield(grid);
 
     // mfield.fill_random(123, T_arithm(0,0), T_arithm(1,1));
-    mfield.fill_random(123, 0, 1);
-    vfield2.fill_random(456, 0, 1);
+	std::cout << "Filling with random numbers" << std::endl;
+    mfield.fill_benchmark(123, 0, 1);
+    vfield2.fill_benchmark(456, 0, 1);
+	std::cout << "DONE" << std::endl;
 
+	std::cout << "Uploading fields onto GPU" << std::endl;
 	mfield.upload();
 	vfield2.upload();
+	std::cout << "DONE" << std::endl;
 
     // TIME IT!
     unsigned reps = 50;

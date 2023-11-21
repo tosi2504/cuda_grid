@@ -8,7 +8,12 @@ TODO:
 		- benchmark times -> done
 	- then proceed to rewrite the kernel calls
 		- read about and test the grid structure -> not gonna do that
-		- if that does not work ... rewrite to for loop over virtual nodes inside of kernel
+		- if that does not work ... rewrite to for loop over virtual nodes inside of kernel -> DONE!
+	- finish the presentation
+		- benchmarks on A100
+	- rework random number filling
+		- work on CPU
+
 
 
 
@@ -53,6 +58,9 @@ THOUGHTS:
 		From there we can calculate the vNodeIdx(i.e. x) x = warpIdxGlobal / N;
 		Also we can calculate the tensorIdx i = warpIdxGlobal % N;
 	Here we need the access guards: I.e. if (x < numVNodes) do_the_matmul(...);
+	
+	Code works and is fast as fuck! -> Nice! Now we need to fix the random number filling algorithm. We somehow want to multithread that badboy. It could either be done on the GPU or the CPU, but I am thinking that fewer threads are better suited, bc a seed needs to be created for each thread. We should employ OpenMP threads for that, I think. Not sure how one would tell cmake to use OpenMP ... the linking flag was -fopenmp.
+	Okay, actually we dont need a proper random number filling system ... just fill in some numbers that are somewhat random. We can do this on the GPU and after that has been implemented, one can finally do the benchmarks on the A100. Christoph had the idea of just creating 1000 random numbers and copy them into the lattice object. The 1000 random numbers are created by the CPU, then uploaded to device memory and finally copied into the lattice container. Okay so I have this array rn[1000] now, how are we gonna do the indexing?
 
 
 

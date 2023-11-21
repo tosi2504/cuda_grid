@@ -251,6 +251,7 @@ CMakeFiles/bench_matmul.dir/test/bench_matmul.cu.o: ../test/bench_matmul.cu \
   /usr/include/x86_64-linux-gnu/bits/types/error_t.h \
   /usr/include/c++/11/bits/charconv.h \
   /usr/include/c++/11/bits/basic_string.tcc \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/omp.h \
   ../cugrid/errorcheck.h \
   /usr/include/c++/11/iostream \
   /usr/include/c++/11/ostream \
@@ -348,8 +349,6 @@ CMakeFiles/bench_matmul.dir/test/bench_matmul.cu.o: ../test/bench_matmul.cu \
 
 /usr/include/cuda/std/detail/libcxx/include/__pragma_push:
 
-/usr/include/cuda/std/detail/__pragma_push:
-
 /usr/include/nv/detail/__preprocessor:
 
 /usr/include/cuda/std/detail/libcxx/include/version:
@@ -418,6 +417,10 @@ CMakeFiles/bench_matmul.dir/test/bench_matmul.cu.o: ../test/bench_matmul.cu \
 
 /usr/include/c++/11/system_error:
 
+/usr/include/nv/detail/__target_macros:
+
+/usr/include/c++/11/bits/locale_classes.tcc:
+
 /usr/include/crt/math_functions.h:
 
 ../cugrid/random.h:
@@ -431,10 +434,6 @@ CMakeFiles/bench_matmul.dir/test/bench_matmul.cu.o: ../test/bench_matmul.cu \
 /usr/include/c++/11/bits/specfun.h:
 
 /usr/include/x86_64-linux-gnu/bits/iscanonical.h:
-
-/usr/include/nv/detail/__target_macros:
-
-/usr/include/c++/11/bits/locale_classes.tcc:
 
 /usr/include/c++/11/bits/stl_algobase.h:
 
@@ -503,6 +502,10 @@ CMakeFiles/bench_matmul.dir/test/bench_matmul.cu.o: ../test/bench_matmul.cu \
 /usr/include/x86_64-linux-gnu/sys/types.h:
 
 /usr/include/stdlib.h:
+
+/usr/include/cuda/std/detail/__pragma_push:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/omp.h:
 
 /usr/include/c++/11/stdlib.h:
 

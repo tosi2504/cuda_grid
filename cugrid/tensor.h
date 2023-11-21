@@ -3,12 +3,12 @@
 #include "lane.h"
 #include "random.h"
 
+#include <type_traits>
 #include <iostream>
 
 // implements scalar, vector and matrix objects
 // focus for now is on matrix * vector operations
-
-// implements all operations on Lanes
+//
 
 template<class lobj, unsigned N>
 class iVector {
@@ -122,3 +122,15 @@ __global__ void run_matmul(iVector<lobj, N> * res, const iMatrix<lobj, N> * lhs,
 	warpInfo w;
 	iMatrix<lobj, N>::matmul(w, res, lhs, rhs);
 }
+
+
+// type traits for tensors
+template<class tobj> struct is_Tensor : public std::false_type {};
+template<class lobj, unsigned N> struct is_Tensor<iVector<lobj, N>> : public std::true_type {};
+template<class lobj, unsigned N> struct is_Tensor<iMatrix<lobj, N>> : public std::true_type {};
+
+template<class tobj> struct is_Vector : public std::false_type {};
+template<class lobj, unsigned N> struct is_Vector<iVector<lobj, N>> : public std::true_type {};
+
+template<class tobj> struct is_Matrix : public std::false_type {};
+template<class lobj, unsigned N> struct is_Matrix<iMatrix<lobj, N>> : public std::true_type {};
