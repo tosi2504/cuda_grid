@@ -61,6 +61,11 @@ THOUGHTS:
 	
 	Code works and is fast as fuck! -> Nice! Now we need to fix the random number filling algorithm. We somehow want to multithread that badboy. It could either be done on the GPU or the CPU, but I am thinking that fewer threads are better suited, bc a seed needs to be created for each thread. We should employ OpenMP threads for that, I think. Not sure how one would tell cmake to use OpenMP ... the linking flag was -fopenmp.
 	Okay, actually we dont need a proper random number filling system ... just fill in some numbers that are somewhat random. We can do this on the GPU and after that has been implemented, one can finally do the benchmarks on the A100. Christoph had the idea of just creating 1000 random numbers and copy them into the lattice object. The 1000 random numbers are created by the CPU, then uploaded to device memory and finally copied into the lattice container. Okay so I have this array rn[1000] now, how are we gonna do the indexing?
+	So I ended up doing all that work on the host using openMP. I am a bit confused, however, how openMP works with cmake. I have to get better with CMake in general.
+
+	This might be a good point to do some clean up. I want to rewrite Lattice<tobj> to not deal with the memory management and therefore write a new class LatticeMemoryManager, that does the memory stuff. This begs the question, however, how the matmul kernel call is managed. LatticeMemoryManager might just need to wrap that. This makes me believe that my idea might not be that great. I think for now I stick with my current concept.
+
+	Oooookaaaayy. This means we can finally advance to stencils. Here it gets complicated. We need geometrical information on the grid. I have to extensively think about this.
 
 
 
