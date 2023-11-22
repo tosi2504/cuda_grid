@@ -65,7 +65,21 @@ THOUGHTS:
 
 	This might be a good point to do some clean up. I want to rewrite Lattice<tobj> to not deal with the memory management and therefore write a new class LatticeMemoryManager, that does the memory stuff. This begs the question, however, how the matmul kernel call is managed. LatticeMemoryManager might just need to wrap that. This makes me believe that my idea might not be that great. I think for now I stick with my current concept.
 
-	Oooookaaaayy. This means we can finally advance to stencils. Here it gets complicated. We need geometrical information on the grid. I have to extensively think about this.
+	Oooookaaaayy. This means we can finally advance to stencils. Here it gets complicated. We need geometrical information on the grid. I have to extensively think about this. So, after some consideration here are my findings. First, we need 9 matrix fields rather than one, since we are dealing with gauge fields of course. This is easily solved by simply creating a list of fields. Secondly, the number of vNodes is equal to lenLane. The volume of vNodes is gridvol / lenLane. This is not correctly represented in the code ... I need to rename numVNodes to sizeVNode. DONE! Okay, now we deal with the stencil. It is basically a function that defines which fields are matmul'ed with what offset. As Christoph suggested, it makes sense to start with a simple stencil function that only does so with one matrix field -> lets call it simple_stencil. This function will require to rewrite the matmul completely. I really need to think about how the memory is mapped to the grid. To this end I should ask myself the following questions:
+		- Where do I find the lattice element for x.y.z.t? (I should not implement this btw: bc of tensorview.h)
+			-> the idx i of tobj * data can be thought of being mapped to the first vNode (i.e. the Node with the smallest x.y.z.t elements). If the vNode has extends of X.Y.Z.T, then (assuming that x.y.z.t are element of the first vNode ofc):
+				-> i = x * Y*Z*T + y * Z*T + z * T + t
+				-> x = i / Y*Z*T
+				-> y = (i - x * Y*Z*T) / (Z*T)  
+					or y = (i % Y*Z*T) / (Z*T)
+					or MAYBE y = i / (Z*T) - x * Y
+				-> z = (i - x * Y*Z*T - y * Z*T) / T
+					or z = (i % Z*T) / T
+					or MAYBE z = i / T - x * Y*Z - y * Z
+				-> t = i - x * Y*Z*T - y * Z*T - z * T
+					or t = i % T
+		- Where do I find the neighbor to lattice element x.y.z.t?
+		- Is there any weird stuff happening when being at the border of a vNode?
 
 
 
