@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.22.1 FATAL_ERROR)
 project(cuda_grid LANGUAGES CXX CUDA)
 
 add_library(cugrid INTERFACE 
+	cugrid/cugrid.h
 	cugrid/lane.h
 	cugrid/tensor.h
 	cugrid/errorcheck.h
@@ -32,3 +33,8 @@ add_executable(bench_matmul test/bench_matmul.cu)
 target_link_libraries(bench_matmul cugrid)
 target_link_libraries(bench_matmul gomp)
 target_compile_features(bench_matmul PUBLIC cxx_std_11)
+
+add_executable(grid_mapping test/grid_mapping.cu)
+target_link_libraries(grid_mapping cugrid)
+target_link_libraries(grid_mapping gomp)
+target_compile_features(grid_mapping PUBLIC cxx_std_11)

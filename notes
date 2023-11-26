@@ -78,8 +78,20 @@ THOUGHTS:
 					or MAYBE z = i / T - x * Y*Z - y * Z
 				-> t = i - x * Y*Z*T - y * Z*T - z * T
 					or t = i % T
-		- Where do I find the neighbor to lattice element x.y.z.t?
+		- Where do I find the neighbor to lattice element x.y.z.t in terms of i and l?
+			-> l is the index of the vNode (aka the index that walks through a lane) here
+			-> assume we have a grid of vNodes with extends vX.vY.vZ.vT, then l maps analogous to question 1.
+			-> firstly we need to find the vNode, which should simply be x/X.y/Y.z/Z.t/T where x is the whole grid index and X the size of a vNode in x direction
+			-> also, the vNode internal index is x%X.y%Y.z%Z.t%T
+			-> next we need to check if the neighbor is in another node or the same.
+				- assume it is the same
+					-> calculate x.y.z.t of neighbor 
+					-> calculate vx.vy.vz.vt and subsequentially i and l -> ezzzzz
 		- Is there any weird stuff happening when being at the border of a vNode?
+			-> not really, the mapping changes a bit in l and i but thats it
+	
+	Okay lets talk implementation details. Almost all we just discussed should be implemented in the Grid class. I think upon creation a neighbor array should be instantiated which maps a lattice point (i,l) to its neighbors [(i0,l0), (i1, l1), ...]. Maybe this array is a bit redundant (especially if one has a lot of lattice objects about) but thats alright. Really I should first write a function that does this mapping and then consider if I need such an array.
+	Alright. 
 
 
 
