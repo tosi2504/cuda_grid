@@ -5,15 +5,13 @@
 
 
 int main () {
-	Grid<32> grid(4,4,4,4); // Vx:2 Vy:2 Vz:2 Vt:1
-	cart coords = {1,2,0,0};
-	flat fcoords = grid.toFlat(coords);
-	std::cout << grid.Vx << std::endl;
-	std::cout << grid.Vy << std::endl;
-	std::cout << grid.Vz << std::endl;
-	std::cout << grid.Vt << std::endl;
-	std::cout << "n: " << fcoords.n << std::endl;
-	std::cout << "l: " << fcoords.l << std::endl;
-	cart ccoords = grid.toCart(fcoords);
-	std::cout << ccoords.x << " " << ccoords.y << " " << ccoords.x << " " << ccoords.t << std::endl;
+	Grid<32> grid(6,6,6,8); // Vx:2 Vy:2 Vz:2 Vt:1
+	cart coords = {3,3,3,3};
+	Neighbors neighbors = grid.getNeighbors(coords);
+	for (int mu = 0; mu < 4; mu++) {
+		for (int sign = 0; sign < 2; sign++) {
+			cart nb = grid.toCart(neighbors.data[mu][sign]);
+			printf("mu: %d, sign: %d    :    %u %u %u %u\n", mu, sign, nb.x, nb.y, nb.z, nb.t);
+		}
+	}
 }

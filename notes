@@ -91,7 +91,7 @@ THOUGHTS:
 			-> not really, the mapping changes a bit in l and i but thats it
 	
 	Okay lets talk implementation details. Almost all we just discussed should be implemented in the Grid class. I think upon creation a neighbor array should be instantiated which maps a lattice point (i,l) to its neighbors [(i0,l0), (i1, l1), ...]. Maybe this array is a bit redundant (especially if one has a lot of lattice objects about) but thats alright. Really I should first write a function that does this mapping and then consider if I need such an array.
-	Alright. 
+	Alright. The mapping between flat and cart seems to work just fine. Maybe I should check it with several vNode sizes though. Aight, also checked that. Now let's talk nearest neighbors. I need a function that takes flat or cart coordinates and creates a list of nearest neighbors as flattened coordinates.
 
 
 

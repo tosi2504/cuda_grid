@@ -50,6 +50,10 @@ struct flat {
 	// l is flattened index of the vNode
 };
 
+struct Neighbors {
+	flat data[4][2];
+};
+
 template<unsigned lenLane = 32>
 class Grid {
 	// okay so what do we need?
@@ -65,7 +69,7 @@ class Grid {
 		Lx(Lx), Ly(Ly), Lz(Lz), Lt(Lt), vol(Lx*Ly*Lz*Lt)
 		, Vx(Lx/vLayout::Nx), Vy(Ly/vLayout::Ny), Vz(Lz/vLayout::Nz), Vt(Lt/vLayout::Nt) 
 	{
-		if (Lx % Vx != 0 or Ly % Vy != 0 or Lz % Vz != 0 or Lt % Vt != 0) {
+		if (Lx % vLayout::Nx != 0 or Ly % vLayout::Ny != 0 or Lz % vLayout::Nz != 0 or Lt % vLayout::Nt != 0) {
 			throw std::logic_error("Lattice dimensions not divisible by vNode layout");
 		}
 	}
@@ -104,18 +108,34 @@ class Grid {
 		y = (coords.n - x * Vy*Vz*Vt) / (Vz*Vt);
 		z = (coords.n - x * Vy*Vz*Vt - y * Vz*Vt) / Vt;
 		t = coords.n -  x * Vy*Vz*Vt - y * Vz*Vt - z * Vt;
-		printf("xyzt: %u %u %u %u\n", x, y, z, t);
 		vx = coords.l / (vLayout::Ny*vLayout::Nz*vLayout::Nt);
-		vy = (coords.l - x * vLayout::Ny*vLayout::Nz*vLayout::Nt) / (vLayout::Nz*vLayout::Nt);
-		vz = (coords.l - x * vLayout::Ny*vLayout::Nz*vLayout::Nt - y * vLayout::Nz*vLayout::Nt) / vLayout::Nt;
-		vt = coords.l -  x * vLayout::Ny*vLayout::Nz*vLayout::Nt - y * vLayout::Nz*vLayout::Nt - z * vLayout::Nt;
+		vy = (coords.l - vx * vLayout::Ny*vLayout::Nz*vLayout::Nt) / (vLayout::Nz*vLayout::Nt);
+		vz = (coords.l - vx * vLayout::Ny*vLayout::Nz*vLayout::Nt - vy * vLayout::Nz*vLayout::Nt) / vLayout::Nt;
+		vt = coords.l -  vx * vLayout::Ny*vLayout::Nz*vLayout::Nt - vy * vLayout::Nz*vLayout::Nt - vz * vLayout::Nt;
 		cart res;
-		printf("vx vy vz vt: %u %u %u %u\n", vx, vy, vz, vt);
 		res.x = x + vx * Vx;
 		res.y = y + vy * Vy;
 		res.z = z + vz * Vz;
 		res.t = t + vt * Vt;
 		return res;
+	}
+
+	__host__ __device__ inline Neighbors getNeighbors(const cart & coords) {
+		Neighbors neighbors;
+
+		neighbors.data[0][0] = toFlat({(coords.x + 1)      % Lx, coords.y, coords.z, coords.t}); // positive x direction
+		neighbors.data[0][1] = toFlat({(coords.x + Lx - 1) % Lx, coords.y, coords.z, coords.t}); // negative x direction
+
+		neighbors.data[1][0] = toFlat({coords.x, (coords.y + 1)      % Ly, coords.z, coords.t}); // positive y direction
+		neighbors.data[1][1] = toFlat({coords.x, (coords.y + Ly - 1) % Ly, coords.z, coords.t}); // negative y direction
+
+		neighbors.data[2][0] = toFlat({coords.x, coords.y, (coords.z + 1)      % Lz, coords.t}); // positive z direction
+		neighbors.data[2][1] = toFlat({coords.x, coords.y, (coords.z + Lz - 1) % Lz, coords.t}); // negative z direction
+
+		neighbors.data[3][0] = toFlat({coords.x, coords.y, coords.z, (coords.t + 1)      % Lt}); // positive t direction
+		neighbors.data[3][1] = toFlat({coords.x, coords.y, coords.z, (coords.t + Lt - 1) % Lt}); // negative t direction
+
+		return neighbors;
 	}
 };
 
