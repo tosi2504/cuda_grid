@@ -1,7 +1,4 @@
-#include "../cugrid/lattice.h"
-#include "../cugrid/grid.h"
-#include "../cugrid/tensor.h"
-#include "../cugrid/lane.h"
+#include "../cugrid/cugrid.h"
 
 #include <cuda/std/complex>
 #include <chrono>
@@ -9,15 +6,15 @@ using namespace std::chrono;
 
 
 constexpr unsigned lenLane = 32;
-constexpr unsigned N = 64;
+constexpr unsigned N = 50;
 // using T_arithm = cuda::std::complex<double>;
-using T_arithm = float;
+using T_arithm = double;
 using lRealD = Lane<T_arithm, lenLane>;
 using iVecRealD = iVector<lRealD, N>;
 using iMatRealD = iMatrix<lRealD, N>;
 
 int main () {
-	Grid<lenLane> grid(16,16,16,16);
+	Grid<lenLane> grid(16,16,16,32);
 	Lattice<iVecRealD> vfield1(grid), vfield2(grid);
 	Lattice<iMatRealD> mfield(grid);
 
@@ -32,18 +29,21 @@ int main () {
 	vfield2.upload();
 	std::cout << "DONE" << std::endl;
 
+	// define the desired stencil
+	SimpleStencil stencil(0, true);
+
     // TIME IT!
     unsigned reps = 50;
     std::cout << "TIMING STARTED" << std::endl;
     auto start = high_resolution_clock::now();
 	for (unsigned i = 0; i < reps; i++) {
-	    matmul_opt(vfield1, mfield, vfield2);
+	    stencil.run(vfield1, mfield, vfield2);
     }
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
     std::cout << "DURATION: " << duration.count() << std::endl;
     std::cout << "BANDWIDTH: " << grid.vol*(N*N + 2*N)*sizeof(T_arithm)*reps/(float)duration.count() << " MBytes/sec" << std::endl;
-	std::cout << "ARITHMETICS: " << grid.vol * (2*N*N) * reps / (float)duration.count() << " Mflops" << std::endl;
+    std::cout << "ARITHMETICS: " << grid.vol * (2*N*N) * reps / (float)duration.count() << " Mflops" << std::endl;
 
 	vfield1.download();
 }

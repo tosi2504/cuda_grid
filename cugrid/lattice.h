@@ -11,29 +11,25 @@
 #include "random.h"
 
 
-// needs to contain some memory management --> rip
-// maybe two buffers, one for host, one for device?
-
 template<class tobj>
 class Lattice {
 	static_assert(is_Tensor<tobj>::value, "Template parameter must be of tensor type!");
 
-	private:
+	public:
 	constexpr static unsigned lenLane = tobj::_lobj::_lenLane; 
 	constexpr static unsigned N = tobj::_N; 
 	const Grid<lenLane> grid;
 
 	unsigned sizeVNodes;
 	tobj * d_data, * h_data;
-
-	public:
+	
 	using _tobj = tobj;
     using _T = typename tobj::_lobj::_T;
 
 	Lattice(const Grid<lenLane> & grid):
 		grid(grid)
 	{
-		sizeVNodes = grid.calcNumVNodes();
+		sizeVNodes = grid.calcSizeVNodes();
 		h_data = new tobj[sizeVNodes];
 		CCE(cudaMalloc(&d_data, sizeVNodes*sizeof(tobj)));
 	}
@@ -58,14 +54,6 @@ class Lattice {
 	void download() {
 		CCE(cudaMemcpy(h_data, d_data, sizeVNodes*sizeof(tobj), cudaMemcpyDeviceToHost));
 	}
-
-	// arithmetic operations
-	template<class lobj, unsigned N, unsigned blocksize>
-	friend void add(Lattice<iVector<lobj, N>> * res, const Lattice<iVector<lobj, N>> * lhs, const Lattice<iVector<lobj, N>> * rhs);
-
-	// optimized arithmetic operations
-	template<class lobj, unsigned N, unsigned blocksize>
-	friend void matmul_opt(Lattice<iVector<lobj, N>> & res, const Lattice<iMatrix<lobj, N>> & lhs, const Lattice<iVector<lobj, N>> & rhs);
 
     // fill random
     void fill_random(unsigned seed, _T min, _T max) {
@@ -126,12 +114,12 @@ void add(Lattice<iVector<lobj, N>> * res, const Lattice<iVector<lobj, N>> * lhs,
 template<class lobj, unsigned N>
 __global__ void ker_matmul(iVector<lobj, N> * d_res, const iMatrix<lobj, N> * d_lhs, const iVector<lobj, N> * d_rhs, unsigned sizeVNodes) {
 	warpInfo w;
-	unsigned x = w.warpIdxGlobal / N; // vNode index
+	unsigned n = w.warpIdxGlobal / N; // vNode index
 	unsigned i = w.warpIdxGlobal % N; // iTensor index
-	if (x < sizeVNodes) {
-		lobj::mul(w, &d_res[x][i], &d_lhs[x][i][0], &d_rhs[x][0]);	
+	if (n < sizeVNodes) {
+		lobj::mul(w, &d_res[n][i], &d_lhs[n][i][0], &d_rhs[n][0]);	
 		for (unsigned j = 1; j < N; j++) {
-			lobj::mac(w, &d_res[x][i], &d_lhs[x][i][j], &d_rhs[x][j]);	
+			lobj::mac(w, &d_res[n][i], &d_lhs[n][i][j], &d_rhs[n][j]);	
 		}
 	}
 }

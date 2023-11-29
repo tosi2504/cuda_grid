@@ -1,15 +1,8 @@
 #pragma once
 
 #include <stdexcept>
-
-
-// a grid class that does all the geometrical things
-// we use the interleaved memory model and the grid class needs to know how all that comes about
-// the Grid class needs to split the lattice into # of lenLane subnodes
-
-
-
-// here we go, mario!
+#include <array>
+#include <vector>
 
 // a metafunction to calculate the layout of the virtual nodes -> yaaaay
 
@@ -50,8 +43,11 @@ struct flat {
 	// l is flattened index of the vNode
 };
 
-struct Neighbors {
-	flat data[4][2];
+using Neighbors = std::array< std::array<flat,2> , 4 >;
+
+struct StencilTargetInfo {
+	unsigned n_target;
+	bool isBorder;
 };
 
 template<unsigned lenLane = 32>
@@ -73,7 +69,7 @@ class Grid {
 			throw std::logic_error("Lattice dimensions not divisible by vNode layout");
 		}
 	}
-	unsigned calcNumVNodes() const {
+	unsigned calcSizeVNodes() const {
 		if (vol % lenLane != 0) {
 			throw std::logic_error("Grid dimensions not compatible with lenLane");
 		}
@@ -98,7 +94,6 @@ class Grid {
 				+ (coords.t / Vt);
 		return res;
 	}
-
 	__host__ __device__ inline cart toCart(const flat & coords) const {
 		// okay, we want to map flat coords to cartesian ones
 		// we get x, y, z, t within virtual nodes
@@ -120,30 +115,64 @@ class Grid {
 		return res;
 	}
 
-	__host__ __device__ inline Neighbors getNeighbors(const cart & coords) {
+	// neighbor geometry 
+	Neighbors getNeighbors(const cart & coords) {
 		Neighbors neighbors;
 
-		neighbors.data[0][0] = toFlat({(coords.x + 1)      % Lx, coords.y, coords.z, coords.t}); // positive x direction
-		neighbors.data[0][1] = toFlat({(coords.x + Lx - 1) % Lx, coords.y, coords.z, coords.t}); // negative x direction
+		neighbors[0][0] = toFlat({(coords.x + 1)      % Lx, coords.y, coords.z, coords.t}); // positive x direction
+		neighbors[0][1] = toFlat({(coords.x + Lx - 1) % Lx, coords.y, coords.z, coords.t}); // negative x direction
 
-		neighbors.data[1][0] = toFlat({coords.x, (coords.y + 1)      % Ly, coords.z, coords.t}); // positive y direction
-		neighbors.data[1][1] = toFlat({coords.x, (coords.y + Ly - 1) % Ly, coords.z, coords.t}); // negative y direction
+		neighbors[1][0] = toFlat({coords.x, (coords.y + 1)      % Ly, coords.z, coords.t}); // positive y direction
+		neighbors[1][1] = toFlat({coords.x, (coords.y + Ly - 1) % Ly, coords.z, coords.t}); // negative y direction
 
-		neighbors.data[2][0] = toFlat({coords.x, coords.y, (coords.z + 1)      % Lz, coords.t}); // positive z direction
-		neighbors.data[2][1] = toFlat({coords.x, coords.y, (coords.z + Lz - 1) % Lz, coords.t}); // negative z direction
+		neighbors[2][0] = toFlat({coords.x, coords.y, (coords.z + 1)      % Lz, coords.t}); // positive z direction
+		neighbors[2][1] = toFlat({coords.x, coords.y, (coords.z + Lz - 1) % Lz, coords.t}); // negative z direction
 
-		neighbors.data[3][0] = toFlat({coords.x, coords.y, coords.z, (coords.t + 1)      % Lt}); // positive t direction
-		neighbors.data[3][1] = toFlat({coords.x, coords.y, coords.z, (coords.t + Lt - 1) % Lt}); // negative t direction
+		neighbors[3][0] = toFlat({coords.x, coords.y, coords.z, (coords.t + 1)      % Lt}); // positive t direction
+		neighbors[3][1] = toFlat({coords.x, coords.y, coords.z, (coords.t + Lt - 1) % Lt}); // negative t direction
 
 		return neighbors;
 	}
+	Neighbors getNeighbors(const flat & coords) {
+		return this->getNeighbors(this->toCart(coords));
+	}
+	std::array<unsigned,lenLane> getLaneIdxMap(unsigned mu, bool isForward) {
+		flat coords;
+		if (isForward) coords.n = Vx*Vy*Vz*Vt-1;
+		else  coords.n = 0;
+
+		std::array<unsigned,lenLane> res;
+		for (unsigned l = 0; l < lenLane; l++) {
+			coords.l = l;
+			Neighbors neighbors = getNeighbors(coords);
+			res[l] = neighbors[mu][isForward ? 0 : 1].l;
+		}
+		return res;
+	}
+
+	std::vector<StencilTargetInfo> getStencilTargetInfoMap(unsigned mu, bool isForward) {
+		std::vector<StencilTargetInfo> res(this->calcSizeVNodes()); // dynamic allocation
+		for (unsigned n = 0; n < Vx*Vy*Vz*Vt; n++) {
+			flat coords = {n, 0};
+			StencilTargetInfo stinfo;
+			stinfo.n_target = getNeighbors(coords)[mu][isForward ? 0 : 1].n;
+			stinfo.isBorder = false;
+			switch (mu) {
+				case 0: // x direction
+					if (n / (Vy*Vz*Vt) == isForward ? Vx - 1 : 0 ) stinfo.isBorder = true;
+					break;
+				case 1: // y direction
+					if ( (n % (Vy*Vz*Vt)) / (Vz*Vt) == isForward ? Vy - 1 : 0 ) stinfo.isBorder = true;
+					break;
+				case 2: // z direction
+					if ( (n % (Vz*Vt)) / Vt == isForward ? Vz - 1 : 0 ) stinfo.isBorder = true;
+					break;
+				case 3: // t direction
+					if ( n % Vt == isForward ? Vt - 1 : 0 ) stinfo.isBorder = true;
+					break;
+			}
+			res[n] = stinfo;
+		}
+		return res;
+	}
 };
-
-
-// okay so what we need is to calculate the layout of the virtual nodes
-// this is not so trivial
-// maybe just hardcode for lenLane = 32 atm?
-// 
-// also, what now
-// I think we should just go ahead and program the lattice class
-// Thats actually the hot shit 

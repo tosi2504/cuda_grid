@@ -58,8 +58,14 @@ class Lane {
 	static __device__ inline void mul(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
 		res->data[w.laneIdx] = lhs->data[w.laneIdx] * rhs->data[w.laneIdx];
 	}
+	static __device__ inline void mul(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs, const unsigned * laneIdxMap) {
+		res->data[w.laneIdx] = lhs->data[laneIdxMap[w.laneIdx]] * rhs->data[w.laneIdx];
+	}
 	static __device__ inline void mac(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
 		res->data[w.laneIdx] += lhs->data[w.laneIdx] * rhs->data[w.laneIdx];
+	}
+	static __device__ inline void mac(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs, const unsigned * laneIdxMap) {
+		res->data[w.laneIdx] += lhs->data[laneIdxMap[w.laneIdx]] * rhs->data[w.laneIdx];
 	}
 	static __device__ inline void div(const warpInfo<lenLane> & w, Lane * res, const Lane * lhs, const Lane * rhs) {
 		res->data[w.laneIdx] = lhs->data[w.laneIdx] / rhs->data[w.laneIdx];

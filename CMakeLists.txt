@@ -10,6 +10,7 @@ add_library(cugrid INTERFACE
 	cugrid/grid.h
 	cugrid/lattice.h
     cugrid/random.h
+    cugrid/stencil.h
 	)
 
 add_compile_options(-fopenmp)
@@ -33,6 +34,11 @@ add_executable(bench_matmul test/bench_matmul.cu)
 target_link_libraries(bench_matmul cugrid)
 target_link_libraries(bench_matmul gomp)
 target_compile_features(bench_matmul PUBLIC cxx_std_11)
+
+add_executable(bench_stencil test/bench_stencil.cu)
+target_link_libraries(bench_stencil cugrid)
+target_link_libraries(bench_stencil gomp)
+target_compile_features(bench_stencil PUBLIC cxx_std_11)
 
 add_executable(grid_mapping test/grid_mapping.cu)
 target_link_libraries(grid_mapping cugrid)

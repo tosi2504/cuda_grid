@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/athena/phd/cuda_grid/test/matmul.cu" "CMakeFiles/matmul.dir/test/matmul.cu.o" "gcc" "CMakeFiles/matmul.dir/test/matmul.cu.o.d"
+  "/home/tobias/phd/cuda_grid/test/matmul.cu" "CMakeFiles/matmul.dir/test/matmul.cu.o" "gcc" "CMakeFiles/matmul.dir/test/matmul.cu.o.d"
   )
 
 # Targets to which this target links.

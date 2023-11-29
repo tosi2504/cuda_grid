@@ -23,7 +23,7 @@ int main () {
     std::cout << "Starting with filling" << std::endl;
 
     // fill the vector and matrix
-    for (unsigned x = 0; x < grid.calcNumVNodes(); x++) {
+    for (unsigned x = 0; x < grid.calcSizeVNodes(); x++) {
         std::cout << "x=" << x << std::endl;
         for (unsigned l = 0; l < lenLane; l++) {
             // vector
