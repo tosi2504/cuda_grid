@@ -35,6 +35,10 @@ struct virtualLayout<32U> {
 
 struct cart {
 	unsigned x, y, z, t;
+	
+	bool operator == (const cart & lhs) const {
+		return x == lhs.x and y == lhs.y and z == lhs.z and t == lhs.t;
+	}
 };
 
 struct flat {
@@ -149,7 +153,6 @@ class Grid {
 		}
 		return res;
 	}
-
 	std::vector<StencilTargetInfo> getStencilTargetInfoMap(unsigned mu, bool isForward) {
 		std::vector<StencilTargetInfo> res(this->calcSizeVNodes()); // dynamic allocation
 		for (unsigned n = 0; n < Vx*Vy*Vz*Vt; n++) {
@@ -159,20 +162,42 @@ class Grid {
 			stinfo.isBorder = false;
 			switch (mu) {
 				case 0: // x direction
-					if (n / (Vy*Vz*Vt) == isForward ? Vx - 1 : 0 ) stinfo.isBorder = true;
+					if (n / (Vy*Vz*Vt) == (isForward ? Vx - 1 : 0) ) stinfo.isBorder = true;
 					break;
 				case 1: // y direction
-					if ( (n % (Vy*Vz*Vt)) / (Vz*Vt) == isForward ? Vy - 1 : 0 ) stinfo.isBorder = true;
+					if ( (n % (Vy*Vz*Vt)) / (Vz*Vt) == (isForward ? Vy - 1 : 0) ) stinfo.isBorder = true;
 					break;
 				case 2: // z direction
-					if ( (n % (Vz*Vt)) / Vt == isForward ? Vz - 1 : 0 ) stinfo.isBorder = true;
+					if ( (n % (Vz*Vt)) / Vt == (isForward ? Vz - 1 : 0) ) stinfo.isBorder = true;
 					break;
 				case 3: // t direction
-					if ( n % Vt == isForward ? Vt - 1 : 0 ) stinfo.isBorder = true;
+					if ( n % Vt == (isForward ? Vt - 1 : 0) ) stinfo.isBorder = true;
 					break;
 			}
 			res[n] = stinfo;
 		}
 		return res;
+	}
+
+	// functions to iterate over all lattice points
+	bool isEnd(const cart & coords) const {
+		if (coords.x == Lx) return true;
+		else return false;
+	}
+	
+	void increment(cart & coords) const {
+		coords.t += 1;
+		if (coords.t == Lt) {
+			coords.t = 0;
+			coords.z += 1;
+			if (coords.z == Lz) {
+				coords.z = 0;
+				coords.y += 1;
+				if (coords.y == Ly) {
+					coords.y = 0;
+					coords.x += 1;
+				}
+			}
+		}
 	}
 };

@@ -45,6 +45,23 @@ class Lattice {
     tobj & operator [] (unsigned idx) {
         return h_data[idx];
     }
+	// and for specific tensor entries
+	const _T & get (const cart & coords, unsigned i) const {
+	 	flat f = grid.toFlat(coords);
+	 	return h_data[f.n][i][f.l];
+	}
+	_T & get(const cart & coords, unsigned i) {
+		flat f = grid.toFlat(coords);
+		return h_data[f.n][i][f.l];
+	}
+	const _T & get(const cart & coords, unsigned i, unsigned j) const {
+		flat f = grid.toFlat(coords);
+		return h_data[f.n][i][j][f.l];
+	}
+	_T & get(const cart & coords, unsigned i, unsigned j) {
+		flat f = grid.toFlat(coords);
+		return h_data[f.n][i][j][f.l];
+	}
     
 
 	// memory management

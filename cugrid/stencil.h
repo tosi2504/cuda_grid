@@ -20,6 +20,27 @@ __global__ void ker_SimpleStencil (const StencilTargetInfo * d_stinfo
 	warpInfo w;
 	unsigned n = w.warpIdxGlobal / N; // vNode index
 	unsigned i = w.warpIdxGlobal % N; // iTensor index
+	// if (n == 1 and w.laneIdx == 0 and i == 0) { // EVERYTHING IN HERE IS DEBUG
+	//	printf("--CUDA-- Found the thread n:%u, l:%u, i:%u\n", n, w.laneIdx, i);
+	//	printf("--CUDA-- target n:%u\n", d_stinfo[n].n_target);
+	//	if (d_stinfo[n].isBorder) {
+	//		printf("--CUDA-- target l:%u (Bordercase)\n", d_laneIdxMap[w.laneIdx]);
+	//	} else {
+	//		printf("--CUDA-- target l:%u\n", w.laneIdx);
+	//	}
+	//	printf("--CUDA-- The Matrix is (not valid for bordercase)\n");
+	//	for (unsigned j = 0; j < N; j++) {
+	//		printf("%u ", d_targetfield[d_stinfo[n].n_target][i][j][w.laneIdx]);
+	//	}
+	//	printf("\n");
+	//	printf("--CUDA-- The Vector is\n");
+	//	for (unsigned j = 0; j < N; j++) {
+	//		printf("%u ", d_rhs[n][j][w.laneIdx]);
+	//	}
+	//	printf("\n");
+	//	printf("--CUDA-- Size VNodes: %u\n", sizeVNodes);
+	//	d_res[n][i][w.laneIdx] = 100;
+	// }
 	if (n < sizeVNodes) { // access guard; no divergence
 		if (d_stinfo[n].isBorder) { // border checking; no divergence
 			lobj::mul(w
@@ -37,13 +58,14 @@ __global__ void ker_SimpleStencil (const StencilTargetInfo * d_stinfo
 		} else {
 			lobj::mul(w
 				, &d_res[n][i]
-				, &d_targetfield[n][i][0]
+				, &d_targetfield[d_stinfo[n].n_target][i][0]
 				, &d_rhs[n][0]);
 			for (unsigned j = 1; j < N; j++) {
 				lobj::mac(w
 					, &d_res[n][i]
-					, &d_targetfield[n][i][j]
+					, &d_targetfield[d_stinfo[n].n_target][i][j]
 					, &d_rhs[n][j]);
+
 			}
 		}
 	}
@@ -92,10 +114,10 @@ class SimpleStencil {
 		static_assert(blocksize % lobj::_lenLane == 0, "Length of lane does not divide the blocksize. Change blocksize or lane length!");
 		unsigned lanes_per_block = blocksize / lobj::_lenLane;
 		unsigned blocks = (grid.calcSizeVNodes()*N + lanes_per_block - 1)/lanes_per_block;
-		std::cout << "calling ker_SimpleStencil with:" << std::endl;
-		std::cout << "    blocks  : " << blocks << std::endl;
-		std::cout << "    threads : " << blocksize << std::endl;
-		std::cout << "    #lpb    : " << lanes_per_block << std::endl;
+		// std::cout << "calling ker_SimpleStencil with:" << std::endl;
+		// std::cout << "    blocks  : " << blocks << std::endl;
+		// std::cout << "    threads : " << blocksize << std::endl;
+		// std::cout << "    #lpb    : " << lanes_per_block << std::endl;
 		ker_SimpleStencil <lobj,N> <<<blocks,blocksize>>> (
 				d_stinfo
 				, d_laneIdxMap
@@ -103,7 +125,6 @@ class SimpleStencil {
 				, res.d_data
 				, targetfield.d_data
 				, rhs.d_data);
-		CLCE();
 		CCE(cudaDeviceSynchronize());
 
 		cudaFree(d_laneIdxMap);

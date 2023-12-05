@@ -207,6 +207,19 @@ grid_mapping/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/grid_mapping.dir/build.make CMakeFiles/grid_mapping.dir/build
 .PHONY : grid_mapping/fast
 
+#=============================================================================
+# Target rules for targets named test_stencil
+
+# Build rule for target.
+test_stencil: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_stencil
+.PHONY : test_stencil
+
+# fast build rule for target.
+test_stencil/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_stencil.dir/build.make CMakeFiles/test_stencil.dir/build
+.PHONY : test_stencil/fast
+
 test/bench_matmul.o: test/bench_matmul.cu.o
 .PHONY : test/bench_matmul.o
 
@@ -327,6 +340,30 @@ test/matmul.cu.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.dir/build.make CMakeFiles/matmul.dir/test/matmul.cu.s
 .PHONY : test/matmul.cu.s
 
+test/test_stencil.o: test/test_stencil.cu.o
+.PHONY : test/test_stencil.o
+
+# target to build an object file
+test/test_stencil.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_stencil.dir/build.make CMakeFiles/test_stencil.dir/test/test_stencil.cu.o
+.PHONY : test/test_stencil.cu.o
+
+test/test_stencil.i: test/test_stencil.cu.i
+.PHONY : test/test_stencil.i
+
+# target to preprocess a source file
+test/test_stencil.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_stencil.dir/build.make CMakeFiles/test_stencil.dir/test/test_stencil.cu.i
+.PHONY : test/test_stencil.cu.i
+
+test/test_stencil.s: test/test_stencil.cu.s
+.PHONY : test/test_stencil.s
+
+# target to generate assembly for a file
+test/test_stencil.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_stencil.dir/build.make CMakeFiles/test_stencil.dir/test/test_stencil.cu.s
+.PHONY : test/test_stencil.cu.s
+
 test/vector_add.o: test/vector_add.cu.o
 .PHONY : test/vector_add.o
 
@@ -365,6 +402,7 @@ help:
 	@echo "... grid_mapping"
 	@echo "... lattice_matmul"
 	@echo "... matmul"
+	@echo "... test_stencil"
 	@echo "... vector_add"
 	@echo "... test/bench_matmul.o"
 	@echo "... test/bench_matmul.i"
@@ -381,6 +419,9 @@ help:
 	@echo "... test/matmul.o"
 	@echo "... test/matmul.i"
 	@echo "... test/matmul.s"
+	@echo "... test/test_stencil.o"
+	@echo "... test/test_stencil.i"
+	@echo "... test/test_stencil.s"
 	@echo "... test/vector_add.o"
 	@echo "... test/vector_add.i"
 	@echo "... test/vector_add.s"

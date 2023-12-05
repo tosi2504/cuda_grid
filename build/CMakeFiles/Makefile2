@@ -70,6 +70,7 @@ all: CMakeFiles/lattice_matmul.dir/all
 all: CMakeFiles/bench_matmul.dir/all
 all: CMakeFiles/bench_stencil.dir/all
 all: CMakeFiles/grid_mapping.dir/all
+all: CMakeFiles/test_stencil.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -84,6 +85,7 @@ clean: CMakeFiles/lattice_matmul.dir/clean
 clean: CMakeFiles/bench_matmul.dir/clean
 clean: CMakeFiles/bench_stencil.dir/clean
 clean: CMakeFiles/grid_mapping.dir/clean
+clean: CMakeFiles/test_stencil.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -119,7 +121,7 @@ CMakeFiles/cugrid.dir/clean:
 CMakeFiles/vector_add.dir/all: CMakeFiles/cugrid.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vector_add.dir/build.make CMakeFiles/vector_add.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vector_add.dir/build.make CMakeFiles/vector_add.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/athena/phd/cuda_grid/build/CMakeFiles --progress-num=11,12 "Built target vector_add"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/athena/phd/cuda_grid/build/CMakeFiles --progress-num=13,14 "Built target vector_add"
 .PHONY : CMakeFiles/vector_add.dir/all
 
 # Build rule for subdir invocation for target.
@@ -267,6 +269,32 @@ grid_mapping: CMakeFiles/grid_mapping.dir/rule
 CMakeFiles/grid_mapping.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/grid_mapping.dir/build.make CMakeFiles/grid_mapping.dir/clean
 .PHONY : CMakeFiles/grid_mapping.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/test_stencil.dir
+
+# All Build rule for target.
+CMakeFiles/test_stencil.dir/all: CMakeFiles/cugrid.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_stencil.dir/build.make CMakeFiles/test_stencil.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_stencil.dir/build.make CMakeFiles/test_stencil.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/athena/phd/cuda_grid/build/CMakeFiles --progress-num=11,12 "Built target test_stencil"
+.PHONY : CMakeFiles/test_stencil.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/test_stencil.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_stencil.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 0
+.PHONY : CMakeFiles/test_stencil.dir/rule
+
+# Convenience name for target.
+test_stencil: CMakeFiles/test_stencil.dir/rule
+.PHONY : test_stencil
+
+# clean rule for target.
+CMakeFiles/test_stencil.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_stencil.dir/build.make CMakeFiles/test_stencil.dir/clean
+.PHONY : CMakeFiles/test_stencil.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

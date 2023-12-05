@@ -30,7 +30,7 @@ int main () {
 	std::cout << "DONE" << std::endl;
 
 	// define the desired stencil
-	SimpleStencil stencil(0, true);
+	SimpleStencil stencil(0, false);
 
     // TIME IT!
     unsigned reps = 50;
