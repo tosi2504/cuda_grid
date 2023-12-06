@@ -57,18 +57,18 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/athena/phd/cuda_grid
+CMAKE_SOURCE_DIR = /home/tobias/phd/cuda_grid
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/athena/phd/cuda_grid/build
+CMAKE_BINARY_DIR = /home/tobias/phd/cuda_grid/build
 
 #=============================================================================
 # Targets provided globally by CMake.
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
+	/usr/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles /home/athena/phd/cuda_grid/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles /home/tobias/phd/cuda_grid/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -220,6 +220,19 @@ test_stencil/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_stencil.dir/build.make CMakeFiles/test_stencil.dir/build
 .PHONY : test_stencil/fast
 
+#=============================================================================
+# Target rules for targets named bench_matmul_mrhs
+
+# Build rule for target.
+bench_matmul_mrhs: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 bench_matmul_mrhs
+.PHONY : bench_matmul_mrhs
+
+# fast build rule for target.
+bench_matmul_mrhs/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_matmul_mrhs.dir/build.make CMakeFiles/bench_matmul_mrhs.dir/build
+.PHONY : bench_matmul_mrhs/fast
+
 test/bench_matmul.o: test/bench_matmul.cu.o
 .PHONY : test/bench_matmul.o
 
@@ -243,6 +256,30 @@ test/bench_matmul.s: test/bench_matmul.cu.s
 test/bench_matmul.cu.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_matmul.dir/build.make CMakeFiles/bench_matmul.dir/test/bench_matmul.cu.s
 .PHONY : test/bench_matmul.cu.s
+
+test/bench_matmul_mrhs.o: test/bench_matmul_mrhs.cu.o
+.PHONY : test/bench_matmul_mrhs.o
+
+# target to build an object file
+test/bench_matmul_mrhs.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_matmul_mrhs.dir/build.make CMakeFiles/bench_matmul_mrhs.dir/test/bench_matmul_mrhs.cu.o
+.PHONY : test/bench_matmul_mrhs.cu.o
+
+test/bench_matmul_mrhs.i: test/bench_matmul_mrhs.cu.i
+.PHONY : test/bench_matmul_mrhs.i
+
+# target to preprocess a source file
+test/bench_matmul_mrhs.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_matmul_mrhs.dir/build.make CMakeFiles/bench_matmul_mrhs.dir/test/bench_matmul_mrhs.cu.i
+.PHONY : test/bench_matmul_mrhs.cu.i
+
+test/bench_matmul_mrhs.s: test/bench_matmul_mrhs.cu.s
+.PHONY : test/bench_matmul_mrhs.s
+
+# target to generate assembly for a file
+test/bench_matmul_mrhs.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_matmul_mrhs.dir/build.make CMakeFiles/bench_matmul_mrhs.dir/test/bench_matmul_mrhs.cu.s
+.PHONY : test/bench_matmul_mrhs.cu.s
 
 test/bench_stencil.o: test/bench_stencil.cu.o
 .PHONY : test/bench_stencil.o
@@ -397,6 +434,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... bench_matmul"
+	@echo "... bench_matmul_mrhs"
 	@echo "... bench_stencil"
 	@echo "... cugrid"
 	@echo "... grid_mapping"
@@ -407,6 +445,9 @@ help:
 	@echo "... test/bench_matmul.o"
 	@echo "... test/bench_matmul.i"
 	@echo "... test/bench_matmul.s"
+	@echo "... test/bench_matmul_mrhs.o"
+	@echo "... test/bench_matmul_mrhs.i"
+	@echo "... test/bench_matmul_mrhs.s"
 	@echo "... test/bench_stencil.o"
 	@echo "... test/bench_stencil.i"
 	@echo "... test/bench_stencil.s"

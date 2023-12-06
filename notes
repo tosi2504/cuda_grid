@@ -121,7 +121,8 @@ THOUGHTS:
 			+ no unintended call of the constructor
 			+ relatively easy to create a respective pointer of pointers for the kernel call
 			- a bit dangerous in terms of persistence of objects and such
-	Also I might just refactor all the matmul stuff into a new file to clear out the lattice class a little.
+	Also I might just refactor all the matmul stuff into a new file to clear out the lattice class a little. Done! I went for the array of pointers option. I hope that was a smart move.
+	I need to rethink the mapping of the forloop domains to the threads, since I have an additional idx b now. Let's try to not introduce additional threads and instead add another forloop into the kernel
 
 
 

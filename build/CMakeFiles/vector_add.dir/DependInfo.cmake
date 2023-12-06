@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/athena/phd/cuda_grid/test/vector_add.cu" "CMakeFiles/vector_add.dir/test/vector_add.cu.o" "gcc" "CMakeFiles/vector_add.dir/test/vector_add.cu.o.d"
+  "/home/tobias/phd/cuda_grid/test/vector_add.cu" "CMakeFiles/vector_add.dir/test/vector_add.cu.o" "gcc" "CMakeFiles/vector_add.dir/test/vector_add.cu.o.d"
   )
 
 # Targets to which this target links.

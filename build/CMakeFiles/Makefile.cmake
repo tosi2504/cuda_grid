@@ -50,4 +50,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/bench_stencil.dir/DependInfo.cmake"
   "CMakeFiles/grid_mapping.dir/DependInfo.cmake"
   "CMakeFiles/test_stencil.dir/DependInfo.cmake"
+  "CMakeFiles/bench_matmul_mrhs.dir/DependInfo.cmake"
   )

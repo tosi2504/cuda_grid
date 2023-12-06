@@ -37,6 +37,13 @@ class Lattice {
 		delete[] h_data;
 		CCE(cudaFree(d_data));
 	}
+	Lattice(const Lattice<tobj> & other):
+		grid(other.grid)
+	{
+		sizeVNodes = grid.calcSizeVNodes();
+		h_data = new tobj[sizeVNodes];
+		CCE(cudaMalloc(&d_data, sizeVNodes*sizeof(tobj)));
+	}
 
 	// getters and setters ... for now only on host
     const tobj & operator [] (unsigned idx) const {

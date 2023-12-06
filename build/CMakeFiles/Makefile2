@@ -54,10 +54,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/athena/phd/cuda_grid
+CMAKE_SOURCE_DIR = /home/tobias/phd/cuda_grid
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/athena/phd/cuda_grid/build
+CMAKE_BINARY_DIR = /home/tobias/phd/cuda_grid/build
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -71,6 +71,7 @@ all: CMakeFiles/bench_matmul.dir/all
 all: CMakeFiles/bench_stencil.dir/all
 all: CMakeFiles/grid_mapping.dir/all
 all: CMakeFiles/test_stencil.dir/all
+all: CMakeFiles/bench_matmul_mrhs.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -86,6 +87,7 @@ clean: CMakeFiles/bench_matmul.dir/clean
 clean: CMakeFiles/bench_stencil.dir/clean
 clean: CMakeFiles/grid_mapping.dir/clean
 clean: CMakeFiles/test_stencil.dir/clean
+clean: CMakeFiles/bench_matmul_mrhs.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -95,14 +97,14 @@ clean: CMakeFiles/test_stencil.dir/clean
 CMakeFiles/cugrid.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/cugrid.dir/build.make CMakeFiles/cugrid.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/athena/phd/cuda_grid/build/CMakeFiles --progress-num= "Built target cugrid"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num= "Built target cugrid"
 .PHONY : CMakeFiles/cugrid.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/cugrid.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 0
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/cugrid.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 0
 .PHONY : CMakeFiles/cugrid.dir/rule
 
 # Convenience name for target.
@@ -121,14 +123,14 @@ CMakeFiles/cugrid.dir/clean:
 CMakeFiles/vector_add.dir/all: CMakeFiles/cugrid.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vector_add.dir/build.make CMakeFiles/vector_add.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vector_add.dir/build.make CMakeFiles/vector_add.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/athena/phd/cuda_grid/build/CMakeFiles --progress-num=13,14 "Built target vector_add"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=15,16 "Built target vector_add"
 .PHONY : CMakeFiles/vector_add.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/vector_add.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/vector_add.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 0
 .PHONY : CMakeFiles/vector_add.dir/rule
 
 # Convenience name for target.
@@ -147,14 +149,14 @@ CMakeFiles/vector_add.dir/clean:
 CMakeFiles/matmul.dir/all: CMakeFiles/cugrid.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.dir/build.make CMakeFiles/matmul.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.dir/build.make CMakeFiles/matmul.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/athena/phd/cuda_grid/build/CMakeFiles --progress-num=9,10 "Built target matmul"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=11,12 "Built target matmul"
 .PHONY : CMakeFiles/matmul.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/matmul.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/matmul.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 0
 .PHONY : CMakeFiles/matmul.dir/rule
 
 # Convenience name for target.
@@ -173,14 +175,14 @@ CMakeFiles/matmul.dir/clean:
 CMakeFiles/lattice_matmul.dir/all: CMakeFiles/cugrid.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lattice_matmul.dir/build.make CMakeFiles/lattice_matmul.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lattice_matmul.dir/build.make CMakeFiles/lattice_matmul.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/athena/phd/cuda_grid/build/CMakeFiles --progress-num=7,8 "Built target lattice_matmul"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=9,10 "Built target lattice_matmul"
 .PHONY : CMakeFiles/lattice_matmul.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/lattice_matmul.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/lattice_matmul.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 0
 .PHONY : CMakeFiles/lattice_matmul.dir/rule
 
 # Convenience name for target.
@@ -199,14 +201,14 @@ CMakeFiles/lattice_matmul.dir/clean:
 CMakeFiles/bench_matmul.dir/all: CMakeFiles/cugrid.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_matmul.dir/build.make CMakeFiles/bench_matmul.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_matmul.dir/build.make CMakeFiles/bench_matmul.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/athena/phd/cuda_grid/build/CMakeFiles --progress-num=1,2 "Built target bench_matmul"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=1,2 "Built target bench_matmul"
 .PHONY : CMakeFiles/bench_matmul.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/bench_matmul.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/bench_matmul.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 0
 .PHONY : CMakeFiles/bench_matmul.dir/rule
 
 # Convenience name for target.
@@ -225,14 +227,14 @@ CMakeFiles/bench_matmul.dir/clean:
 CMakeFiles/bench_stencil.dir/all: CMakeFiles/cugrid.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_stencil.dir/build.make CMakeFiles/bench_stencil.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_stencil.dir/build.make CMakeFiles/bench_stencil.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/athena/phd/cuda_grid/build/CMakeFiles --progress-num=3,4 "Built target bench_stencil"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=5,6 "Built target bench_stencil"
 .PHONY : CMakeFiles/bench_stencil.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/bench_stencil.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/bench_stencil.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 0
 .PHONY : CMakeFiles/bench_stencil.dir/rule
 
 # Convenience name for target.
@@ -251,14 +253,14 @@ CMakeFiles/bench_stencil.dir/clean:
 CMakeFiles/grid_mapping.dir/all: CMakeFiles/cugrid.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/grid_mapping.dir/build.make CMakeFiles/grid_mapping.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/grid_mapping.dir/build.make CMakeFiles/grid_mapping.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/athena/phd/cuda_grid/build/CMakeFiles --progress-num=5,6 "Built target grid_mapping"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=7,8 "Built target grid_mapping"
 .PHONY : CMakeFiles/grid_mapping.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/grid_mapping.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/grid_mapping.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 0
 .PHONY : CMakeFiles/grid_mapping.dir/rule
 
 # Convenience name for target.
@@ -277,14 +279,14 @@ CMakeFiles/grid_mapping.dir/clean:
 CMakeFiles/test_stencil.dir/all: CMakeFiles/cugrid.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_stencil.dir/build.make CMakeFiles/test_stencil.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_stencil.dir/build.make CMakeFiles/test_stencil.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/athena/phd/cuda_grid/build/CMakeFiles --progress-num=11,12 "Built target test_stencil"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=13,14 "Built target test_stencil"
 .PHONY : CMakeFiles/test_stencil.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/test_stencil.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_stencil.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/athena/phd/cuda_grid/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 0
 .PHONY : CMakeFiles/test_stencil.dir/rule
 
 # Convenience name for target.
@@ -295,6 +297,32 @@ test_stencil: CMakeFiles/test_stencil.dir/rule
 CMakeFiles/test_stencil.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_stencil.dir/build.make CMakeFiles/test_stencil.dir/clean
 .PHONY : CMakeFiles/test_stencil.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/bench_matmul_mrhs.dir
+
+# All Build rule for target.
+CMakeFiles/bench_matmul_mrhs.dir/all: CMakeFiles/cugrid.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_matmul_mrhs.dir/build.make CMakeFiles/bench_matmul_mrhs.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_matmul_mrhs.dir/build.make CMakeFiles/bench_matmul_mrhs.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tobias/phd/cuda_grid/build/CMakeFiles --progress-num=3,4 "Built target bench_matmul_mrhs"
+.PHONY : CMakeFiles/bench_matmul_mrhs.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/bench_matmul_mrhs.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/bench_matmul_mrhs.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tobias/phd/cuda_grid/build/CMakeFiles 0
+.PHONY : CMakeFiles/bench_matmul_mrhs.dir/rule
+
+# Convenience name for target.
+bench_matmul_mrhs: CMakeFiles/bench_matmul_mrhs.dir/rule
+.PHONY : bench_matmul_mrhs
+
+# clean rule for target.
+CMakeFiles/bench_matmul_mrhs.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_matmul_mrhs.dir/build.make CMakeFiles/bench_matmul_mrhs.dir/clean
+.PHONY : CMakeFiles/bench_matmul_mrhs.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
