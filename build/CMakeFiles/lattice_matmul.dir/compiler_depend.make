@@ -180,47 +180,39 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
   /usr/include/texture_indirect_functions.h \
   /usr/include/surface_indirect_functions.h \
   /usr/include/device_launch_parameters.h \
-  ../cugrid/lattice.h \
-  /usr/include/cuda.h \
-  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h \
-  /usr/include/stdint.h \
+  ../cugrid/cugrid.h \
+  ../cugrid/errorcheck.h \
+  /usr/include/c++/11/iostream \
+  /usr/include/c++/11/ostream \
+  /usr/include/c++/11/ios \
+  /usr/include/c++/11/iosfwd \
+  /usr/include/c++/11/bits/stringfwd.h \
+  /usr/include/c++/11/bits/memoryfwd.h \
+  /usr/include/c++/11/bits/postypes.h \
+  /usr/include/c++/11/cwchar \
+  /usr/include/wchar.h \
   /usr/include/x86_64-linux-gnu/bits/wchar.h \
-  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
-  /usr/include/c++/11/stdexcept \
+  /usr/include/x86_64-linux-gnu/bits/types/wint_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h \
   /usr/include/c++/11/exception \
   /usr/include/c++/11/bits/exception_ptr.h \
   /usr/include/c++/11/bits/cxxabi_init_exception.h \
   /usr/include/c++/11/typeinfo \
   /usr/include/c++/11/bits/hash_bytes.h \
   /usr/include/c++/11/bits/nested_exception.h \
-  /usr/include/c++/11/string \
-  /usr/include/c++/11/bits/stringfwd.h \
-  /usr/include/c++/11/bits/memoryfwd.h \
   /usr/include/c++/11/bits/char_traits.h \
-  /usr/include/c++/11/bits/postypes.h \
-  /usr/include/c++/11/cwchar \
-  /usr/include/wchar.h \
-  /usr/include/x86_64-linux-gnu/bits/types/wint_t.h \
-  /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h \
   /usr/include/c++/11/cstdint \
-  /usr/include/c++/11/bits/allocator.h \
-  /usr/include/x86_64-linux-gnu/c++/11/bits/c++allocator.h \
-  /usr/include/c++/11/ext/new_allocator.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h \
+  /usr/include/stdint.h \
+  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
   /usr/include/c++/11/bits/localefwd.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h \
   /usr/include/c++/11/clocale \
   /usr/include/locale.h \
   /usr/include/x86_64-linux-gnu/bits/locale.h \
-  /usr/include/c++/11/iosfwd \
   /usr/include/c++/11/cctype \
   /usr/include/ctype.h \
-  /usr/include/c++/11/bits/ostream_insert.h \
-  /usr/include/c++/11/bits/cxxabi_forced.h \
-  /usr/include/c++/11/bits/stl_function.h \
-  /usr/include/c++/11/backward/binders.h \
-  /usr/include/c++/11/bits/range_access.h \
-  /usr/include/c++/11/initializer_list \
-  /usr/include/c++/11/bits/basic_string.h \
+  /usr/include/c++/11/bits/ios_base.h \
   /usr/include/c++/11/ext/atomicity.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/gthr.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h \
@@ -233,6 +225,18 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
   /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/atomic_word.h \
   /usr/include/x86_64-linux-gnu/sys/single_threaded.h \
+  /usr/include/c++/11/bits/locale_classes.h \
+  /usr/include/c++/11/string \
+  /usr/include/c++/11/bits/allocator.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/c++allocator.h \
+  /usr/include/c++/11/ext/new_allocator.h \
+  /usr/include/c++/11/bits/ostream_insert.h \
+  /usr/include/c++/11/bits/cxxabi_forced.h \
+  /usr/include/c++/11/bits/stl_function.h \
+  /usr/include/c++/11/backward/binders.h \
+  /usr/include/c++/11/bits/range_access.h \
+  /usr/include/c++/11/initializer_list \
+  /usr/include/c++/11/bits/basic_string.h \
   /usr/include/c++/11/ext/alloc_traits.h \
   /usr/include/c++/11/bits/alloc_traits.h \
   /usr/include/c++/11/bits/stl_construct.h \
@@ -251,16 +255,10 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
   /usr/include/x86_64-linux-gnu/bits/types/error_t.h \
   /usr/include/c++/11/bits/charconv.h \
   /usr/include/c++/11/bits/basic_string.tcc \
-  /usr/lib/gcc/x86_64-linux-gnu/11/include/omp.h \
-  ../cugrid/errorcheck.h \
-  /usr/include/c++/11/iostream \
-  /usr/include/c++/11/ostream \
-  /usr/include/c++/11/ios \
-  /usr/include/c++/11/bits/ios_base.h \
-  /usr/include/c++/11/bits/locale_classes.h \
   /usr/include/c++/11/bits/locale_classes.tcc \
   /usr/include/c++/11/system_error \
   /usr/include/x86_64-linux-gnu/c++/11/bits/error_constants.h \
+  /usr/include/c++/11/stdexcept \
   /usr/include/c++/11/streambuf \
   /usr/include/c++/11/bits/streambuf.tcc \
   /usr/include/c++/11/bits/basic_ios.h \
@@ -276,20 +274,15 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
   /usr/include/c++/11/bits/ostream.tcc \
   /usr/include/c++/11/istream \
   /usr/include/c++/11/bits/istream.tcc \
-  ../cugrid/grid.h \
-  /usr/include/c++/11/array \
-  /usr/include/c++/11/utility \
-  /usr/include/c++/11/bits/stl_relops.h \
+  ../cugrid/lane.h \
+  ../cugrid/random.h \
+  /usr/include/c++/11/random \
+  /usr/include/c++/11/bits/random.h \
   /usr/include/c++/11/vector \
   /usr/include/c++/11/bits/stl_uninitialized.h \
   /usr/include/c++/11/bits/stl_vector.h \
   /usr/include/c++/11/bits/stl_bvector.h \
   /usr/include/c++/11/bits/vector.tcc \
-  ../cugrid/tensor.h \
-  ../cugrid/lane.h \
-  ../cugrid/random.h \
-  /usr/include/c++/11/random \
-  /usr/include/c++/11/bits/random.h \
   /usr/include/c++/11/bits/uniform_int_dist.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/opt_random.h \
   /usr/include/c++/11/bits/random.tcc \
@@ -325,8 +318,24 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
   /usr/include/c++/11/climits \
   /usr/include/cuda/std/detail/libcxx/include/climits \
   /usr/include/cuda/std/detail/libcxx/include/cstdint \
-  /usr/include/cuda/std/detail/libcxx/include/complex
+  /usr/include/cuda/std/detail/libcxx/include/complex \
+  ../cugrid/tensor.h \
+  ../cugrid/grid.h \
+  /usr/include/c++/11/array \
+  /usr/include/c++/11/utility \
+  /usr/include/c++/11/bits/stl_relops.h \
+  ../cugrid/lattice.h \
+  /usr/include/cuda.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/omp.h \
+  ../cugrid/matmul.h \
+  ../cugrid/stencil.h
 
+
+../cugrid/stencil.h:
+
+../cugrid/matmul.h:
+
+../cugrid/grid.h:
 
 /usr/include/cuda/std/detail/libcxx/include/complex:
 
@@ -343,6 +352,10 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 /usr/include/cuda/std/detail/libcxx/include/__undef_macros:
 
 /usr/include/cuda/std/detail/libcxx/include/__pragma_push:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/omp.h:
+
+/usr/include/cuda/std/detail/__pragma_push:
 
 /usr/include/nv/detail/__preprocessor:
 
@@ -368,12 +381,6 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 
 /usr/include/c++/11/numeric:
 
-/usr/include/c++/11/bits/random.h:
-
-/usr/include/c++/11/random:
-
-../cugrid/lane.h:
-
 /usr/include/c++/11/bits/vector.tcc:
 
 /usr/include/c++/11/cstddef:
@@ -384,7 +391,11 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 
 /usr/include/c++/11/vector:
 
-../cugrid/grid.h:
+/usr/include/c++/11/bits/random.h:
+
+/usr/include/c++/11/random:
+
+../cugrid/lane.h:
 
 /usr/include/c++/11/bits/istream.tcc:
 
@@ -410,11 +421,7 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 
 /usr/include/c++/11/streambuf:
 
-/usr/include/c++/11/system_error:
-
-/usr/include/nv/detail/__target_macros:
-
-/usr/include/c++/11/bits/locale_classes.tcc:
+/usr/include/c++/11/stdexcept:
 
 /usr/include/crt/math_functions.h:
 
@@ -430,11 +437,15 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 
 /usr/include/x86_64-linux-gnu/bits/iscanonical.h:
 
+/usr/include/nv/detail/__target_macros:
+
+/usr/include/c++/11/bits/locale_classes.tcc:
+
 /usr/include/c++/11/bits/stl_algobase.h:
 
-/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h:
-
 /usr/include/c++/11/cwchar:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h:
 
 /usr/include/x86_64-linux-gnu/bits/math-vector.h:
 
@@ -466,11 +477,11 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 
 /usr/include/x86_64-linux-gnu/bits/select.h:
 
-/usr/include/c++/11/backward/binders.h:
-
 /usr/include/x86_64-linux-gnu/bits/fp-fast.h:
 
 /usr/include/c++/11/iostream:
+
+/usr/include/c++/11/backward/binders.h:
 
 /usr/include/x86_64-linux-gnu/sys/select.h:
 
@@ -488,15 +499,15 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 
 /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
 
+/usr/include/cuda.h:
+
+/usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
+
 /usr/include/x86_64-linux-gnu/bits/types.h:
 
 /usr/include/x86_64-linux-gnu/sys/types.h:
 
 /usr/include/stdlib.h:
-
-/usr/include/cuda/std/detail/__pragma_push:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/omp.h:
 
 /usr/include/c++/11/stdlib.h:
 
@@ -522,13 +533,13 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 
 /usr/include/sm_30_intrinsics.h:
 
-/usr/include/c++/11/cmath:
-
-/usr/include/c++/11/bits/allocator.h:
-
 /usr/include/c++/11/type_traits:
 
 /usr/include/x86_64-linux-gnu/sys/single_threaded.h:
+
+/usr/include/c++/11/cmath:
+
+/usr/include/c++/11/bits/allocator.h:
 
 /usr/include/channel_descriptor.h:
 
@@ -590,6 +601,12 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 
 /usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
 
+../cugrid/lattice.h:
+
+/usr/include/vector_functions.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h:
+
 /usr/lib/gcc/x86_64-linux-gnu/11/include/limits.h:
 
 /usr/include/crt/host_config.h:
@@ -646,12 +663,6 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/cpu_defines.h:
 
-/usr/include/vector_functions.h:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h:
-
-../cugrid/lattice.h:
-
 /usr/include/x86_64-linux-gnu/bits/wordsize.h:
 
 /usr/include/math.h:
@@ -680,8 +691,6 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 
 /usr/include/c++/11/bits/stringfwd.h:
 
-/usr/include/library_types.h:
-
 /usr/include/c++/11/tr1/bessel_function.tcc:
 
 /usr/include/device_atomic_functions.hpp:
@@ -700,6 +709,8 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 
 /usr/include/driver_functions.h:
 
+/usr/include/c++/11/system_error:
+
 /usr/include/crt/common_functions.h:
 
 /usr/include/stdio.h:
@@ -709,12 +720,6 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 /usr/include/sm_32_intrinsics.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
-
-/usr/include/c++/11/utility:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/error_constants.h:
-
-/usr/include/c++/11/ios:
 
 /usr/include/x86_64-linux-gnu/bits/endianness.h:
 
@@ -814,6 +819,12 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 
 /usr/include/sm_20_atomic_functions.hpp:
 
+/usr/include/c++/11/utility:
+
+/usr/include/c++/11/ios:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/error_constants.h:
+
 /usr/include/sm_20_atomic_functions.h:
 
 /usr/include/sm_32_atomic_functions.hpp:
@@ -856,21 +867,27 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 
 /usr/include/texture_indirect_functions.h:
 
-/usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
+/usr/include/library_types.h:
 
-/usr/include/cuda.h:
+../cugrid/cugrid.h:
 
-/usr/include/c++/11/stdexcept:
+/usr/include/asm-generic/errno.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:
+
+/usr/include/c++/11/ostream:
+
+/usr/include/wchar.h:
+
+/usr/include/c++/11/bits/cxxabi_init_exception.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
 
 /usr/include/c++/11/exception:
 
 /usr/include/c++/11/bits/exception_ptr.h:
 
 /usr/include/c++/11/ext/string_conversions.h:
-
-/usr/include/c++/11/bits/cxxabi_init_exception.h:
-
-/usr/include/wchar.h:
 
 /usr/include/c++/11/bits/move.h:
 
@@ -883,8 +900,6 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 /usr/include/c++/11/bits/char_traits.h:
 
 /usr/include/asm-generic/errno-base.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/waitstatus.h:
 
@@ -900,6 +915,26 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 
 /usr/include/ctype.h:
 
+/usr/include/x86_64-linux-gnu/c++/11/bits/gthr.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:
+
+/usr/include/wctype.h:
+
+/usr/include/device_types.h:
+
+/usr/include/sched.h:
+
+/usr/include/x86_64-linux-gnu/bits/cpu-set.h:
+
+/usr/include/c++/11/bits/stl_bvector.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/clockid_t.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/atomic_word.h:
+
 /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
 
 /usr/include/c++/11/bits/ostream_insert.h:
@@ -907,6 +942,10 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 /usr/include/crt/math_functions.hpp:
 
 /usr/include/c++/11/bits/cxxabi_forced.h:
+
+/usr/include/x86_64-linux-gnu/bits/sched.h:
+
+/usr/include/c++/11/ext/alloc_traits.h:
 
 /usr/include/c++/11/bits/memoryfwd.h:
 
@@ -919,34 +958,6 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 /usr/include/c++/11/iosfwd:
 
 /usr/include/c++/11/initializer_list:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/gthr.h:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:
-
-/usr/include/wctype.h:
-
-/usr/include/device_types.h:
-
-/usr/include/sched.h:
-
-/usr/include/c++/11/ext/alloc_traits.h:
-
-/usr/include/x86_64-linux-gnu/bits/sched.h:
-
-/usr/include/asm-generic/errno.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:
-
-/usr/include/x86_64-linux-gnu/bits/cpu-set.h:
-
-/usr/include/c++/11/bits/stl_bvector.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/clockid_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/atomic_word.h:
 
 /usr/include/stdc-predef.h:
 
@@ -975,5 +986,3 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o: ../test/lattice_matmul.c
 /usr/include/c++/11/bits/charconv.h:
 
 /usr/include/c++/11/bits/basic_string.tcc:
-
-/usr/include/c++/11/ostream:

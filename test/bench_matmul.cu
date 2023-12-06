@@ -1,7 +1,4 @@
-#include "../cugrid/lattice.h"
-#include "../cugrid/grid.h"
-#include "../cugrid/tensor.h"
-#include "../cugrid/lane.h"
+#include "../cugrid/cugrid.h"
 
 #include <cuda/std/complex>
 #include <chrono>

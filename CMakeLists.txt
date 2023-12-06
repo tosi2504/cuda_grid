@@ -9,6 +9,7 @@ add_library(cugrid INTERFACE
 	cugrid/errorcheck.h
 	cugrid/grid.h
 	cugrid/lattice.h
+	cugrid/matmul.h
     cugrid/random.h
     cugrid/stencil.h
 	)

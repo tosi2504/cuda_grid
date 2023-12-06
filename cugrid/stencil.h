@@ -20,27 +20,7 @@ __global__ void ker_SimpleStencil (const StencilTargetInfo * d_stinfo
 	warpInfo w;
 	unsigned n = w.warpIdxGlobal / N; // vNode index
 	unsigned i = w.warpIdxGlobal % N; // iTensor index
-	// if (n == 1 and w.laneIdx == 0 and i == 0) { // EVERYTHING IN HERE IS DEBUG
-	//	printf("--CUDA-- Found the thread n:%u, l:%u, i:%u\n", n, w.laneIdx, i);
-	//	printf("--CUDA-- target n:%u\n", d_stinfo[n].n_target);
-	//	if (d_stinfo[n].isBorder) {
-	//		printf("--CUDA-- target l:%u (Bordercase)\n", d_laneIdxMap[w.laneIdx]);
-	//	} else {
-	//		printf("--CUDA-- target l:%u\n", w.laneIdx);
-	//	}
-	//	printf("--CUDA-- The Matrix is (not valid for bordercase)\n");
-	//	for (unsigned j = 0; j < N; j++) {
-	//		printf("%u ", d_targetfield[d_stinfo[n].n_target][i][j][w.laneIdx]);
-	//	}
-	//	printf("\n");
-	//	printf("--CUDA-- The Vector is\n");
-	//	for (unsigned j = 0; j < N; j++) {
-	//		printf("%u ", d_rhs[n][j][w.laneIdx]);
-	//	}
-	//	printf("\n");
-	//	printf("--CUDA-- Size VNodes: %u\n", sizeVNodes);
-	//	d_res[n][i][w.laneIdx] = 100;
-	// }
+
 	if (n < sizeVNodes) { // access guard; no divergence
 		if (d_stinfo[n].isBorder) { // border checking; no divergence
 			lobj::mul(w

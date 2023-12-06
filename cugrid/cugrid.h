@@ -5,5 +5,6 @@
 #include "tensor.h"
 #include "grid.h"
 #include "lattice.h"
+#include "matmul.h"
 #include "stencil.h"
 #include "random.h"

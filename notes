@@ -103,7 +103,25 @@ THOUGHTS:
 			V_res(x, i) = sum_j ((x+1)*1000 + i*N + j) (x*1000/N + j) 
 	I need setters and getters for the elements on the lattice. Problem: I do not have a TensorView class or something like that. So, do I create one? I think not. Instead just require the tensor indices directly in the getter/setter.
 	Okay, wow. We need the CUDA toolkit 12.x for nvcc :) Well, that did not work ... unfortunately. Maybe, I have to sfinae those functions away. Interestingly we do not need to sfinae it away. I thought that we might encounter a compiler error, bc the matrix accessing thingy should not work for vectors, but whatever. Interestingly, the compiler error only occurs, when the get function of a vector lattice is CALLED as if for a matrix field. That is actually kinda nifty ... but using the "requires" method would have been much cleaner.
-	Okay, now that we have getters and setters after like one and a half day, we can continue with checking the stencil for correctness.
+	Okay, now that we have getters and setters after like one and a half day, we can continue with checking the stencil for correctness. Aaaaaand I checked it ... it happens to be working. Very nice. The next step is matmul with multiple right hand sides. But in what data format are the vector fields present. There are the following options:
+		- write a class that contains the data of several vector fields:
+			+ could be copied by kernel
+			+ would be easy to check if they all have the same underlying grid (because there is only one)
+			- a lot of extra code
+			- could actually be quite heavy on the stack
+		- array of vectorfields
+			+ easy to code
+			+ could be copied by the kernel
+			- redundant grid objects
+			- heavy on the stiggidy stack
+			- not sure whether the constructor is called ... which would result in a heavy memory leak
+		- array of references or pointers -> lets go with this version
+			+ easy to code
+			+ leightweight on the stack
+			+ no unintended call of the constructor
+			+ relatively easy to create a respective pointer of pointers for the kernel call
+			- a bit dangerous in terms of persistence of objects and such
+	Also I might just refactor all the matmul stuff into a new file to clear out the lattice class a little.
 
 
 
