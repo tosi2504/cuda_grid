@@ -7,7 +7,7 @@ using namespace std::chrono;
 
 
 constexpr unsigned lenLane = 32;
-constexpr unsigned N = 64;
+constexpr unsigned N = 10;
 constexpr unsigned batchsize = 10;
 // using T_arithm = cuda::std::complex<double>;
 using T_arithm = float;
@@ -46,8 +46,16 @@ int main () {
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
     std::cout << "DURATION: " << duration.count() << std::endl;
-    std::cout << "BANDWIDTH: " << grid.vol*(N*N + 2*N)*sizeof(T_arithm)*reps/(float)duration.count() << " MBytes/sec" << std::endl;
-	std::cout << "ARITHMETICS: " << grid.vol * (2*N*N) * reps / (float)duration.count() << " Mflops" << std::endl;
+	unsigned long long bytes = batchsize;
+	bytes *= grid.vol;
+	bytes *= (N*N + 2*N);
+	bytes *= sizeof(T_arithm);
+	bytes *= reps;
+    std::cout << "BANDWIDTH: " << bytes/(float)duration.count() << " MBytes/sec" << std::endl;
+	std::cout << "ARITHMETICS: " << batchsize*grid.vol * (2*N*N) * reps / (float)duration.count() << " Mflops" << std::endl;
+
+	std::cout  << "BLUB: " << batchsize*grid.vol*(N*N + 2*N)*sizeof(T_arithm)*reps << std::endl;
+	std::cout  << "BLUB2: " << bytes << std::endl;
 
 	// should delete the vector batches ...
 }

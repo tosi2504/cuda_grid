@@ -44,9 +44,10 @@ bool check_grid_compatible(const VectorBatch<lobj,N,batchsize> & batch_res, cons
 }
 
 template<class lobj, unsigned N, unsigned batchsize>
-__global__ void ker_matmul_mrhs(iVector<lobj, N> ** d_batch_res
+__global__ void ker_matmul_mrhs
+		( iVector<lobj, N> * const * d_batch_res
 		, const iMatrix<lobj, N> * d_lhs
-		, const iVector<lobj, N> ** d_batch_rhs
+		, const iVector<lobj, N> * const * d_batch_rhs
 		, unsigned sizeVNodes) 
 {
 	warpInfo w;

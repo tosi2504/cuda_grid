@@ -1,4 +1,4 @@
-CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o : /home/tobias/phd/cuda_grid/test/lattice_matmul.cu \
+CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o : /home/athena/phd/cuda_grid/test/lattice_matmul.cu \
     /usr/include/stdc-predef.h \
     /usr/include/cuda_runtime.h \
     /usr/include/crt/host_config.h \
@@ -177,8 +177,8 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o : /home/tobias/phd/cuda_g
     /usr/include/texture_indirect_functions.h \
     /usr/include/surface_indirect_functions.h \
     /usr/include/device_launch_parameters.h \
-    /home/tobias/phd/cuda_grid/test/../cugrid/cugrid.h \
-    /home/tobias/phd/cuda_grid/test/../cugrid/errorcheck.h \
+    /home/athena/phd/cuda_grid/test/../cugrid/cugrid.h \
+    /home/athena/phd/cuda_grid/test/../cugrid/errorcheck.h \
     /usr/include/c++/11/iostream \
     /usr/include/c++/11/ostream \
     /usr/include/c++/11/ios \
@@ -271,8 +271,8 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o : /home/tobias/phd/cuda_g
     /usr/include/c++/11/bits/ostream.tcc \
     /usr/include/c++/11/istream \
     /usr/include/c++/11/bits/istream.tcc \
-    /home/tobias/phd/cuda_grid/test/../cugrid/lane.h \
-    /home/tobias/phd/cuda_grid/test/../cugrid/random.h \
+    /home/athena/phd/cuda_grid/test/../cugrid/lane.h \
+    /home/athena/phd/cuda_grid/test/../cugrid/random.h \
     /usr/include/c++/11/random \
     /usr/include/c++/11/bits/random.h \
     /usr/include/c++/11/vector \
@@ -316,13 +316,13 @@ CMakeFiles/lattice_matmul.dir/test/lattice_matmul.cu.o : /home/tobias/phd/cuda_g
     /usr/include/cuda/std/detail/libcxx/include/climits \
     /usr/include/cuda/std/detail/libcxx/include/cstdint \
     /usr/include/cuda/std/detail/libcxx/include/complex \
-    /home/tobias/phd/cuda_grid/test/../cugrid/tensor.h \
-    /home/tobias/phd/cuda_grid/test/../cugrid/grid.h \
+    /home/athena/phd/cuda_grid/test/../cugrid/tensor.h \
+    /home/athena/phd/cuda_grid/test/../cugrid/grid.h \
     /usr/include/c++/11/array \
     /usr/include/c++/11/utility \
     /usr/include/c++/11/bits/stl_relops.h \
-    /home/tobias/phd/cuda_grid/test/../cugrid/lattice.h \
+    /home/athena/phd/cuda_grid/test/../cugrid/lattice.h \
     /usr/include/cuda.h \
     /usr/lib/gcc/x86_64-linux-gnu/11/include/omp.h \
-    /home/tobias/phd/cuda_grid/test/../cugrid/matmul.h \
-    /home/tobias/phd/cuda_grid/test/../cugrid/stencil.h
+    /home/athena/phd/cuda_grid/test/../cugrid/matmul.h \
+    /home/athena/phd/cuda_grid/test/../cugrid/stencil.h

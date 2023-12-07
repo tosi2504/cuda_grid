@@ -123,6 +123,7 @@ THOUGHTS:
 			- a bit dangerous in terms of persistence of objects and such
 	Also I might just refactor all the matmul stuff into a new file to clear out the lattice class a little. Done! I went for the array of pointers option. I hope that was a smart move.
 	I need to rethink the mapping of the forloop domains to the threads, since I have an additional idx b now. Let's try to not introduce additional threads and instead add another forloop into the kernel
+	Okay, so now the batch loop is explicit and performance isn't exactly bad. It is basically similar to normal matmul, where for some parameters it slightly goes beyond that. One big question that I need to answer is the memory layout of the vector batch. Also I need to think about how to do efficient caching of the operants -> look into __shared__ memory.
 
 
 
