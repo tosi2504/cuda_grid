@@ -124,6 +124,11 @@ THOUGHTS:
 	Also I might just refactor all the matmul stuff into a new file to clear out the lattice class a little. Done! I went for the array of pointers option. I hope that was a smart move.
 	I need to rethink the mapping of the forloop domains to the threads, since I have an additional idx b now. Let's try to not introduce additional threads and instead add another forloop into the kernel
 	Okay, so now the batch loop is explicit and performance isn't exactly bad. It is basically similar to normal matmul, where for some parameters it slightly goes beyond that. One big question that I need to answer is the memory layout of the vector batch. Also I need to think about how to do efficient caching of the operants -> look into __shared__ memory.
+	Christoph said I should distribute the batch index over threads, lets see how that could be done. Also I need to extensively benchmark my code on the A100s. Let's continue with the batch index. Before I had i and n mapped to the warpIdxGlobal. Now I simply need to add b. This means that now:
+		- n = w.warpIdxGlobal / (N*batchsize);
+		- i = (w.warpIdxGlobal % (N*batchsize)) / batchsize;
+		- b = w.warpIdxGlobal % batchsize;
+	I implemented this, it was very easy. It seems to have a significant increase in bandwidth on my notebook. Lets see the numbers on juwels booster.
 
 
 

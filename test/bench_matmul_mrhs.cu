@@ -7,10 +7,10 @@ using namespace std::chrono;
 
 
 constexpr unsigned lenLane = 32;
-constexpr unsigned N = 10;
+constexpr unsigned N = 64;
 constexpr unsigned batchsize = 10;
 // using T_arithm = cuda::std::complex<double>;
-using T_arithm = float;
+using T_arithm = double;
 using lane_t = Lane<T_arithm, lenLane>;
 using vec_t = iVector<lane_t, N>;
 using mat_t = iMatrix<lane_t, N>;
@@ -38,7 +38,7 @@ int main () {
 
     // TIME IT!
     unsigned reps = 50;
-    std::cout << "TIMING STARTED" << std::endl;
+    std::cout << "TIMING STARTED FOR NAIVE MRHS" << std::endl;
     auto start = high_resolution_clock::now();
 	for (unsigned i = 0; i < reps; i++) {
 	    matmul_mrhs<lane_t, N, batchsize, 256>(res, mfield, rhs);
@@ -54,8 +54,21 @@ int main () {
     std::cout << "BANDWIDTH: " << bytes/(float)duration.count() << " MBytes/sec" << std::endl;
 	std::cout << "ARITHMETICS: " << batchsize*grid.vol * (2*N*N) * reps / (float)duration.count() << " Mflops" << std::endl;
 
-	std::cout  << "BLUB: " << batchsize*grid.vol*(N*N + 2*N)*sizeof(T_arithm)*reps << std::endl;
-	std::cout  << "BLUB2: " << bytes << std::endl;
-
+    reps = 50;
+    std::cout << "TIMING STARTED FOR IMPROVED MRHS" << std::endl;
+    start = high_resolution_clock::now();
+	for (unsigned i = 0; i < reps; i++) {
+	    matmul_mrhs2<lane_t, N, batchsize, 256>(res, mfield, rhs);
+    }
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    std::cout << "DURATION: " << duration.count() << std::endl;
+	bytes = batchsize;
+	bytes *= grid.vol;
+	bytes *= (N*N + 2*N);
+	bytes *= sizeof(T_arithm);
+	bytes *= reps;
+    std::cout << "BANDWIDTH: " << bytes/(float)duration.count() << " MBytes/sec" << std::endl;
+	std::cout << "ARITHMETICS: " << batchsize*grid.vol * (2*N*N) * reps / (float)duration.count() << " Mflops" << std::endl;
 	// should delete the vector batches ...
 }

@@ -100,3 +100,62 @@ void matmul_mrhs(VectorBatch<lobj,N,batchsize> & batch_res
 	cudaFree(d_batch_res);
 	cudaFree(d_batch_rhs);
 }
+
+template<class lobj, unsigned N, unsigned batchsize>
+__global__ void ker_matmul_mrhs2
+		( iVector<lobj, N> * const * d_batch_res
+		, const iMatrix<lobj, N> * d_lhs
+		, const iVector<lobj, N> * const * d_batch_rhs
+		, unsigned sizeVNodes) 
+{
+	warpInfo w;
+	unsigned n = w.warpIdxGlobal / (N*batchsize); // vNode index
+	unsigned i = (w.warpIdxGlobal % (N*batchsize)) / batchsize; // iTensor index
+	unsigned b = w.warpIdxGlobal % batchsize; // batch index
+	if (n < sizeVNodes) {
+		lobj::mul(w, &d_batch_res[b][n][i], &d_lhs[n][i][0], &d_batch_rhs[b][n][0]);	
+		for (unsigned j = 1; j < N; j++) {
+			lobj::mac(w, &d_batch_res[b][n][i], &d_lhs[n][i][j], &d_batch_rhs[b][n][j]);	
+		}
+	}
+}
+
+template<class lobj, unsigned N, unsigned batchsize, unsigned blocksize = 256>
+void matmul_mrhs2(VectorBatch<lobj,N,batchsize> & batch_res
+		, const Lattice< iMatrix<lobj,N> > & lhs
+		, const VectorBatch<lobj,N,batchsize> & batch_rhs) 
+{
+	static_assert(blocksize % lobj::_lenLane == 0, "Length of lane does not divide the blocksize. Change blocksize or lane length!");
+	if ((not check_grid_compatible<lobj, N, batchsize>(batch_res, lhs.grid)) or (not check_grid_compatible<lobj, N, batchsize>(batch_rhs, lhs.grid))) {
+		throw std::logic_error("Grids not compatible");
+	}
+
+	// prepare arrays of pointers to batch data
+	iVector<lobj, N> * h_batch_res[batchsize], * h_batch_rhs[batchsize];
+	iVector<lobj, N> ** d_batch_res, ** d_batch_rhs;
+	for (unsigned b = 0; b < batchsize; b++) {
+		h_batch_res[b] = batch_res[b]->d_data;
+		h_batch_rhs[b] = batch_rhs[b]->d_data;
+	}
+
+	// copy those arrays to device memory
+	CCE(  cudaMalloc(&d_batch_res, sizeof(iVector<lobj,N>*)*batchsize)  );
+	CCE(  cudaMalloc(&d_batch_rhs, sizeof(iVector<lobj,N>*)*batchsize)  );
+	CCE(  cudaMemcpy(d_batch_res, h_batch_res, sizeof(iVector<lobj,N>*)*batchsize, cudaMemcpyHostToDevice)  );
+	CCE(  cudaMemcpy(d_batch_rhs, h_batch_rhs, sizeof(iVector<lobj,N>*)*batchsize, cudaMemcpyHostToDevice)  );
+
+	// kernel call!
+	unsigned lanes_per_block = blocksize / lobj::_lenLane;
+	unsigned blocks = (lhs.sizeVNodes*N*batchsize + lanes_per_block - 1)/lanes_per_block;
+	std::cout << "calling ker_matmul_mrhs with:" << std::endl;
+	std::cout << "    blocks  : " << blocks << std::endl;
+	std::cout << "    threads : " << blocksize << std::endl;
+	std::cout << "    #lpb    : " << lanes_per_block << std::endl;
+	ker_matmul_mrhs2<lobj, N, batchsize><<< blocks , blocksize >>>(d_batch_res, lhs.d_data, d_batch_rhs, lhs.sizeVNodes);
+	CCE(cudaDeviceSynchronize());
+
+	cudaFree(d_batch_res);
+	cudaFree(d_batch_rhs);
+}
+
+
