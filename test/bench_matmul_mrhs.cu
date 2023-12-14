@@ -8,9 +8,9 @@ using namespace std::chrono;
 
 constexpr unsigned lenLane = 32;
 constexpr unsigned N = 64;
-constexpr unsigned batchsize = 10;
+constexpr unsigned batchsize = 16;
 // using T_arithm = cuda::std::complex<double>;
-using T_arithm = double;
+using T_arithm = float;
 using lane_t = Lane<T_arithm, lenLane>;
 using vec_t = iVector<lane_t, N>;
 using mat_t = iMatrix<lane_t, N>;
@@ -37,11 +37,11 @@ int main () {
 	std::cout << "DONE" << std::endl;
 
     // TIME IT!
-    unsigned reps = 50;
-    std::cout << "TIMING STARTED FOR NAIVE MRHS" << std::endl;
+    unsigned reps = 1;
+    std::cout << "TIMING STARTED FOR MRHS2" << std::endl;
     auto start = high_resolution_clock::now();
 	for (unsigned i = 0; i < reps; i++) {
-	    matmul_mrhs<lane_t, N, batchsize, 256>(res, mfield, rhs);
+	    matmul_mrhs2<lane_t, N, batchsize, 128>(res, mfield, rhs);
     }
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
@@ -54,11 +54,10 @@ int main () {
     std::cout << "BANDWIDTH: " << bytes/(float)duration.count() << " MBytes/sec" << std::endl;
 	std::cout << "ARITHMETICS: " << batchsize*grid.vol * (2*N*N) * reps / (float)duration.count() << " Mflops" << std::endl;
 
-    reps = 50;
-    std::cout << "TIMING STARTED FOR IMPROVED MRHS" << std::endl;
+    std::cout << "TIMING STARTED FOR MRHS3" << std::endl;
     start = high_resolution_clock::now();
 	for (unsigned i = 0; i < reps; i++) {
-	    matmul_mrhs2<lane_t, N, batchsize, 256>(res, mfield, rhs);
+	    matmul_mrhs3<lane_t, N, batchsize, 2, 2>(res, mfield, rhs);
     }
     stop = high_resolution_clock::now();
     duration = duration_cast<microseconds>(stop - start);

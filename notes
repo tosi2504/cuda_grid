@@ -128,10 +128,19 @@ THOUGHTS:
 		- n = w.warpIdxGlobal / (N*batchsize);
 		- i = (w.warpIdxGlobal % (N*batchsize)) / batchsize;
 		- b = w.warpIdxGlobal % batchsize;
-	I implemented this, it was very easy. It seems to have a significant increase in bandwidth on my notebook. Lets see the numbers on juwels booster.
-
-
-
+	I implemented this, it was very easy. It seems to have a significant increase in bandwidth on my notebook. Lets see the numbers on juwels booster. Alright the numbers are (in TB/s):
+	- double, lenLane 32
+		- grid 16.16.16.16, N 64, batch 10: 
+			- naive: 1.20
+			- improved: 2.03
+		- grid 16.32.32.32, N 64, batch 10:
+			- naive: 1.25
+			- improved: 2.19
+		- grid 16.32.32.32, N 32, batch 20:
+			- naive: 1.28
+			- improved: 2.27 (1.41 x 1.6!!!)
+	With these performance stats, the code is better than the "provable optimum" of matrix vector multiplication. But I am pretty sure than playing around with cacheblocking could lead to even more performance gains. This is not entirely trivial, however, since the outer tensor index i is not part of the for loop but instead mapped by the warpIdxGlobal, as is b. Therefore, I have no control over the order, in which it is executed. I should also play around with the blocksize. This could actually be huge, now that I think about it. The blocksize ultimatively determines, how much data is loaded into cache ... or does it??? The L2 cache is non-local to one SM. But I cannot enforce block synchronisation sadly. With smart thread to loopdomain mapping, cache blocking may come even for free. So, that sparks the immediate question, how the mapping would look like for blocksizes delta_i and delta_b, where we require that a block of size delta_i and delta_b are entirely dealt with by one threadblock. Threadblocks are rather small though (max 32 = 4*4*2 warps). Maybe using blocks with delta_i = 4 and delta_b = 4 (16 warps, 512 threads) could be advantageous. If cacheblocking is done within a block, can we guarantee that it is PROPERLY done across blocks. I.e. does it factorize? Huh. Also when doing cache blocking within a threadblock, the shared memory becomes very interesting again. 
+	
 
 
 
