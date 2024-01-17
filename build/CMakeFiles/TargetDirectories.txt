@@ -7,5 +7,6 @@
 /home/tobias/phd/cuda_grid/build/CMakeFiles/grid_mapping.dir
 /home/tobias/phd/cuda_grid/build/CMakeFiles/test_stencil.dir
 /home/tobias/phd/cuda_grid/build/CMakeFiles/bench_matmul_mrhs.dir
+/home/tobias/phd/cuda_grid/build/CMakeFiles/bench_stencil_mrhs.dir
 /home/tobias/phd/cuda_grid/build/CMakeFiles/edit_cache.dir
 /home/tobias/phd/cuda_grid/build/CMakeFiles/rebuild_cache.dir

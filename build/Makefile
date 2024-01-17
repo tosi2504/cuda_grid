@@ -233,6 +233,19 @@ bench_matmul_mrhs/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_matmul_mrhs.dir/build.make CMakeFiles/bench_matmul_mrhs.dir/build
 .PHONY : bench_matmul_mrhs/fast
 
+#=============================================================================
+# Target rules for targets named bench_stencil_mrhs
+
+# Build rule for target.
+bench_stencil_mrhs: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 bench_stencil_mrhs
+.PHONY : bench_stencil_mrhs
+
+# fast build rule for target.
+bench_stencil_mrhs/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_stencil_mrhs.dir/build.make CMakeFiles/bench_stencil_mrhs.dir/build
+.PHONY : bench_stencil_mrhs/fast
+
 test/bench_matmul.o: test/bench_matmul.cu.o
 .PHONY : test/bench_matmul.o
 
@@ -304,6 +317,30 @@ test/bench_stencil.s: test/bench_stencil.cu.s
 test/bench_stencil.cu.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_stencil.dir/build.make CMakeFiles/bench_stencil.dir/test/bench_stencil.cu.s
 .PHONY : test/bench_stencil.cu.s
+
+test/bench_stencil_mrhs.o: test/bench_stencil_mrhs.cu.o
+.PHONY : test/bench_stencil_mrhs.o
+
+# target to build an object file
+test/bench_stencil_mrhs.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_stencil_mrhs.dir/build.make CMakeFiles/bench_stencil_mrhs.dir/test/bench_stencil_mrhs.cu.o
+.PHONY : test/bench_stencil_mrhs.cu.o
+
+test/bench_stencil_mrhs.i: test/bench_stencil_mrhs.cu.i
+.PHONY : test/bench_stencil_mrhs.i
+
+# target to preprocess a source file
+test/bench_stencil_mrhs.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_stencil_mrhs.dir/build.make CMakeFiles/bench_stencil_mrhs.dir/test/bench_stencil_mrhs.cu.i
+.PHONY : test/bench_stencil_mrhs.cu.i
+
+test/bench_stencil_mrhs.s: test/bench_stencil_mrhs.cu.s
+.PHONY : test/bench_stencil_mrhs.s
+
+# target to generate assembly for a file
+test/bench_stencil_mrhs.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_stencil_mrhs.dir/build.make CMakeFiles/bench_stencil_mrhs.dir/test/bench_stencil_mrhs.cu.s
+.PHONY : test/bench_stencil_mrhs.cu.s
 
 test/grid_mapping.o: test/grid_mapping.cu.o
 .PHONY : test/grid_mapping.o
@@ -436,6 +473,7 @@ help:
 	@echo "... bench_matmul"
 	@echo "... bench_matmul_mrhs"
 	@echo "... bench_stencil"
+	@echo "... bench_stencil_mrhs"
 	@echo "... cugrid"
 	@echo "... grid_mapping"
 	@echo "... lattice_matmul"
@@ -451,6 +489,9 @@ help:
 	@echo "... test/bench_stencil.o"
 	@echo "... test/bench_stencil.i"
 	@echo "... test/bench_stencil.s"
+	@echo "... test/bench_stencil_mrhs.o"
+	@echo "... test/bench_stencil_mrhs.i"
+	@echo "... test/bench_stencil_mrhs.s"
 	@echo "... test/grid_mapping.o"
 	@echo "... test/grid_mapping.i"
 	@echo "... test/grid_mapping.s"

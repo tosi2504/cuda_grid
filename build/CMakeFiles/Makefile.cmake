@@ -126,4 +126,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/grid_mapping.dir/DependInfo.cmake"
   "CMakeFiles/test_stencil.dir/DependInfo.cmake"
   "CMakeFiles/bench_matmul_mrhs.dir/DependInfo.cmake"
+  "CMakeFiles/bench_stencil_mrhs.dir/DependInfo.cmake"
   )

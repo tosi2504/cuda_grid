@@ -55,3 +55,8 @@ add_executable(bench_matmul_mrhs test/bench_matmul_mrhs.cu)
 target_link_libraries(bench_matmul_mrhs cugrid)
 target_link_libraries(bench_matmul_mrhs gomp)
 target_compile_features(bench_matmul_mrhs PUBLIC cxx_std_11)
+
+add_executable(bench_stencil_mrhs test/bench_stencil_mrhs.cu)
+target_link_libraries(bench_stencil_mrhs cugrid)
+target_link_libraries(bench_stencil_mrhs gomp)
+target_compile_features(bench_stencil_mrhs PUBLIC cxx_std_11)
