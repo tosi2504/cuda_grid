@@ -2,6 +2,10 @@ This is the notes file for cugrid
 
 
 TODO:
+	- cuBLAS type cugrid (cugrid2):
+		- tensor classes (bTensor: bScalar, bVector, bMatrix) ---> bTensor.h
+		- grid class (name? -> bGrid)
+		- lattice class (or just call it field directly)
 
 
 
@@ -138,5 +142,10 @@ THOUGHTS:
 		- use cuBLAS without interleaved memory
 		- use tensorcores directly (for TF32 and FP16)
 	This means that I have to build expertise in these fields. Alright, let us download cublas and see what happens.
+
+	Okay, I have learned a lot. Apparently, cuBLAS uses column major and only allows the fundamental data types, which makes sense. So, in order to use it, two major changes would be needed to be done on the layout. First, one needs to remove the interleaving of tensor and node idices. Secondly, the tensors need to be stored in column major. I could just implement this right away and see whats faster ... my implementation or the cuBLAS version. Whats a little bit concerning, however, is that cuBLAS does not offer multiple rhs routines. This could be fixed, however, by first aligning the vectors as matrix.
+	What do I do exactly, now? -> cugrid2
+	cugrid2 should work fundamentally similar to cugrid from an API aspect. I need a tensor class, a grid class and a lattice class. The grid class is not important for now. I also want some kind of translation between the two datastorage backends. So I thought about it even more. I think it is very reasonable to write a cugrid version using cuBLAS. It should not take very long and be easily debuggable. Then I will write a full-fleched stencil kernel (finally uargh!). The cublas-version of cugrid should be integrated seamlessly.
+	Should I move over to MESON? Could be worth it. Let's see what the have for header-only libraries. I will play around with meson for a bit and build some expertise.
 	
 
