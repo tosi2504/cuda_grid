@@ -95,3 +95,15 @@ struct bMatrix{
 		fill_buffer_random<T, N*N>(gen, (T*)data, min, max);	
 	}
 };
+
+template<class T, unsigned N>
+bVector<T,N> debugMatmul(const bMatrix<T,N> & A, const bVector<T,N> & x) {
+	bVector<T,N> y;
+	for (unsigned i = 0; i < N; i++) {
+		y.data[i] = 0;
+		for (unsigned j = 0; j < N; j++) {
+			y.data[i] += A.data[i][j] * x.data[j];
+		}
+	}
+	return y;
+}

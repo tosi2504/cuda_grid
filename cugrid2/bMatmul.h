@@ -3,9 +3,10 @@
 #include <stdexcept>
 #include <type_traits>
 
-#include "/usr/local/cuda/include/cublas_v2.h"
-// #include "cublas_v2.h"
+#include <cublas_v2.h>
 #include <cuda_runtime.h>
+
+#include "errorcheck.h"
 
 // this should be the batched matmul operation
 template<class T, unsigned N>
@@ -26,7 +27,7 @@ cublasStatus_t matmul(cublasHandle_t & handle
 	const float alpha = 1;
 	const float beta = 0;
 	if constexpr (std::is_same_v<float,T>) {
-		return cublasSgemvStridedBatched(handle
+		cublasStatus_t res = cublasSgemvStridedBatched(handle
 								, CUBLAS_OP_T
 								, N, N // m, n
 								, &alpha 
@@ -38,6 +39,8 @@ cublasStatus_t matmul(cublasHandle_t & handle
 								, &y.d_data[0].data[0], 1 // incy
 								, N // stride of batch of y
 								, y.grid.numSites); // batchCount
+		CCE(  cudaDeviceSynchronize()  );
+		return res;
 	} else {
 		throw std::runtime_error("Only FLOATs atm ffs!");
 	}
