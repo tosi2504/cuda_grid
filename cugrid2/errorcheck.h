@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <stdexcept>
 #include <cublas_v2.h>
 
 
@@ -16,8 +17,7 @@ void check(T err, const char* const func, const char* const file,
         std::cerr << "CUDA Runtime Error at: " << file << ":" << line
                   << std::endl;
         std::cerr << cudaGetErrorString(err) << " " << func << std::endl;
-        // We don't exit when we encounter CUDA errors in this example.
-        // std::exit(EXIT_FAILURE);
+		throw std::runtime_error("cuda Error occured -> programm terminated");
     }
 }
 
@@ -30,8 +30,7 @@ void checkLast(const char* const file, const int line)
         std::cerr << "CUDA Runtime Error at: " << file << ":" << line
                   << std::endl;
         std::cerr << cudaGetErrorString(err) << std::endl;
-        // We don't exit when we encounter CUDA errors in this example.
-        // std::exit(EXIT_FAILURE);
+		throw std::runtime_error("cuda Error occured -> programm terminated");
     }
 }
 
@@ -55,5 +54,6 @@ void cublasCheck(const cublasStatus_t & cublasStat, const char* const func_name,
         std::cerr << "cuBLAS Runtime Error at: " << file << ":" << line
                   << std::endl;
         std::cerr << cublasErrorStringMap.at(cublasStat) << " " << func_name << std::endl;
+		throw std::runtime_error("cuBLAS Error occured -> programm terminated");
 	}
 }

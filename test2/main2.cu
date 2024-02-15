@@ -3,11 +3,11 @@
 #include <random>
 #include "cublas_v2.h"
 
-using T = float;
-constexpr unsigned N = 128;
+using T = complexD;
+constexpr unsigned N = 64;
 
 int main () {
-	bGrid grid(8,8,8,16);
+	bGrid grid(8,8,8,8);
 	bVectorField<T,N> x(grid), y(grid);
 	bMatrixField<T,N> A(grid);
 
@@ -34,7 +34,8 @@ int main () {
 
 	// check results
 	unsigned long site = 1*2*3*4;
-	unsigned long i = 12;
+	unsigned long i = 0;
+	std::cout << "numBytes: " << sizeof(T) << std::endl;
 	std::cout << y.h_data[site].data[i] << std::endl;
 	std::cout << debugMatmul(A.h_data[site], x.h_data[site]).data[i] << std::endl;
 }

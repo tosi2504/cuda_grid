@@ -21,3 +21,11 @@ double calcBandwidthInGBs_matmul(const double resTime
 									, const unsigned long numBytes) {
 	return (numSites*numBytes*(N*N + 2*N)/resTime)/1000;
 }
+
+double calcBandwidthInGBs_matmul_mrhs(const double resTime
+									, const unsigned long numSites
+									, const unsigned long N
+									, const unsigned long numBytes
+									, const unsigned long numRHS) {
+	return (numSites*numBytes*(N*N + 2*N)*numRHS/resTime)/1000;
+}
