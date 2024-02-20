@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <type_traits>
+#include <cassert>
 
 #include <cublas_v2.h>
 #include <cuda_runtime.h>
@@ -69,8 +70,9 @@ void matmul(cublasHandle_t & handle
 }
 
 namespace mrhs_helper {
-	template<class bTensor, unsigned numRHS>
-	bool areGridsInBatchCompatible(const bLattice<bTensor> * const * fields) {
+	// grid compatibility checks
+	template<class tensor, unsigned numRHS>
+	bool areGridsInBatchCompatible(const bLattice<tensor> * const * fields) {
 		for (unsigned iRHS = 1; iRHS < numRHS; iRHS++)
 			if (not fields[0]->grid.isCompatible(fields[iRHS]->grid)) return false;
 		return true;
@@ -84,14 +86,29 @@ namespace mrhs_helper {
 				return true;
 		return false;
 	}
+
+	// batch device pointer management functions
+	template<class tensor, unsigned numRHS>
+	typename tensor::_T ** createBatchDvcPtr(const bLattice<tensor> * const * const fields) 
+	{
+		using T = typename tensor::_T;
+		T ** d_res;
+		CCE(  cudaMalloc(&d_res, sizeof(T*)*numRHS)  );
+		for (unsigned iRHS = 0; iRHS < numRHS; iRHS++) {
+			CCE(  cudaMemcpy(d_res+iRHS, (T**)&(fields[iRHS]->d_data)
+						, sizeof(T*)
+						, cudaMemcpyHostToDevice)  );
+		}
+		return d_res;
+	}
 }
  
 namespace matmul_mrhs {
 	template<class T, unsigned N, unsigned numRHS>
 	void naive(cublasHandle_t & handle
-			, bVectorField<T,N> * const ys[numRHS]
+			, bVectorField<T,N> * const * const ys
 			, const bMatrixField<T,N> & A
-			, const bVectorField<T,N> * const xs[numRHS]) 
+			, const bVectorField<T,N> * const * xs) 
 	{
 		// check compatibility of grids
 		if (not mrhs_helper::areGridsCompatible<T,N,numRHS>(ys, A, xs)) throw std::invalid_argument("Grids are not compatible");
@@ -115,5 +132,65 @@ namespace matmul_mrhs {
 			cublasCCE(status);
 		}
 		CCE(  cudaDeviceSynchronize()  );
+	}
+
+	template<class T, unsigned N, unsigned numRHS>
+	__global__ void ker_cacheMatrix(T * const * const d_ys
+			, const T * const d_A
+			, const T * const * const d_xs)
+	{
+		const unsigned tIdx = threadIdx.x;
+		const unsigned blkSize = blockDim.x;
+		const unsigned siteIdx = blockIdx.x;
+		constexpr unsigned sizeA = N*N;
+
+		// need to load d_A into shared memory
+		__shared__ T tempA[sizeA];
+		for (unsigned i = tIdx; i < sizeA; i+=blkSize) {
+			tempA[i] = d_A[siteIdx*sizeA + i];
+		}
+		__syncthreads();
+
+		// do the matmul for every entry in the resulting vectors
+		const unsigned numRhsPerBlk = blkSize/N;
+		for (unsigned iRHS = 0; iRHS < numRHS; iRHS += numRhsPerBlk) {
+			const unsigned i = tIdx%N;
+			const unsigned delta_iRHS = tIdx/N;
+			T temp = 0;
+			const T * const xPtr = d_xs[iRHS + delta_iRHS]+siteIdx*N; 
+			// perform dotProduct
+			for (unsigned k = 0; k < N; k++) {
+				temp += tempA[i*N + k] * xPtr[k];
+			}		
+			// write out results
+			d_ys[iRHS + delta_iRHS][siteIdx*N+i] = temp;
+		}
+	}
+
+	template<class T, unsigned N, unsigned numRHS>
+	void cacheMatrix(bVectorField<T,N> * const * const ys
+			, const bMatrixField<T,N> & A
+			, const bVectorField<T,N> * const * const xs
+			, const unsigned blkSize) 
+	{
+		if (not (blkSize%N==0)) throw std::invalid_argument("blkSize%N==0 not satisfied");
+		if (not (numRHS%(blkSize/N)==0)) throw std::invalid_argument("numRHS%(blkSize/N)==0 not satisfied");
+		
+		// check compatibility of grids
+		if (not mrhs_helper::areGridsCompatible<T,N,numRHS>(ys, A, xs)) throw std::invalid_argument("Grids are not compatible");
+
+		// prepare pointer to array of pointers on device
+		T ** d_ys = mrhs_helper::createBatchDvcPtr<bVector<T,N>,numRHS>(ys);
+		T ** d_xs = mrhs_helper::createBatchDvcPtr<bVector<T,N>,numRHS>(xs);
+
+		// call the kernel -> a block for every lattice site
+		matmul_mrhs::ker_cacheMatrix <T,N,numRHS> <<<A.grid.numSites,blkSize>>> (d_ys, &A.d_data->data[0][0], d_xs);
+		CLCE();
+		CCE(  cudaDeviceSynchronize()  );
+
+
+		// free the device pointers to pointers of data
+		CCE(  cudaFree(d_ys)  );
+		CCE(  cudaFree(d_xs)  );
 	}
 }

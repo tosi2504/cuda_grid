@@ -23,12 +23,12 @@ bVectorField<T,N> ** createAndFillAndUploadBatchVecFields(const unsigned numRHS
 	return res;
 }
 
-using T = realD;
-constexpr unsigned N = 256;
+using T = realF;
+constexpr unsigned N = 16;
 constexpr unsigned numRHS = 8;
 
 int main () {
-	bGrid grid(8,8,8,8);
+	bGrid grid(8,8,16,16);
 	std::mt19937 gen(0);
 
 	// prepare fields
@@ -43,8 +43,10 @@ int main () {
 	cublasHandle_t handle;
 	cublasCCE(  cublasCreate(&handle)  );
 	double resTime = 0;
-	auto func = matmul_mrhs::naive<T,N,numRHS>;
-	BENCHMARK(resTime, 1000, func, handle, ys, A, xs);
+	// auto func = matmul_mrhs::naive<T,N,numRHS>;
+	// BENCHMARK(resTime, 1000, func, handle, ys, A, xs);
+	auto func = matmul_mrhs::cacheMatrix<T,N,numRHS>;
+	BENCHMARK(resTime, 1000, func, ys, A, xs, 8*N);
 	std::cout << "T has numBytes: " << sizeof(T) << std::endl;
 	std::cout << "One cycle took " << resTime << "us on average" << std::endl;
 	std::cout << "BANDWIDTH in GB/s: " << calcBandwidthInGBs_matmul_mrhs(resTime, grid.numSites, N, sizeof(T), numRHS) << std::endl;
@@ -52,9 +54,9 @@ int main () {
     
 	// check results
 	for (unsigned iRHS = 0; iRHS < numRHS; iRHS++) ys[iRHS]->download();
-	unsigned long site = 1*2*3*4;
-	unsigned long i = 0;
-	unsigned iRHS = 0;
+	unsigned long site = grid.numSites-1;
+	unsigned long i = N-1;
+	unsigned iRHS = numRHS-1;
 	std::cout << ys[iRHS]->h_data[site].data[i] << std::endl;
 	std::cout << debugMatmul(A.h_data[site], xs[iRHS]->h_data[site]).data[i] << std::endl;
 }
