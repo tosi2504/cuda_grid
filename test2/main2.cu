@@ -3,8 +3,9 @@
 #include <random>
 #include "cublas_v2.h"
 
-using T = complexD;
-constexpr unsigned N = 64;
+using T = complexF;
+constexpr unsigned N = 32;
+constexpr unsigned blkSize = 16*N;
 
 int main () {
 	bGrid grid(8,8,8,8);
@@ -23,7 +24,10 @@ int main () {
 
 	double resTime = 0;
 
-	BENCHMARK(resTime, 50, matmul, handle, y, A, x);
+	BENCHMARK(resTime, 100, matmul_srhs::cublas, handle, y, A, x);
+	// auto func = matmul_srhs::cacheMatrix<T,N,blkSize>;
+	// BENCHMARK(resTime, 100, func, y, A, x);
+
 	// benchmark results
 	y.download();
 	std::cout << "One cycle took " << resTime << "us on average" << std::endl;
@@ -33,7 +37,7 @@ int main () {
 
 
 	// check results
-	unsigned long site = 1*2*3*4;
+	unsigned long site = 0;
 	unsigned long i = 0;
 	std::cout << "numBytes: " << sizeof(T) << std::endl;
 	std::cout << y.h_data[site].data[i] << std::endl;

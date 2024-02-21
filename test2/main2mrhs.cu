@@ -24,8 +24,9 @@ bVectorField<T,N> ** createAndFillAndUploadBatchVecFields(const unsigned numRHS
 }
 
 using T = realF;
-constexpr unsigned N = 16;
+constexpr unsigned N = 32;
 constexpr unsigned numRHS = 8;
+constexpr unsigned blkSize = 8*N;
 
 int main () {
 	bGrid grid(8,8,16,16);
@@ -45,8 +46,8 @@ int main () {
 	double resTime = 0;
 	// auto func = matmul_mrhs::naive<T,N,numRHS>;
 	// BENCHMARK(resTime, 1000, func, handle, ys, A, xs);
-	auto func = matmul_mrhs::cacheMatrix<T,N,numRHS>;
-	BENCHMARK(resTime, 1000, func, ys, A, xs, 8*N);
+	auto func = matmul_mrhs::cacheMatrix<T,N,numRHS,blkSize>;
+	BENCHMARK(resTime, 1000, func, ys, A, xs);
 	std::cout << "T has numBytes: " << sizeof(T) << std::endl;
 	std::cout << "One cycle took " << resTime << "us on average" << std::endl;
 	std::cout << "BANDWIDTH in GB/s: " << calcBandwidthInGBs_matmul_mrhs(resTime, grid.numSites, N, sizeof(T), numRHS) << std::endl;

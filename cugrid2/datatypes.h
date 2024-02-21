@@ -25,3 +25,4 @@ std::ostream & operator<<(std::ostream & left, const complexF & right) {
 std::ostream & operator<<(std::ostream & left, const complexD & right) {
 	return left << "(" << right.real() << "," << right.imag() << ")";
 }
+
