@@ -3,9 +3,9 @@
 #include <random>
 #include "cublas_v2.h"
 
-using T = complexF;
-constexpr unsigned N = 32;
-constexpr unsigned blkSize = 16*N;
+using T = realD;
+constexpr unsigned N = 64;
+constexpr unsigned blkSize = 8*N;
 
 int main () {
 	bGrid grid(8,8,8,8);
@@ -19,21 +19,25 @@ int main () {
 	A.upload();
 	x.upload();
 
-	cublasHandle_t handle;
-	cublasCCE(  cublasCreate(&handle)  );
+	std::cout << "Fields are randomly filled" << std::endl;
+
 
 	double resTime = 0;
 
-	BENCHMARK(resTime, 100, matmul_srhs::cublas, handle, y, A, x);
-	// auto func = matmul_srhs::cacheMatrix<T,N,blkSize>;
-	// BENCHMARK(resTime, 100, func, y, A, x);
+	// cublasHandle_t handle;
+	// cublasCCE(  cublasCreate(&handle)  );
+	// BENCHMARK(resTime, 100, matmul_srhs::cublas, handle, y, A, x);
+	// cublasCCE(  cublasDestroy(handle)  );
+
+	auto func = matmul_srhs::cacheMatrix<T,N,blkSize>;
+	///auto func = matmul_srhs::cacheMatrixWarpReduce<T,N,blkSize>;
+	BENCHMARK(resTime, 300, func, y, A, x);
 
 	// benchmark results
 	y.download();
 	std::cout << "One cycle took " << resTime << "us on average" << std::endl;
 	std::cout << "BANDWIDTH in GB/s: " << calcBandwidthInGBs_matmul(resTime, grid.numSites, N, sizeof(T)) << std::endl;
 
-	cublasCCE(  cublasDestroy(handle)  );
 
 
 	// check results
