@@ -155,7 +155,7 @@ namespace matmul_srhs{
 		const unsigned tIdx = threadIdx.x;
 		const unsigned siteIdx = blockIdx.x;
 		constexpr unsigned numParallelDotProducts = blkSize / N;
-		constexpr unsigned numWarpsPerDotProduct = N / 32;
+		// constexpr unsigned numWarpsPerDotProduct = N / 32;
 
 		// prepare shared memory
 		__shared__ T tempA[N*N];
@@ -167,22 +167,41 @@ namespace matmul_srhs{
 		__syncthreads();
 		
 		// perform dot product
-		__shared T tempRes[blkSize];
+		__shared__ T tempRes[blkSize];
 		const unsigned k = tIdx % N;
 		const unsigned di = tIdx / N;
 		for (unsigned I = 0; I < N; I += numParallelDotProducts) {
 			// perform multiplication
-			tempRes[(I + di)*N + k] = tempA[(I + di)*N + k] * tempX[k];
+			tempRes[di*N + k] = tempA[(I + di)*N + k] * tempX[k];
 			__syncthreads();
-			// perform reduction on warps
-			if constexpr (N==32) if (tIdx < CONTINUE HERE) reduce<T,16>(tempRes, tIdx);
-			if constexpr (N==64) reduce<T,32>(tempRes, tIdx);
+			// perform reduction on warps (Assumes N <= 64)
+			if (tIdx < blkSize/2) reduce<T,N>(tempRes, tIdx);
+			// write results to gmem
+			if (k == 0) d_y[siteIdx*N + I + di] = tempRes[di*N];
+			__syncthreads();
 		}
 	}
 
-	//assert N%32==0 !!!!
-	//assert N==32 or N==64
-	//assert blkSize = (2^n)*N !!!!
+	template<class T, unsigned N, unsigned blkSize>
+	void cacheMatrixWarpReduce(bVectorField<T,N> & y
+			, const bMatrixField<T,N> & A
+			, const bVectorField<T,N> & x) 
+	{
+		// check validity of template parameters
+		static_assert(N%32 == 0);
+		static_assert(N==32 or N==64);
+		if (not std::ceil(std::log2(blkSize/N)) == std::floor(std::log2(blkSize/N))) throw std::invalid_argument("N/blkSize must be a power of two");
+
+		// check compatibility of grids
+		if ( not (y.grid.isCompatible(A.grid) and y.grid.isCompatible(x.grid)) ) {
+			throw std::invalid_argument("Grids are not compatible");
+		}
+
+		// call kernel
+		ker_cacheMatrixWarpReduce <T,N,blkSize> <<<A.grid.numSites,blkSize>>> ((T*)y.d_data, (T*)A.d_data, (T*)x.d_data);
+		CLCE();
+		CCE(  cudaDeviceSynchronize()  );
+	}
 }
 
 namespace mrhs_helper {

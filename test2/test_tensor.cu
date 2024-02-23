@@ -22,6 +22,6 @@ int main () {
 	cublasHandle_t handle;
 	cublasStatus_t cublasStatus;
 	cublasStatus = cublasCreate(&handle);
-	matmul<T, N>(handle, y, A, x);
+	matmul_srhs::cublas<T, N>(handle, y, A, x);
 	cublasStatus = cublasDestroy(handle);
 }
