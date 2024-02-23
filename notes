@@ -156,6 +156,6 @@ THOUGHTS:
 	Let's start with normal cuBLAS, i.e., batched matrix-vector. I have implemented it AND moved to cuda 12.3 in the process -> nice! But what next? Lets debug and benchmark it! cublas calls are asynchronous -> in order to benchmark one needs to use cudaDeviceSynchronize(). The benchmarks look very good -> always over 90% memory bandwidth achieved on my notebook GPU. What is the next step? Think about stencils maybe? Or implement matmul for double and complex numbers :) Double and complex works perfect :) I am starting to like cuBLAS. This means that we should proceed straight to multiple right hand sides. Here we need to check three options: 
 	- Just putting the cublas gemv-calls in a for loop -> naive version. 
 	- Write the matmul kernel by myself -> allow for intelligent caching of data.
-		- Okay, this could be funny. Lets completely cache the matrix and lets see what happens.
+		- Okay, this could be funny. Lets completely cache the matrix and lets see what happens. Interestingly complex numbers really suffer in performance (in terms of bandwidth)
 	- Reordering the data layout of the vectors to allow for a gemm call (maybe do this in a stream).
 
