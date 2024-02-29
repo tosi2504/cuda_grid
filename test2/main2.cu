@@ -38,8 +38,6 @@ int main () {
 	std::cout << "One cycle took " << resTime << "us on average" << std::endl;
 	std::cout << "BANDWIDTH in GB/s: " << calcBandwidthInGBs_matmul(resTime, grid.numSites, N, sizeof(T)) << std::endl;
 
-
-
 	// check results
 	unsigned long site = 0;
 	unsigned long i = 0;

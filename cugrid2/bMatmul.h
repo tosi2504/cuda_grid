@@ -39,6 +39,31 @@ namespace gemvStridedBatched {
 	}
 }
 
+namespace gemmStridedBatched {
+	template<class T>
+	cublasStatus_t call(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const T *alpha, const T *A, int lda, long long int strideA, const T *B, int ldb, long long int strideB, const T *beta, T *C, int ldc, long long int strideC, int batchCount);
+
+	template<>
+	cublasStatus_t call<realF>(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const realF *alpha, const realF *A, int lda, long long int strideA, const realF *B, int ldb, long long int strideB, const realF *beta, realF *C, int ldc, long long int strideC, int batchCount) {
+		return cublasSgemmStridedBatched(handle, transa, transb, m, n, k, alpha, A, lda, strideA, B, ldb, strideB, beta, C, ldc, strideC, batchCount);
+	}
+
+	template<>
+	cublasStatus_t call<realD>(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const realD *alpha, const realD *A, int lda, long long int strideA, const realD *B, int ldb, long long int strideB, const realD *beta, realD *C, int ldc, long long int strideC, int batchCount) {
+		return cublasDgemmStridedBatched(handle, transa, transb, m, n, k, alpha, A, lda, strideA, B, ldb, strideB, beta, C, ldc, strideC, batchCount);
+	}
+
+	template<>
+	cublasStatus_t call<complexF>(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const complexF *alpha, const complexF *A, int lda, long long int strideA, const complexF *B, int ldb, long long int strideB, const complexF *beta, complexF *C, int ldc, long long int strideC, int batchCount) {
+		return cublasCgemmStridedBatched(handle, transa, transb, m, n, k, (cuComplex*)alpha, (cuComplex*)A, lda, strideA, (cuComplex*)B, ldb, strideB, (cuComplex*)beta, (cuComplex*)C, ldc, strideC, batchCount);
+	}
+
+	template<>
+	cublasStatus_t call<complexD>(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const complexD *alpha, const complexD *A, int lda, long long int strideA, const complexD *B, int ldb, long long int strideB, const complexD *beta, complexD *C, int ldc, long long int strideC, int batchCount) {
+		return cublasZgemmStridedBatched(handle, transa, transb, m, n, k, (cuDoubleComplex*)alpha, (cuDoubleComplex*)A, lda, strideA, (cuDoubleComplex*)B, ldb, strideB, (cuDoubleComplex*)beta, (cuDoubleComplex*)C, ldc, strideC, batchCount);
+	}
+}
+
 namespace matmul_srhs{
 	template<class T, unsigned N>
 	void cublas(cublasHandle_t & handle 
@@ -224,8 +249,7 @@ namespace mrhs_helper {
 
 	// batch device pointer management functions
 	template<class tensor, unsigned numRHS>
-	typename tensor::_T ** createBatchDvcPtr(const bLattice<tensor> * const * const fields) 
-	{
+	typename tensor::_T ** createBatchDvcPtr(const bLattice<tensor> * const * const fields) {
 		using T = typename tensor::_T;
 		T ** d_res;
 		CCE(  cudaMalloc(&d_res, sizeof(T*)*numRHS)  );
@@ -235,6 +259,59 @@ namespace mrhs_helper {
 						, cudaMemcpyHostToDevice)  );
 		}
 		return d_res;
+	}
+
+	// non contiguous vector fields to matrix field
+	template<class T, unsigned N, unsigned numRHS>
+	__global__ void ker_fillMatrixfieldFromBatch(T * d_res, const T * const * const d_fields, const unsigned numSites) {
+		const unsigned gIdx = blockIdx.x*blockDim.x + threadIdx.x;
+		const unsigned iRhs = gIdx/(numSites*N);
+		const unsigned iSite = (gIdx%(numSites*N))/N;
+		const unsigned iTnsr = gIdx%N;
+		if (gIdx < numSites*N*numRHS) {
+			d_res[iSite*N*numRHS + iRhs*N + iTnsr] = d_fields[iRhs][iSite*N + iTnsr];
+		}
+	}
+	template<class T, unsigned N, unsigned numRHS, unsigned blkSize>
+	void fillMatrixfieldFromBatch(T * const d_matfield, const bVectorField<T,N> * const * const vecfields) {
+		// assume grids of vecfields to be compatible
+		const bGrid & grid = vecfields[0]->grid;
+
+		// prepare batch pointers for GPU
+		T ** d_vecfields = createBatchDvcPtr<bVector<T,N>,numRHS>(vecfields);
+
+		// call the copy kernel 
+		const unsigned numBlocks = (numRHS*grid.numSites*N + blkSize - 1)/blkSize;
+		ker_fillMatrixfieldFromBatch <T,N,numRHS> <<<numBlocks,blkSize>>> (d_matfield, d_vecfields, grid.numSites);
+		
+		// free batch pointers on GPU
+		CCE(  cudaFree(d_vecfields)  );
+	}
+
+	template<class T, unsigned N, unsigned numRHS>
+	__global__ void ker_fillBatchFromMatrixfield(T * const * const d_vecfields, const T * const d_matfield, const unsigned numSites) {
+		const unsigned gIdx = blockIdx.x*blockDim.x + threadIdx.x;
+		const unsigned iRhs = gIdx/(numSites*N);
+		const unsigned iSite = (gIdx%(numSites*N))/N;
+		const unsigned iTnsr = gIdx%N;
+		if (gIdx < numSites*N*numRHS) {
+			d_vecfields[iRhs][iSite*N + iTnsr] = d_matfield[iSite*N*numRHS + iRhs*N + iTnsr];
+		}
+	}
+	template<class T, unsigned N, unsigned numRHS, unsigned blkSize>
+	void fillBatchFromMatrixfield(bVectorField<T,N> * const * const vecfields, const T * const d_matfield) {
+		// assume grids of vecfields to be compatible
+		const bGrid & grid = vecfields[0]->grid;
+
+		// prepare batch pointers for GPU
+		T ** d_vecfields = createBatchDvcPtr<bVector<T,N>,numRHS>(vecfields);
+
+		// call the copy kernel
+		const unsigned numBlocks = (numRHS*grid.numSites*N + blkSize - 1)/blkSize;
+		ker_fillBatchFromMatrixfield <T,N,numRHS> <<<numBlocks,blkSize>>> (d_vecfields, d_matfield, grid.numSites);
+
+		// free batch array on GPU
+		CCE(  cudaFree(d_vecfields)  );
 	}
 }
  
@@ -332,5 +409,47 @@ namespace matmul_mrhs {
 		// free the device pointers to pointers of data
 		CCE(  cudaFree(d_ys)  );
 		CCE(  cudaFree(d_xs)  );
+	}
+
+	template<class T, unsigned N, unsigned numRHS, unsigned blkSize>
+	void gemm(cublasHandle_t & handle
+			, bVectorField<T,N> * const * const ys
+			, const bMatrixField<T,N> & A
+			, const bVectorField<T,N> * const * xs
+			, T * d_Y_buff, T * d_X_buff)
+	{
+		// check compatibility of grids
+		if (not mrhs_helper::areGridsCompatible<T,N,numRHS>(ys, A, xs)) throw std::invalid_argument("Grids are not compatible");
+		const bGrid & grid = A.grid;
+
+		// create intermediate matfields
+		// T * d_X, * d_Y;
+		// CCE(  cudaMalloc(&d_X, sizeof(T)*numRHS*grid.numSites*N)  );
+		// CCE(  cudaMalloc(&d_Y, sizeof(T)*numRHS*grid.numSites*N)  );
+
+		// copy inputs to matrixfield X
+		mrhs_helper::fillMatrixfieldFromBatch<T,N,numRHS,blkSize>(d_X_buff, xs);
+		
+		// call gemm on d_X, d_Y and A.d_data
+		T alpha = 1;
+		T beta = 0;
+		cublasCCE(  gemmStridedBatched::call<T>(handle
+												, CUBLAS_OP_T
+												, CUBLAS_OP_N
+												, N, numRHS, N
+												, &alpha
+												, (T*)A.d_data, N, N*N
+												, d_X_buff, N, N*numRHS
+												, &beta
+												, d_Y_buff, N, N*numRHS
+												, grid.numSites)  );
+		CCE(  cudaDeviceSynchronize()  );
+
+		// copy result to vectorfields ys
+		mrhs_helper::fillBatchFromMatrixfield<T,N,numRHS,blkSize>(ys, d_Y_buff);
+
+		// free temporary matfields
+		// CCE(  cudaFree(d_X)  );
+		// CCE(  cudaFree(d_Y)  );
 	}
 }

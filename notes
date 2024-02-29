@@ -157,5 +157,7 @@ THOUGHTS:
 	- Just putting the cublas gemv-calls in a for loop -> naive version. 
 	- Write the matmul kernel by myself -> allow for intelligent caching of data.
 		- Okay, this could be funny. Lets completely cache the matrix and lets see what happens. Interestingly complex numbers really suffer in performance (in terms of bandwidth)
+		- decent performance, but complex numbers suffer -> maybe find explicit bottleneck? (ask christoph)
 	- Reordering the data layout of the vectors to allow for a gemm call (maybe do this in a stream).
+		- lets just start with a naive implementation
 

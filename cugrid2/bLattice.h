@@ -46,3 +46,4 @@ struct bLattice {
 
 template<class T, unsigned N> using bVectorField = bLattice<bVector<T,N>>;
 template<class T, unsigned N> using bMatrixField = bLattice<bMatrix<T,N>>;
+
