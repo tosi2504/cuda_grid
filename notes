@@ -160,4 +160,5 @@ THOUGHTS:
 		- decent performance, but complex numbers suffer -> maybe find explicit bottleneck? (ask christoph)
 	- Reordering the data layout of the vectors to allow for a gemm call (maybe do this in a stream).
 		- lets just start with a naive implementation
+		- we get decent performance now, but somehow the cublas-gemm call is really slow for doubles and complex doubles. Something is not right here.
 
