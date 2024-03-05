@@ -1,6 +1,7 @@
 #include "../cugrid2/cugrid2.h"
 
 #include <random>
+#include <string>
 #include "cublas_v2.h"
 
 template<class T, unsigned N>
@@ -22,10 +23,25 @@ bVectorField<T,N> ** createAndFillAndUploadBatchVecFields(const unsigned numRHS
 	}
 	return res;
 }
+template<class T>
+void print_results(double resTime, unsigned N, unsigned numRHS, unsigned blkSize, const bGrid & grid) {
+	std::cout << "========= BENCHMARK RESULTS =========" << std::endl;
+	std::cout << "  Arithmetic type   : " << type_as_string<T>::value << std::endl;
+	std::cout << "     --> bytes      : " << sizeof(T) << std::endl;
+	std::cout << "  Tensor size       : " << N << std::endl;
+	std::cout << "  numRHS            : " << numRHS << std::endl;
+	std::cout << "  Grid config       : (" << grid.Lx << "," << grid.Ly << "," << grid.Lz << "," << grid.Lt << ")" << std::endl;
+	std::cout << "     --> numSites   : " << grid.numSites << std::endl;
+	std::cout << "  Block size        : " << blkSize << std::endl;
+	std::cout << "  One cycle took    : " << resTime << "us (on average)" << std::endl;
+	std::cout << "  srhs-Bandw. GB/s  : " << calcBandwidthInGBs_matmul_mrhs(resTime, grid.numSites, N, sizeof(T), numRHS) << std::endl;
+	std::cout << "  mrhs-Bandw. GB/s  : " << ((N*N + 2*N*numRHS)*(long)grid.numSites*sizeof(T))/(resTime*1000) << std::endl;
+	std::cout << "=====================================" << std::endl;
+}
 
-using T = realD;
-constexpr unsigned N = 32;
-constexpr unsigned numRHS = 8;
+using T = realF;
+constexpr unsigned N = 64;
+constexpr unsigned numRHS = 16;
 constexpr unsigned blkSize = 4*N;
 
 int main () {
@@ -57,10 +73,10 @@ int main () {
 	auto func = matmul_mrhs::gemm<T,N,numRHS,blkSize>;
 	BENCHMARK(resTime, 1000, func, handle, ys, A, xs, d_Y, d_X);
 
-	std::cout << "T has numBytes: " << sizeof(T) << std::endl;
-	std::cout << "One cycle took " << resTime << "us on average" << std::endl;
-	std::cout << "BANDWIDTH in GB/s: " << calcBandwidthInGBs_matmul_mrhs(resTime, grid.numSites, N, sizeof(T), numRHS) << std::endl;
 	cublasCCE(  cublasDestroy(handle)  );
+
+	// print out the results
+	print_results<T>(resTime, N, numRHS, blkSize, grid);
     
 	// check results
 	for (unsigned iRHS = 0; iRHS < numRHS; iRHS++) ys[iRHS]->download();

@@ -3,6 +3,7 @@
 #include <cuda/std/complex>
 #include <type_traits>
 #include <iostream>
+#include <string>
 
 using realF = float;
 using realD = double;
@@ -26,3 +27,8 @@ std::ostream & operator<<(std::ostream & left, const complexD & right) {
 	return left << "(" << right.real() << "," << right.imag() << ")";
 }
 
+template<class T> struct type_as_string;
+template<> struct type_as_string<realF> {constexpr static char value[] = "realF";};
+template<> struct type_as_string<realD> {constexpr static char value[] = "realD";};
+template<> struct type_as_string<complexF> {constexpr static char value[] = "complexF";};
+template<> struct type_as_string<complexD> {constexpr static char value[] = "complexD";};
