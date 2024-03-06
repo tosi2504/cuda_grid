@@ -16,6 +16,7 @@ endforeach
 # build cugrid2 tests
 test2_files = {'test_tensor'  : 'test2/test_tensor.cu'
                 , 'main2'     : 'test2/main2.cu'
+                , 'stencil2'     : 'test2/stencil2.cu'
                 , 'main2mrhs' : 'test2/main2mrhs.cu'}
 foreach key, value : test2_files
   executable(key, value, dependencies: cuda_dep)

@@ -4,6 +4,7 @@
 #include <chrono>
 #include <type_traits>
 
+#define COMMA ,
 
 #define BENCHMARK(resTime, repetitions, func, ...) \
 { \
