@@ -19,12 +19,12 @@ struct bMuStencil {
 
 	template<class T, unsigned stride>
 	T** createDevicePointerArray(const T * const d_field, const bool doPermute) const {
-		const T ** const h_d_field = new T*[grid.numSites];
+		const T ** const h_d_field = new const T*[grid.numSites];
 		for (unsigned site = 0; site < grid.numSites; site++) {
 			if (doPermute) h_d_field[site] = d_field + targetmap[site]*stride;
 			else h_d_field[site] = d_field + site*stride;
 		}
-		const T ** d_d_field;
+		T ** d_d_field;
 		CCE(  cudaMalloc(&d_d_field, sizeof(T*)*grid.numSites)  );
 		CCE(  cudaMemcpy(d_d_field, h_d_field, sizeof(T*)*grid.numSites, cudaMemcpyHostToDevice)  );
 		delete[] h_d_field;
@@ -51,10 +51,10 @@ struct bMuStencil {
 		mrhs_helper::fillMatrixfieldFromBatch<T,N,numRHS,blkSize>(d_X, xs);
 		
 		// create permuted pointer array for X
-		const T * const * const d_d_X = createDevicePointerArray<N*numRHS>(d_X, true);
+		T ** d_d_X = createDevicePointerArray<T,N*numRHS>(d_X, true);
 		// create unpermuted pointer array for Y and A
-		const T * const * const d_d_A = createDevicePointerArray<T,N*N>((T*)A.d_data, false);
-		T * const * const d_d_Y = createDevicePointerArray<T,N*numRHS>(d_Y, false);
+		T ** d_d_A = createDevicePointerArray<T,N*N>((T*)A.d_data, false);
+		T ** d_d_Y = createDevicePointerArray<T,N*numRHS>(d_Y, false);
 
 		// call gemmBatched on d_d_X, d_d_Y and A.d_data
 		const T alpha = 1;

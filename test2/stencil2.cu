@@ -40,8 +40,8 @@ void print_results(double resTime, unsigned N, unsigned numRHS, unsigned blkSize
 }
 
 using T = realF;
-constexpr unsigned N = 64;
-constexpr unsigned numRHS = 16;
+constexpr unsigned N = 128;
+constexpr unsigned numRHS = 8;
 constexpr unsigned blkSize = 4*N;
 constexpr unsigned mu = 0;
 constexpr bool isForward = true;
@@ -76,7 +76,4 @@ int main () {
 	unsigned iRHS = 0;//numRHS-1;
 	std::cout << ys[iRHS]->h_data[site].data[i] << std::endl;
 	std::cout << debugMatmul(A.h_data[site], xs[iRHS]->h_data[site]).data[i] << std::endl;
-
-	// FOR COPY BENCHMARK
-	std::cout << "Copy Bandwidth: " << (N*numRHS*4)*(long)grid.numSites*sizeof(T)/((double)resTime*1000) << " GB/s" << std::endl;
 }
