@@ -42,8 +42,14 @@ def reconfigure(print_output: bool = False):
         print(res_string)
 
 
-def compile_target(target: str, print_output: bool = False):
-    res_string = subprocess.run(args=['ninja', target]
+def compile_target(target: str, force_recompile: bool = False, print_output: bool = False):
+    res_string = str()
+    if (force_recompile):
+        res_string += subprocess.run(args=['ninja', 'clean']
+                       , cwd=os.path.join(get_project_root_path(), 'build')
+                       , stdout=subprocess.PIPE
+                       , stderr=subprocess.STDOUT).stdout.decode('utf-8')
+    res_string += subprocess.run(args=['ninja', target]
                    , cwd=os.path.join(get_project_root_path(), 'build')
                    , stdout=subprocess.PIPE
                    , stderr=subprocess.STDOUT).stdout.decode('utf-8')
@@ -61,5 +67,5 @@ def run_binary(target: str, args: list):
 if __name__ ==  "__main__": 
     set_meson_bench_params(T='realF', N=64, numRHS=32, blkSize=128)
     reconfigure(print_output=True)
-    compile_target(target='mrhs_blas', print_output=True)
-    print(run_binary(target='mrhs_blas', args=['8', '8', '8', '8', '0', 'true']))
+    compile_target(target='mrhs_lanes', force_recompile=True, print_output=True)
+    print(run_binary(target='mrhs_lanes', args=['8', '8', '8', '8', '0', 'true']))

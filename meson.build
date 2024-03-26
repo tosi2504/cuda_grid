@@ -25,7 +25,10 @@ endforeach
 # build benchmark_stencil tests
 bench_params = ['-DBENCH_PARAM_T=realF', '-DBENCH_PARAM_N=64', '-DBENCH_PARAM_numRHS=32', '-DBENCH_PARAM_blkSize=128']
 bench_files = {'stencil_blas'  : 'benchmark/stencil_blas.cu'
-                , 'mrhs_blas' : 'benchmark/mrhs_blas.cu'}
+                , 'mrhs_blas' : 'benchmark/mrhs_blas.cu'
+                , 'mrhs_sharedmem' : 'benchmark/mrhs_sharedmem.cu'
+                , 'stencil_lanes' : 'benchmark/stencil_lanes.cu'
+                , 'mrhs_lanes' : 'benchmark/mrhs_lanes.cu'}
 foreach key, value : bench_files
   executable(key, value, dependencies: cuda_dep, cuda_args: bench_params)
 endforeach

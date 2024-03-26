@@ -99,7 +99,6 @@ class Lattice {
 
 		// copy the data into the buffers
 		if constexpr (is_Matrix<tobj>::value) {
-			#pragma omp parallel for
 			for (unsigned x = 0; x < sizeVNodes; x++) {
 				for (unsigned i = 0; i < N; i++) {
 					for (unsigned j = 0; j < N; j++) {
@@ -110,7 +109,6 @@ class Lattice {
 				}
 			}
 		} else if constexpr (is_Vector<tobj>::value) {
-			#pragma omp parallel for
 			for (unsigned x = 0; x < sizeVNodes; x++) {
 				for (unsigned i = 0; i < N; i++) {
 					for (unsigned l = 0; l < lenLane; l++) {

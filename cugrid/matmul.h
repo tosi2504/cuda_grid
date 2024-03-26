@@ -212,10 +212,10 @@ void matmul_mrhs3(VectorBatch<lobj,N,batchsize> & batch_res
 	// kernel call!
 	unsigned lanes_per_block = blocksize / lobj::_lenLane;
 	unsigned blocks = (lhs.sizeVNodes*N*batchsize + lanes_per_block - 1)/lanes_per_block;
-	std::cout << "calling ker_matmul_mrhs3 with:" << std::endl;
-	std::cout << "    blocks  : " << blocks << std::endl;
-	std::cout << "    threads : " << blocksize << std::endl;
-	std::cout << "    #lpb    : " << lanes_per_block << std::endl;
+	// std::cout << "calling ker_matmul_mrhs3 with:" << std::endl;
+	// std::cout << "    blocks  : " << blocks << std::endl;
+	// std::cout << "    threads : " << blocksize << std::endl;
+	// std::cout << "    #lpb    : " << lanes_per_block << std::endl;
 	ker_matmul_mrhs3<lobj, N, batchsize, delta_i, delta_b><<< blocks , blocksize >>>(d_batch_res, lhs.d_data, d_batch_rhs, lhs.sizeVNodes);
 	CCE(cudaDeviceSynchronize());
 

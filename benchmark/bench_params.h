@@ -42,5 +42,5 @@ void parseArgs(int argc, char * argv[], unsigned * Lx, unsigned * Ly, unsigned *
     *Lt = std::stoul(sLt);
 
     *mu = std::stoul(smu);
-    *isForward = (!strcmp(argv[5],"true")) ? true : false;
+    *isForward = (!strcmp(argv[6],"true")) ? true : false;
 }

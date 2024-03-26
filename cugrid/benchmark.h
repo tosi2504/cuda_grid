@@ -30,27 +30,27 @@ double calcBandwidthInGBs_matmul_mrhs(const double resTime
 	return (numSites*numBytes*(N*N + 2*N)*numRHS/resTime)/1000;
 }
 
-template<class T, unsigned N>
-bVectorField<T,N> ** createBatchVecFields(const unsigned numRHS, const bGrid & grid) {
-	bVectorField<T,N> ** res = new bVectorField<T,N>*[numRHS];
-	for (unsigned iRHS = 0; iRHS < numRHS; iRHS++) res[iRHS] = new bVectorField<T,N>(grid);
-	return res;
-}
-template<class T, unsigned N>
-bVectorField<T,N> ** createAndFillAndUploadBatchVecFields(const unsigned numRHS
-					, const bGrid & grid
-					, std::mt19937 & gen
-					, T min, T max) {
-	bVectorField<T,N> ** res = new bVectorField<T,N>*[numRHS];
-	for (unsigned iRHS = 0; iRHS < numRHS; iRHS++) { 
-		res[iRHS] = new bVectorField<T,N>(grid);
-		res[iRHS]->fill_random(gen, min, max);
-		res[iRHS]->upload();
-	}
-	return res;
-}
-template<class T>
-void print_results(const char * task, double resTime, unsigned N, unsigned numRHS, unsigned blkSize, const bGrid & grid, unsigned mu, bool isForward) {
+// template<class T, unsigned N>
+// bVectorField<T,N> ** createBatchVecFields(const unsigned numRHS, const bGrid & grid) {
+// 	bVectorField<T,N> ** res = new bVectorField<T,N>*[numRHS];
+// 	for (unsigned iRHS = 0; iRHS < numRHS; iRHS++) res[iRHS] = new bVectorField<T,N>(grid);
+// 	return res;
+// }
+// template<class T, unsigned N>
+// bVectorField<T,N> ** createAndFillAndUploadBatchVecFields(const unsigned numRHS
+// 					, const bGrid & grid
+// 					, std::mt19937 & gen
+// 					, T min, T max) {
+// 	bVectorField<T,N> ** res = new bVectorField<T,N>*[numRHS];
+// 	for (unsigned iRHS = 0; iRHS < numRHS; iRHS++) { 
+// 		res[iRHS] = new bVectorField<T,N>(grid);
+// 		res[iRHS]->fill_random(gen, min, max);
+// 		res[iRHS]->upload();
+// 	}
+// 	return res;
+// }
+template<class T, unsigned lenLane>
+void print_results(const char * task, double resTime, unsigned N, unsigned numRHS, unsigned blkSize, const Grid<lenLane> & grid, unsigned mu, bool isForward) {
 	std::cout << "========= BENCHMARK RESULTS =========" << std::endl;
 	std::cout << "  Task              : " << task << std::endl;
 	std::cout << "  mu                : " << mu << std::endl;
@@ -60,7 +60,8 @@ void print_results(const char * task, double resTime, unsigned N, unsigned numRH
 	std::cout << "  Tensor size       : " << N << std::endl;
 	std::cout << "  numRHS            : " << numRHS << std::endl;
 	std::cout << "  Grid config       : (" << grid.Lx << "," << grid.Ly << "," << grid.Lz << "," << grid.Lt << ")" << std::endl;
-	std::cout << "     --> numSites   : " << grid.numSites << std::endl;
+	std::cout << "     --> numSites   : " << grid.vol << std::endl;
+	std::cout << "     --> lenLane    : " << lenLane << std::endl;
 	std::cout << "  Block size        : " << blkSize << std::endl;
 	std::cout << "  One cycle took    : " << resTime << "us (on average)" << std::endl;
 	std::cout << "  srhs-Bandw. GB/s  : " << calcBandwidthInGBs_matmul_mrhs(resTime, grid.numSites, N, sizeof(T), numRHS) << std::endl;

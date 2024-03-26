@@ -64,9 +64,9 @@ class Grid {
 	public:
 	const unsigned Lx, Ly, Lz, Lt; // extend of the physical lattice
 	const unsigned Vx, Vy, Vz, Vt; // extend of one virtual node
-	const unsigned vol;
+	const unsigned vol, numSites;
 	Grid(unsigned Lx, unsigned Ly, unsigned Lz, unsigned Lt):
-		Lx(Lx), Ly(Ly), Lz(Lz), Lt(Lt), vol(Lx*Ly*Lz*Lt)
+		Lx(Lx), Ly(Ly), Lz(Lz), Lt(Lt), vol(Lx*Ly*Lz*Lt), numSites(Lx*Ly*Lz*Lt)
 		, Vx(Lx/vLayout::Nx), Vy(Ly/vLayout::Ny), Vz(Lz/vLayout::Nz), Vt(Lt/vLayout::Nt) 
 	{
 		if (Lx % vLayout::Nx != 0 or Ly % vLayout::Ny != 0 or Lz % vLayout::Nz != 0 or Lt % vLayout::Nt != 0) {
