@@ -169,3 +169,8 @@ SUMMARY SO FAR: Matrix caching on the shared memory should theoretically be the 
 
 Okay, so lets talk stencils. I will implement one-direction (mu-)stencils. The general case can then be constructed from those mu-stencils. But how to deal with the borders? -> make two cublas calls: One for the bulk and one for the corresponding border. Without further ado -> let's go! Okay, in more than 2 dimensions the borders are anything but trivial. Let's think about that the next time. There is a gemmBatched cublas routine that could help. Instead of a contiguous batch of elements one can pass a pointer to pointers. That should work nicely.
 
+
+MEETING WITH CHRISTOPH: Interesting parameter range: N = 32, 64, 128; mrhs = 1, 12, 24, 36, 48, 60; grid = 4.4.4.4, 4.4.8.8, 8.8.8.8, 16.16.16.16
+
+Okay, so how do I perform the benchmarks? Do I write a python script? Could be a good idea. The main-function takes in the benchmark parameters as args and writes the results into a txt-file. I should write one such main for each stencil kernel.
+

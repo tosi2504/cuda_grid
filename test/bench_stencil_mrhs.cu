@@ -59,5 +59,6 @@ int main () {
 	bytes *= reps;
     std::cout << "BANDWIDTH: " << bytes/(float)duration.count() << " MBytes/sec" << std::endl;
 	std::cout << "ARITHMETICS: " << batchsize*grid.vol * (2*N*N) * reps / (float)duration.count() << " Mflops" << std::endl;
+
 	// should delete the vector batches ...
 }

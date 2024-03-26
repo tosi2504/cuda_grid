@@ -1,5 +1,5 @@
 module purge
 
-ml Stages/2023
-ml NVHPC/23.1 
-ml CMake/3.26.3
+ml Stages/2024
+ml NVHPC/23.7-CUDA-12
+ml Meson/1.1.1

@@ -1,17 +1,23 @@
 #include "../cugrid2/cugrid2.h"
-
+#include "bench_params.h"
 #include <random>
 #include <string>
 #include "cublas_v2.h"
 
 
-using T = realF;
-constexpr unsigned N = 64;
-constexpr unsigned numRHS = 16;
-constexpr unsigned blkSize = 4*N;
+using T = BENCH_PARAM_T;
+constexpr unsigned N = BENCH_PARAM_N;
+constexpr unsigned numRHS = BENCH_PARAM_numRHS;
+constexpr unsigned blkSize = BENCH_PARAM_blkSize;
 
-int main () {
-	bGrid grid(8,8,16,16);
+
+int main (int argc, char * argv[]) {
+	unsigned Lx, Ly, Lz, Lt;
+	unsigned mu;
+	bool isForward;
+	parseArgs(argc, argv, &Lx, &Ly, &Lz, &Lt, &mu, &isForward);
+	bGrid grid(Lx,Ly,Lz,Lt);
+
 	std::mt19937 gen(0);
 
 	// prepare fields
@@ -44,16 +50,5 @@ int main () {
 	cublasCCE(  cublasDestroy(handle)  );
 
 	// print out the results
-	print_results<T>(resTime, N, numRHS, blkSize, grid);
-    
-	// check results
-	for (unsigned iRHS = 0; iRHS < numRHS; iRHS++) ys[iRHS]->download();
-	unsigned long site = 0;//grid.numSites-1;
-	unsigned long i = 0;//N-1;
-	unsigned iRHS = 0;//numRHS-1;
-	std::cout << ys[iRHS]->h_data[site].data[i] << std::endl;
-	std::cout << debugMatmul(A.h_data[site], xs[iRHS]->h_data[site]).data[i] << std::endl;
-
-	// FOR COPY BENCHMARK
-	std::cout << "Copy Bandwidth: " << (N*numRHS*4)*(long)grid.numSites*sizeof(T)/((double)resTime*1000) << " GB/s" << std::endl;
+	print_results<T>("matmul", resTime, N, numRHS, blkSize, grid, 999, true);
 }

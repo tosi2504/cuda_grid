@@ -21,3 +21,12 @@ test2_files = {'test_tensor'  : 'test2/test_tensor.cu'
 foreach key, value : test2_files
   executable(key, value, dependencies: cuda_dep)
 endforeach
+
+# build benchmark_stencil tests
+bench_params = ['-DBENCH_PARAM_T=realF', '-DBENCH_PARAM_N=64', '-DBENCH_PARAM_numRHS=32', '-DBENCH_PARAM_blkSize=128']
+bench_files = {'stencil_blas'  : 'benchmark/stencil_blas.cu'
+                , 'mrhs_blas' : 'benchmark/mrhs_blas.cu'}
+foreach key, value : bench_files
+  executable(key, value, dependencies: cuda_dep, cuda_args: bench_params)
+endforeach
+
