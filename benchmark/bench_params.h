@@ -27,6 +27,9 @@
 
 
 void parseArgs(int argc, char * argv[], unsigned * Lx, unsigned * Ly, unsigned * Lz, unsigned * Lt, unsigned * mu, bool * isForward) {
+    if (argc != 7) {
+        throw std::invalid_argument("Wrong number of arguments given to binary");
+    }
     std::string sLx(argv[1]);
     std::string sLy(argv[2]);
     std::string sLz(argv[3]);

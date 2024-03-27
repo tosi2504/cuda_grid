@@ -50,5 +50,5 @@ int main (int argc, char * argv[]) {
 	cublasCCE(  cublasDestroy(handle)  );
 
 	// print out the results
-	print_results<T>("matmul", resTime, N, numRHS, blkSize, grid, 999, true);
+	print_results<T>("mrhs_blas", resTime, N, numRHS, blkSize, grid, 999, true);
 }

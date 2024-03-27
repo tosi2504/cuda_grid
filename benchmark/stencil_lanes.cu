@@ -47,5 +47,5 @@ int main (int argc, char * argv[]) {
 	double resTime = 0;
 	BENCHMARK(resTime, 100, stencil.run_mrhs<lane_t COMMA N COMMA batchsize>, res, mfield, rhs);
 
-	print_results<T_arithm, lenLane>("Stencil", resTime, N, batchsize, 999, grid, mu, isForward);
+	print_results<T_arithm, lenLane>("stencil_lanes", resTime, N, batchsize, 999, grid, mu, isForward);
 }

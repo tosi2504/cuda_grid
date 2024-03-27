@@ -52,19 +52,18 @@ double calcBandwidthInGBs_matmul_mrhs(const double resTime
 template<class T, unsigned lenLane>
 void print_results(const char * task, double resTime, unsigned N, unsigned numRHS, unsigned blkSize, const Grid<lenLane> & grid, unsigned mu, bool isForward) {
 	std::cout << "========= BENCHMARK RESULTS =========" << std::endl;
-	std::cout << "  Task              : " << task << std::endl;
+	std::cout << "  task              : " << task << std::endl;
 	std::cout << "  mu                : " << mu << std::endl;
 	std::cout << "  isForward         : " << (isForward ? "true" : "false") << std::endl;
-	std::cout << "  Arithmetic type   : " << type_as_string<T>::value << std::endl;
-	std::cout << "     --> bytes      : " << sizeof(T) << std::endl;
-	std::cout << "  Tensor size       : " << N << std::endl;
+	std::cout << "  T                 : " << type_as_string<T>::value << std::endl;
+	std::cout << "  sizeof_T          : " << sizeof(T) << std::endl;
+	std::cout << "  N                 : " << N << std::endl;
 	std::cout << "  numRHS            : " << numRHS << std::endl;
-	std::cout << "  Grid config       : (" << grid.Lx << "," << grid.Ly << "," << grid.Lz << "," << grid.Lt << ")" << std::endl;
-	std::cout << "     --> numSites   : " << grid.vol << std::endl;
-	std::cout << "     --> lenLane    : " << lenLane << std::endl;
-	std::cout << "  Block size        : " << blkSize << std::endl;
-	std::cout << "  One cycle took    : " << resTime << "us (on average)" << std::endl;
-	std::cout << "  srhs-Bandw. GB/s  : " << calcBandwidthInGBs_matmul_mrhs(resTime, grid.numSites, N, sizeof(T), numRHS) << std::endl;
-	std::cout << "  mrhs-Bandw. GB/s  : " << ((N*N + 2*N*numRHS)*(long)grid.numSites*sizeof(T))/(resTime*1000) << std::endl;
+	std::cout << "  grid              : (" << grid.Lx << "," << grid.Ly << "," << grid.Lz << "," << grid.Lt << ")" << std::endl;
+	std::cout << "  numSites          : " << grid.vol << std::endl;
+	std::cout << "  blkSize           : " << blkSize << std::endl;
+	std::cout << "  time(us)          : " << resTime << std::endl;
+	std::cout << "  srhs_bw(GBs)      : " << calcBandwidthInGBs_matmul_mrhs(resTime, grid.numSites, N, sizeof(T), numRHS) << std::endl;
+	std::cout << "  mrhs_bw(GBs)      : " << ((N*N + 2*N*numRHS)*(long)grid.numSites*sizeof(T))/(resTime*1000) << std::endl;
 	std::cout << "=====================================" << std::endl;
 }

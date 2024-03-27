@@ -38,5 +38,5 @@ int main (int argc, char * argv[]) {
 	cublasCCE(  cublasDestroy(handle)  );
 
 	// print out the results
-	print_results<T>("Stencil", resTime, N, numRHS, blkSize, grid, mu, isForward);
+	print_results<T>("stencil_blas", resTime, N, numRHS, blkSize, grid, mu, isForward);
 }

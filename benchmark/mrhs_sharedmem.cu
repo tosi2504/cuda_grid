@@ -35,5 +35,5 @@ int main (int argc, char * argv[]) {
 	BENCHMARK(resTime, 1000, func, ys, A, xs);
 
 	// print out the results
-	print_results<T>("matmul", resTime, N, numRHS, blkSize, grid, 999, true);
+	print_results<T>("mrhs_sharedmem", resTime, N, numRHS, blkSize, grid, 999, true);
 }
