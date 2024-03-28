@@ -41,7 +41,7 @@ print("Total number of compilations is : ", numCompilations)
 
 # okay so lets write a routine that performs these calculations for a specific target
 
-def run_benchmark(target: str):
+def run_benchmark(target: str, useSrun: bool = False):
     # prepare list of compilation parameters
     compile_params = list(itertools.product(Ts, targets[target]))[:1]
     print(compile_params)
@@ -62,7 +62,7 @@ def run_benchmark(target: str):
                 print("    compile_target()")
                 compile_target(target=target, force_recompile=False)
                 print("    run_binary()")
-                output = run_binary(target=target, args=[str(x) for x in grid]+['0', 'true'])
+                output = run_binary(target=target, args=[str(x) for x in grid]+['0', 'true'], useSrun=useSrun)
             except CommandFailedError as err:
                 print("PANIC: shell command failed:")
                 print(err.stdout)

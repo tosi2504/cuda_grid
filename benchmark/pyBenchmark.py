@@ -66,8 +66,12 @@ def compile_target(target: str, force_recompile: bool = False):
         raise CommandFailedError(f'ninja {target}', res)
     return res
 
-def run_binary(target: str, args: list):
-    res = subprocess.run(args=['./'+target]+args
+def run_binary(target: str, args: list, useSrun: bool = False):
+    binary = './'+target
+    if useSrun:
+        binary = 'srun ' + binary
+
+    res = subprocess.run(args=[binary]+args
                     , cwd=os.path.join(get_project_root_path(), 'build')
                     , stdout=subprocess.PIPE
                     , stderr=subprocess.PIPE)
