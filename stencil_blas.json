@@ -1,0 +1,1 @@
+[{"('realF', 32, 1, 128)": {"(4, 4, 4, 4)": {"task": "stencil_blas", "mu": 0, "isForward": "true", "T": "realF", "sizeof_T": 4, "N": 32, "numRHS": 1, "grid": [4, 4, 4, 4], "numSites": 256, "blkSize": 128, "time(us)": 79.27, "srhs_bw(GBs)": 14.0546, "mrhs_bw(GBs)": 14.0546, "copy_bw(GBs)": 0.826744}}}, "stencil_blas.json"]

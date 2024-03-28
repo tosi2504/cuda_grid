@@ -1,5 +1,6 @@
 from pyBenchmark import *
 import itertools
+import pprint
 
 
 # Benchmark parameters
@@ -42,7 +43,7 @@ print("Total number of compilations is : ", numCompilations)
 
 def run_benchmark(target: str):
     # prepare list of compilation parameters
-    compile_params = list(itertools.product(Ts, targets[target]))[-20:]
+    compile_params = list(itertools.product(Ts, targets[target]))[:1]
     print(compile_params)
 
     # prepare dictionary to write results into
@@ -51,7 +52,7 @@ def run_benchmark(target: str):
     max_i = len(compile_params) * len(grids)
     for T, (N, numRHS, blkSize) in compile_params:
         temp_results_dict = dict()
-        for grid in grids[:2]:
+        for grid in grids[:1]:
             i+=1
             print(f"Currently working on (i = {i}/{max_i}): ", T, N, numRHS, blkSize, grid)
             set_meson_bench_params(T=T, N=N, numRHS=numRHS, blkSize=blkSize)
@@ -66,10 +67,17 @@ def run_benchmark(target: str):
                 print("PANIC: shell command failed:")
                 print(err.stdout)
                 print(err.stderr)
-                quit()
             temp_results_dict[grid] = parseBenchOutput(output.stdout.decode('utf-8'))
         results[(T,N,numRHS,blkSize)] = temp_results_dict
     return results
+
+res = run_benchmark('stencil_blas')
+
+pp = pprint.PrettyPrinter(indent=4)
+pp.pprint(res)
+
+writePickle(res, filepath='stencil_blas.pickle')
+pp.pprint(loadPickle(filepath='stencil_blas.pickle'))
 
 
 # TODO: save results for one specific target to json
@@ -77,7 +85,6 @@ def run_benchmark(target: str):
 # TODO: send results to christoph
 
 
-print(run_benchmark('stencil_blas'))
 
 
 

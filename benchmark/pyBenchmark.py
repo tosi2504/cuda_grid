@@ -1,6 +1,8 @@
 import subprocess
 import os
 import sys
+import json
+import pickle
 
 def get_project_root_path():
     return os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), '..'))
@@ -110,7 +112,29 @@ def parseBenchOutput(output: str):
     return result
 
 
-    
+
+class CustomEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, tuple):
+            return list(obj)
+        else:
+            return json.JSONEncoder(self, obj)
+
+def writeJSON(data: dict, filepath: str):
+    with open(filepath, "w") as file:
+        json.dump(data, file, cls=CustomEncoder)
+
+def loadJSON(filepath: str):
+    with open(filepath, "r") as file:
+        return json.load(file)
+
+def writePickle(data: dict, filepath: str):
+    with open(filepath, 'wb') as file:
+        pickle.dump(data, file=file, protocol=pickle.HIGHEST_PROTOCOL)
+
+def loadPickle(filepath: str):
+    with open(filepath, 'rb') as file:
+        return pickle.load(file)
 
 if __name__ ==  "__main__": 
     set_meson_bench_params(T='realF', N=128, numRHS=32, blkSize=256)
