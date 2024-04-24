@@ -5,6 +5,7 @@ __pycache__/
 
 compile_commands.json
 *.pickle
+*.pyc
 
 .vscode
 .vscode/

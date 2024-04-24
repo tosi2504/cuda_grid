@@ -69,11 +69,12 @@ def compile_target(target: str, force_recompile: bool = False):
     return res
 
 def run_binary(target: str, args: list, useSrun: bool = False):
-    binary = './'+target
+    binary = list()
     if useSrun:
-        binary = 'srun ' + binary
+        binary.append('srun')
+    binary.append('./'+target)
 
-    res = subprocess.run(args=[binary]+args
+    res = subprocess.run(args=binary + args
                     , cwd=os.path.join(get_project_root_path(), 'build')
                     , stdout=subprocess.PIPE
                     , stderr=subprocess.PIPE)
