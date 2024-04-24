@@ -174,3 +174,6 @@ MEETING WITH CHRISTOPH: Interesting parameter range: N = 32, 64, 128; mrhs = 1, 
 
 Okay, so how do I perform the benchmarks? Do I write a python script? Could be a good idea. The main-function takes in the benchmark parameters as args and writes the results into a txt-file. I should write one such main for each stencil kernel.
 
+All the data generation is in place. How do I present the data? I want to plot it.
+But how?
+I need to get data from juwelsbooster to test my analyzing.

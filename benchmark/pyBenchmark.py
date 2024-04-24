@@ -1,8 +1,10 @@
 import subprocess
 import os
 import sys
-import json
 import pickle
+import pandas as pd
+import itertools
+import matplotlib.pyplot as plt
 
 def get_project_root_path():
     return os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), '..'))
@@ -117,20 +119,77 @@ def parseBenchOutput(output: str):
 
 
 
-class CustomEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, tuple):
-            return list(obj)
-        else:
-            return json.JSONEncoder(self, obj)
+# Benchmark parameters
+Ns = [32, 64, 128]
+numRHSs = [1, 12, 24, 36, 48, 60]
+blkSizes = [32, 64, 128, 256, 512]
+all_comb = list(itertools.product(Ns, numRHSs, blkSizes))
+targets = {'copy_noMalloc'      : all_comb
+           , 'copy_withMalloc'  : all_comb
+           , 'mrhs_blas'        : [(N,numRHS,blkSize) for N,numRHS,blkSize in all_comb if (blkSize==128 or blkSize==256)]
+           , 'mrhs_lanes'       : [(N,numRHS,9999) for N,numRHS,blkSize in all_comb if (blkSize==32)]
+           , 'mrhs_sharedmem'   : [(N,numRHS,blkSize) for N,numRHS,blkSize in all_comb if (blkSize%N==0 and numRHS%(blkSize//N)==0)]
+           , 'stencil_blas'     : [(N,numRHS,blkSize) for N,numRHS,blkSize in all_comb if (blkSize==128 or blkSize==256)]
+           , 'stencil_lanes'    : [(N,numRHS,9999) for N,numRHS,blkSize in all_comb if (blkSize==32)]}
+Ts = ['realF', 'realD', 'complexF', 'complexD']
+grids = [
+    (4, 4, 4, 4),
+    (4, 4, 8, 8),
+    (8, 8, 8, 8),
+    (16, 16, 16, 16)
+]
 
-def writeJSON(data: dict, filepath: str):
-    with open(filepath, "w") as file:
-        json.dump(data, file, cls=CustomEncoder)
+def run_benchmark(target: str, useSrun: bool = False):
+    # prepare list of compilation parameters
+    compile_params = list(itertools.product(Ts, targets[target]))
+    print(compile_params)
 
-def loadJSON(filepath: str):
-    with open(filepath, "r") as file:
-        return json.load(file)
+    # prepare dictionary to write results into
+    results = dict()
+    i = 0
+    max_i = len(compile_params) * len(grids)
+    for T, (N, numRHS, blkSize) in compile_params:
+        temp_results_dict = dict()
+        for grid in grids:
+            i+=1
+            print(f"Currently working on (i = {i}/{max_i}): ", T, N, numRHS, blkSize, grid)
+            set_meson_bench_params(T=T, N=N, numRHS=numRHS, blkSize=blkSize)
+            try:
+                print("    reconfigure()")
+                reconfigure()
+                print("    compile_target()")
+                compile_target(target=target, force_recompile=False)
+                print("    run_binary()")
+                output = run_binary(target=target, args=[str(x) for x in grid]+['0', 'true'], useSrun=useSrun)
+            except CommandFailedError as err:
+                print("PANIC: shell command failed:")
+                print(err.stdout)
+                print(err.stderr)
+            temp_results_dict[grid] = parseBenchOutput(output.stdout.decode('utf-8'))
+        results[(T,N,numRHS,blkSize)] = temp_results_dict
+    return results
+
+def data_to_df(data: dict):
+    # what are we doing here
+    temp = dict()
+    for target in data.keys():
+        for compile_params in data[target].keys():
+            for grid, valueDict in data[target][compile_params].items():
+                tempNested = dict()
+                for key, value in data[target][compile_params][grid].items():
+                    if type(value) == tuple:
+                        tempNested[key] = str(value) 
+                    else:
+                        tempNested[key] = value 
+                temp[(target, *compile_params, str(grid))] = tempNested
+
+    #return pandas.DataFrame.from_dict(temp, orient='index')
+    df = pd.DataFrame.from_dict(temp)#,columns=['target', 'T', 'N', 'numRHS', 'blkSize', 'grid'], orient='index')
+    df.index.name = 'result'
+    df.columns.names = ['target', 'T', 'N', 'numRHS', 'blkSize', 'grid']
+    return df
+
+
 
 def writePickle(data: dict, filepath: str):
     with open(filepath, 'wb') as file:
@@ -140,13 +199,17 @@ def loadPickle(filepath: str):
     with open(filepath, 'rb') as file:
         return pickle.load(file)
 
-if __name__ ==  "__main__": 
-    set_meson_bench_params(T='realF', N=128, numRHS=32, blkSize=256)
-    reconfigure()
-    try:
-        compile_target(target='stencil_lanes', force_recompile=True)
-    except CommandFailedError as cfe:
-        print(cfe.stdout)
-        print(cfe.stderr)
-    res = run_binary(target='stencil_lanes', args=['8', '8', '8', '8', '0', 'true'])
-    print(parseBenchOutput(res.stdout.decode('utf-8')))
+
+
+def eliminate_blkSize_by_max(data: pd.Series):
+    reduced_names = [name for name in data.index.names if name != "blkSize"]
+    return data.groupby(level=reduced_names).max()
+
+def plot_data(df, ax, xlabel: str, valuelabel: str, selectors: dict, kind: str = 'bar'):
+    series = df.loc[valuelabel, ]
+    series = eliminate_blkSize_by_max(series)
+    for key, val in selectors.items():
+        series = series.xs(val, level=key)
+    series.plot(ax = ax, kind = kind
+                , ylabel = valuelabel
+                , title = str(selectors))

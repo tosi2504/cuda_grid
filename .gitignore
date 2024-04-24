@@ -1,5 +1,10 @@
 build/
 
+.cache/
+__pycache__/
+
+compile_commands.json
+*.pickle
 
 .vscode
 .vscode/

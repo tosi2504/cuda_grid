@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <string>
+#include <stdexcept>
 
 
 #ifndef BENCH_PARAM_T
