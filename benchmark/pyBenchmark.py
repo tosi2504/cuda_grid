@@ -1,10 +1,12 @@
 import subprocess
 import os
+import stat
 import sys
 import pickle
 import pandas as pd
 import itertools
-import matplotlib.pyplot as plt
+import pathlib
+import shutil
 
 def get_project_root_path():
     return os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), '..'))
@@ -68,21 +70,27 @@ def compile_target(target: str, force_recompile: bool = False):
         raise CommandFailedError(f'ninja {target}', res)
     return res
 
-def run_binary(target: str, args: list, useSrun: bool = False):
+def create_bin_directory():
+    pathlib.Path(os.path.join(get_project_root_path(), 'bin')).mkdir(parents=True, exist_ok=True)
+
+def save_target_binary(target: str, compile_params: dict):
+    cwd = get_project_root_path()
+    binname = target+f"T-{compile_params['T']}_N-{compile_params['N']}_numRHS-{compile_params['numRHS']}_blkSize-{compile_params['blkSize']}"
+    shutil.copyfile(src = os.path.join(cwd, 'build/', target), dst = os.path.join(cwd, 'bin/', binname))
+
+def run_binary(target: str, args: list, subdir: str, useSrun: bool = False):
     binary = list()
     if useSrun:
         binary.append('srun')
     binary.append('./'+target)
 
     res = subprocess.run(args=binary + args
-                    , cwd=os.path.join(get_project_root_path(), 'build')
+                    , cwd=os.path.join(get_project_root_path(), subdir)
                     , stdout=subprocess.PIPE
                     , stderr=subprocess.PIPE)
     if (res.returncode != 0):
         raise CommandFailedError(f'./{target}'+' '+' '.join(args), res)
     return res
-
-
 
 def parseValueString(valueStr: str):
     if (valueStr.startswith('(') and valueStr.endswith(')')):
@@ -140,6 +148,55 @@ grids = [
     (16, 16, 16, 16)
 ]
 
+def compile_binaries(target: str):
+    # get compile params
+    compile_params = list(itertools.product(Ts, targets[target]))
+    print(compile_params)
+
+    # prepare bin directory
+    create_bin_directory()
+
+    i = 0
+    max_i = len(compile_params)
+    for T, (N, numRHS, blkSize) in compile_params:
+        i+=1
+        print(f"Currently working on (i = {i}/{max_i}): ", T, N, numRHS, blkSize)
+        set_meson_bench_params(T=T, N=N, numRHS=numRHS, blkSize=blkSize)
+        try:
+            reconfigure()
+            compile_target(target)
+        except CommandFailedError as err:
+            print("PANIC: shell command failed:")
+            print(err.stdout)
+            print(err.stderr)
+        save_target_binary(target=target, compile_params={'T': T, 'N':N, 'numRHS':numRHS, 'blkSize':blkSize})
+
+def run_benchmark_on_precompiled_binaries(target: str, useSrun: bool = False):
+    compile_params = list(itertools.product(Ts, targets[target]))
+    print(compile_params)
+    results = dict()
+    i = 0
+    max_i = len(compile_params) * len(grids)
+    for T, (N, numRHS, blkSize) in compile_params:
+        binname = target+f"T-{T}_N-{N}_numRHS-{numRHS}_blkSize-{blkSize}"
+        os.chmod('./bin/'+binname, stat.S_IEXEC)
+        temp_results_dict = dict()
+        for grid in grids:
+            i += 1
+            print(f"Currently working on (i = {i}/{max_i}): ", T, N, numRHS, blkSize, grid)
+            try:
+                output = run_binary(target=binname, args=[str(x) for x in grid]+['0', 'true'], subdir='bin', useSrun=useSrun)
+                temp_results_dict[grid] = parseBenchOutput(output.stdout.decode('utf-8'))
+            except CommandFailedError as err:
+                print("PANIC: shell command failed:")
+                print(err.stdout)
+                print(err.stderr)
+
+        results[(T,N,numRHS,blkSize)] = temp_results_dict
+    return results
+
+
+
 def run_benchmark(target: str, useSrun: bool = False):
     # prepare list of compilation parameters
     compile_params = list(itertools.product(Ts, targets[target]))
@@ -161,12 +218,12 @@ def run_benchmark(target: str, useSrun: bool = False):
                 print("    compile_target()")
                 compile_target(target=target, force_recompile=False)
                 print("    run_binary()")
-                output = run_binary(target=target, args=[str(x) for x in grid]+['0', 'true'], useSrun=useSrun)
+                output = run_binary(target=target, args=[str(x) for x in grid]+['0', 'true'], subdir='build', useSrun=useSrun)
+                temp_results_dict[grid] = parseBenchOutput(output.stdout.decode('utf-8'))
             except CommandFailedError as err:
                 print("PANIC: shell command failed:")
                 print(err.stdout)
                 print(err.stderr)
-            temp_results_dict[grid] = parseBenchOutput(output.stdout.decode('utf-8'))
         results[(T,N,numRHS,blkSize)] = temp_results_dict
     return results
 
@@ -206,7 +263,7 @@ def eliminate_blkSize_by_max(data: pd.Series):
     reduced_names = [name for name in data.index.names if name != "blkSize"]
     return data.groupby(level=reduced_names).max()
 
-def plot_data(df, ax, xlabel: str, valuelabel: str, selectors: dict, kind: str = 'bar'):
+def plot_data(df, ax, xlevel: str, valuelabel: str, selectors: dict, kind: str = 'bar'):
     series = df.loc[valuelabel, ]
     series = eliminate_blkSize_by_max(series)
     for key, val in selectors.items():

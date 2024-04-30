@@ -23,7 +23,7 @@ foreach key, value : test2_files
 endforeach
 
 # build benchmark_stencil tests
-bench_params = ['-DBENCH_PARAM_T=complexD', '-DBENCH_PARAM_N=128', '-DBENCH_PARAM_numRHS=60', '-DBENCH_PARAM_blkSize=9999']
+bench_params = ['-DBENCH_PARAM_T=complexD', '-DBENCH_PARAM_N=128', '-DBENCH_PARAM_numRHS=60', '-DBENCH_PARAM_blkSize=256']
 bench_files = {'stencil_blas'  : 'benchmark/stencil_blas.cu'
                 , 'mrhs_blas' : 'benchmark/mrhs_blas.cu'
                 , 'mrhs_sharedmem' : 'benchmark/mrhs_sharedmem.cu'

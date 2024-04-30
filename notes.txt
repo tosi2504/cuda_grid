@@ -2,12 +2,9 @@ This is the notes file for cugrid
 
 
 TODO:
-	- cuBLAS type cugrid (cugrid2):
-		- tensor classes (bTensor: bScalar, bVector, bMatrix) ---> bTensor.h
-		- grid class (name? -> bGrid)
-		- lattice class (or just call it field directly)
-
-
+  - rewrite such that compilation can take place before running :) 
+    -> make new folder in build/
+    -> write binary name parser to retrieve the compilation params
 
 
 THOUGHTS:
