@@ -173,4 +173,4 @@ Okay, so how do I perform the benchmarks? Do I write a python script? Could be a
 
 All the data generation is in place. How do I present the data? I want to plot it.
 But how?
-I need to get data from juwelsbooster to test my analyzing.
+I need to get data from juwelsbooster to test my analyzing. Data is on the way :)

@@ -179,7 +179,7 @@ def run_benchmark_on_precompiled_binaries(target: str, useSrun: bool = False):
     max_i = len(compile_params) * len(grids)
     for T, (N, numRHS, blkSize) in compile_params:
         binname = target+f"T-{T}_N-{N}_numRHS-{numRHS}_blkSize-{blkSize}"
-        os.chmod('./bin/'+binname, stat.S_IEXEC)
+        os.chmod(os.path.join(get_project_root_path(), 'bin', binname), stat.S_IEXEC)
         temp_results_dict = dict()
         for grid in grids:
             i += 1
@@ -263,11 +263,17 @@ def eliminate_blkSize_by_max(data: pd.Series):
     reduced_names = [name for name in data.index.names if name != "blkSize"]
     return data.groupby(level=reduced_names).max()
 
-def plot_data(df, ax, xlevel: str, valuelabel: str, selectors: dict, kind: str = 'bar'):
+def plot_data(df, ax, xlabel: str, valuelabel: str, selectors: dict, kind: str = 'bar'):
     series = df.loc[valuelabel, ]
     series = eliminate_blkSize_by_max(series)
     for key, val in selectors.items():
         series = series.xs(val, level=key)
     series.plot(ax = ax, kind = kind
                 , ylabel = valuelabel
+                , xlabel = xlabel
                 , title = str(selectors))
+
+
+
+
+
