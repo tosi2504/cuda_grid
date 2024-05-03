@@ -4,6 +4,7 @@
 
 #include <array>
 #include <stdexcept>
+#include <chrono>
 
 
 // optimized arithmetic operations
@@ -30,6 +31,7 @@ void matmul_opt(Lattice<iVector<lobj, N>> & res, const Lattice<iMatrix<lobj, N>>
 	std::cout << "    threads : " << blocksize << std::endl;
 	std::cout << "    #lpb    : " << lanes_per_block << std::endl;
 	ker_matmul<lobj, N><<< blocks , blocksize >>>(res.d_data, lhs.d_data, rhs.d_data, res.sizeVNodes);
+    CLCE();
 	CCE(cudaDeviceSynchronize());
 }
 
@@ -95,6 +97,7 @@ void matmul_mrhs(VectorBatch<lobj,N,batchsize> & batch_res
 	std::cout << "    threads : " << blocksize << std::endl;
 	std::cout << "    #lpb    : " << lanes_per_block << std::endl;
 	ker_matmul_mrhs<lobj, N, batchsize><<< blocks , blocksize >>>(d_batch_res, lhs.d_data, d_batch_rhs, lhs.sizeVNodes);
+    CLCE();
 	CCE(cudaDeviceSynchronize());
 
 	cudaFree(d_batch_res);
@@ -152,6 +155,7 @@ void matmul_mrhs2(VectorBatch<lobj,N,batchsize> & batch_res
 	std::cout << "    threads : " << blocksize << std::endl;
 	std::cout << "    #lpb    : " << lanes_per_block << std::endl;
 	ker_matmul_mrhs2<lobj, N, batchsize><<< blocks , blocksize >>>(d_batch_res, lhs.d_data, d_batch_rhs, lhs.sizeVNodes);
+    CLCE();
 	CCE(cudaDeviceSynchronize());
 
 	cudaFree(d_batch_res);
@@ -216,7 +220,11 @@ void matmul_mrhs3(VectorBatch<lobj,N,batchsize> & batch_res
 	// std::cout << "    blocks  : " << blocks << std::endl;
 	// std::cout << "    threads : " << blocksize << std::endl;
 	// std::cout << "    #lpb    : " << lanes_per_block << std::endl;
+    // std::cout << "    Grid    : " << lhs.grid.Lx << " " << lhs.grid.Ly << " " << lhs.grid.Lz << " " << lhs.grid.Lt << std::endl;
+    // std::cout << "    N       : " << N << std::endl;
+    // std::cout << "    numRHS  : " << batchsize << std::endl;
 	ker_matmul_mrhs3<lobj, N, batchsize, delta_i, delta_b><<< blocks , blocksize >>>(d_batch_res, lhs.d_data, d_batch_rhs, lhs.sizeVNodes);
+    CLCE();
 	CCE(cudaDeviceSynchronize());
 
 	cudaFree(d_batch_res);

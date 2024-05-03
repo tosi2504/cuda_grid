@@ -43,9 +43,8 @@ int main (int argc, char * argv[]) {
 	SimpleStencil stencil(mu, isForward);
 
     // TIME IT!
-
 	double resTime = 0;
 	BENCHMARK(resTime, 100, stencil.run_mrhs<lane_t COMMA N COMMA batchsize>, res, mfield, rhs);
 
-	print_results<T_arithm, lenLane>("stencil_lanes", resTime, N, batchsize, 999, grid, mu, isForward);
+	print_results<T_arithm, lenLane>("stencil_lanes", resTime, N, batchsize, 9999, grid, mu, isForward);
 }

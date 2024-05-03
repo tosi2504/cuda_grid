@@ -42,6 +42,7 @@ int main (int argc, char * argv[]) {
     // TIME IT!
 	double resTime = 0;
 	BENCHMARK(resTime, 100, matmul_mrhs3<lane_t COMMA N COMMA batchsize COMMA 2 COMMA 2>, res, mfield, rhs);
+	// BENCHMARK(resTime, 100, matmul_mrhs<lane_t COMMA N COMMA batchsize>, res, mfield, rhs);
 
-	print_results<T_arithm, lenLane>("mrhs_lanes", resTime, N, batchsize, 999, grid, 999, isForward);
+	print_results<T_arithm, lenLane>("mrhs_lanes", resTime, N, batchsize, 9999, grid, 9999, isForward);
 }

@@ -204,7 +204,6 @@ class SimpleStencil {
 		static_assert(blocksize % lobj::_lenLane == 0, "Length of lane does not divide the blocksize. Change blocksize or lane length!");
 		unsigned lanes_per_block = blocksize / lobj::_lenLane;
 		unsigned blocks = (grid.calcSizeVNodes()*N*batchsize + lanes_per_block - 1)/lanes_per_block;
-		// TODO: FIX THIS FOR MRHS
 		ker_SimpleStencil_mrhs <lobj,N,batchsize> <<<blocks,blocksize>>> (
 				d_stinfo
 				, d_laneIdxMap

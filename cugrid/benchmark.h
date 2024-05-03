@@ -2,6 +2,9 @@
 
 #include <chrono>
 #include <type_traits>
+#include <iostream>
+#include "grid.h"
+#include "datatypes.h"
 
 #define COMMA ,
 
@@ -65,5 +68,6 @@ void print_results(const char * task, double resTime, unsigned N, unsigned numRH
 	std::cout << "  time(us)          : " << resTime << std::endl;
 	std::cout << "  srhs_bw(GBs)      : " << calcBandwidthInGBs_matmul_mrhs(resTime, grid.numSites, N, sizeof(T), numRHS) << std::endl;
 	std::cout << "  mrhs_bw(GBs)      : " << ((N*N + 2*N*numRHS)*(long)grid.numSites*sizeof(T))/(resTime*1000) << std::endl;
+	std::cout << "  copy_bw(GBs)      : " << sizeof(T)*(long)grid.vol*2*N*numRHS/(resTime*1000) << std::endl;
 	std::cout << "=====================================" << std::endl;
 }

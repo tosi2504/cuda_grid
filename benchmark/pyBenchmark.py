@@ -136,7 +136,7 @@ all_comb = list(itertools.product(Ns, numRHSs, blkSizes))
 targets = {'copy_noMalloc'      : all_comb
            , 'copy_withMalloc'  : all_comb
            , 'mrhs_blas'        : [(N,numRHS,blkSize) for N,numRHS,blkSize in all_comb if (blkSize==128 or blkSize==256)]
-           , 'mrhs_lanes'       : [(N,numRHS,9999) for N,numRHS,blkSize in all_comb if (blkSize==32)]
+           , 'mrhs_lanes'       : [(N,numRHS,9999) for N,numRHS,blkSize in all_comb if (blkSize==32 and numRHS >= 12)]
            , 'mrhs_sharedmem'   : [(N,numRHS,blkSize) for N,numRHS,blkSize in all_comb if (blkSize%N==0 and numRHS%(blkSize//N)==0)]
            , 'stencil_blas'     : [(N,numRHS,blkSize) for N,numRHS,blkSize in all_comb if (blkSize==128 or blkSize==256)]
            , 'stencil_lanes'    : [(N,numRHS,9999) for N,numRHS,blkSize in all_comb if (blkSize==32)]}
@@ -177,6 +177,7 @@ def run_benchmark_on_precompiled_binaries(target: str, useSrun: bool = False):
     results = dict()
     i = 0
     max_i = len(compile_params) * len(grids)
+
     for T, (N, numRHS, blkSize) in compile_params:
         binname = target+f"T-{T}_N-{N}_numRHS-{numRHS}_blkSize-{blkSize}"
         os.chmod(os.path.join(get_project_root_path(), 'bin', binname), stat.S_IEXEC)
@@ -191,8 +192,8 @@ def run_benchmark_on_precompiled_binaries(target: str, useSrun: bool = False):
                 print("PANIC: shell command failed:")
                 print(err.stdout)
                 print(err.stderr)
-
         results[(T,N,numRHS,blkSize)] = temp_results_dict
+
     return results
 
 
