@@ -187,6 +187,7 @@ def run_benchmark_on_precompiled_binaries(target: str, useSrun: bool = False):
             print(f"Currently working on (i = {i}/{max_i}): ", T, N, numRHS, blkSize, grid)
             try:
                 output = run_binary(target=binname, args=[str(x) for x in grid]+['0', 'true'], subdir='bin', useSrun=useSrun)
+                print(output.stdout.decode('utf-8'))
                 temp_results_dict[grid] = parseBenchOutput(output.stdout.decode('utf-8'))
             except CommandFailedError as err:
                 print("PANIC: shell command failed:")

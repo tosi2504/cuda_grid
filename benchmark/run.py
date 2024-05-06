@@ -5,9 +5,9 @@ from pyBenchmark import *
 
 
 # benchmarks using precompiled binaries
-compile_binaries('mrhs_lanes')
-res = run_benchmark_on_precompiled_binaries('mrhs_lanes', useSrun=False)
-writePickle(res, filepath='mrhs_lanes.pickle')
+compile_binaries('copy_noMalloc')
+res = run_benchmark_on_precompiled_binaries('copy_noMalloc', useSrun=False)
+writePickle(res, filepath='copy_noMalloc.pickle')
 
 # target = 'mrhs_lanes'
 # T = 'realD'
