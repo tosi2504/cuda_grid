@@ -133,8 +133,8 @@ Ns = [32, 64, 128]
 numRHSs = [1, 12, 24, 36, 48, 60]
 blkSizes = [32, 64, 128, 256, 512]
 all_comb = list(itertools.product(Ns, numRHSs, blkSizes))
-targets = {'copy_noMalloc'      : all_comb
-           , 'copy_withMalloc'  : all_comb
+targets = {'copy_noMalloc'      : [(N,numRHS,blkSize) for N,numRHS,blkSize in all_comb if (blkSize==128 or blkSize==256)]
+           , 'copy_withMalloc'  : [(N,numRHS,blkSize) for N,numRHS,blkSize in all_comb if (blkSize==128 or blkSize==256)]
            , 'mrhs_blas'        : [(N,numRHS,blkSize) for N,numRHS,blkSize in all_comb if (blkSize==128 or blkSize==256)]
            , 'mrhs_lanes'       : [(N,numRHS,9999) for N,numRHS,blkSize in all_comb if (blkSize==32 and numRHS >= 12)]
            , 'mrhs_sharedmem'   : [(N,numRHS,blkSize) for N,numRHS,blkSize in all_comb if (blkSize%N==0 and numRHS%(blkSize//N)==0)]

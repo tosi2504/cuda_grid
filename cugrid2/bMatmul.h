@@ -229,6 +229,9 @@ namespace mrhs_helper {
 		// call the copy kernel 
 		const unsigned numBlocks = (numRHS*grid.numSites*N + blkSize - 1)/blkSize;
 		ker_fillMatrixfieldFromBatch <T,N,numRHS> <<<numBlocks,blkSize>>> (d_matfield, d_vecfields, grid.numSites);
+		CLCE();
+
+		CCE(  cudaDeviceSynchronize()  );
 		
 		// free batch pointers on GPU
 		CCE(  cudaFree(d_vecfields)  );
@@ -255,6 +258,8 @@ namespace mrhs_helper {
 		// call the copy kernel
 		const unsigned numBlocks = (numRHS*grid.numSites*N + blkSize - 1)/blkSize;
 		ker_fillBatchFromMatrixfield <T,N,numRHS> <<<numBlocks,blkSize>>> (d_vecfields, d_matfield, grid.numSites);
+
+		CCE(  cudaDeviceSynchronize()  );
 
 		// free batch array on GPU
 		CCE(  cudaFree(d_vecfields)  );
