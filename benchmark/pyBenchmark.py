@@ -265,15 +265,20 @@ def eliminate_blkSize_by_max(data: pd.Series):
     reduced_names = [name for name in data.index.names if name != "blkSize"]
     return data.groupby(level=reduced_names).max()
 
-def plot_data(df, ax, xlabel: str, valuelabel: str, selectors: dict, kind: str = 'bar'):
+def plot_data(df, ax, xlabel: str, valuelabel: str, selectors: dict, kind: str = 'bar', title: str = None, whitelist: list = None):
     series = df.loc[valuelabel, ]
     series = eliminate_blkSize_by_max(series)
     for key, val in selectors.items():
         series = series.xs(val, level=key)
+    if whitelist is not None:
+        series = series.loc[whitelist]
     series.plot(ax = ax, kind = kind
                 , ylabel = valuelabel
-                , xlabel = xlabel
-                , title = str(selectors))
+                , xlabel = xlabel)
+    if ax is not None:
+        ax.grid()
+    if (ax is not None) and (title is not None):
+        ax.set_title(title)
 
 
 
