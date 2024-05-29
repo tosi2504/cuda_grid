@@ -12,8 +12,8 @@ constexpr unsigned reps = 100;
 
 const bGrid grids[] = {bGrid(4,4,4,4)
                     , bGrid(4,4,8,8)
-                    , bGrid(8,8,8,8)};
-                    //, bGrid(16,16,16,16)};
+                    , bGrid(8,8,8,8)
+                    , bGrid(16,16,16,16)};
 
 constexpr unsigned mu = 0;
 constexpr bool isForward = true;
@@ -95,7 +95,7 @@ void iterate_over_N(cublasHandle_t & handle
 using T = realF;
 constexpr unsigned N = 128;
 constexpr unsigned numRHS = 60;
-const bGrid grid(8,8,8,8);
+const bGrid grid = grids[sizeof(grids)/sizeof(bGrid)-1];
 
 int main () {
     // first setup the largest fields for this benchmark

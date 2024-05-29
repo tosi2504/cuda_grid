@@ -10,14 +10,15 @@ constexpr unsigned reps = 100;
 using T = realF;
 constexpr unsigned N = 128;
 constexpr unsigned numRHS = 60;
-const Grid grid(8,8,8,8);
 VectorBatch<Lane<T,32>, N, numRHS> xs, ys;
-matrixField<T,N> A(grid);
 
 const Grid<32> grids[] = {Grid<32>(4,4,4,4)
                         , Grid<32>(4,4,8,8)
-                        , Grid<32>(8,8,8,8)};
-                        //, Grid<32>(16,16,16,16)};
+                        , Grid<32>(8,8,8,8)
+                        , Grid<32>(16,16,16,16)};
+
+const Grid grid = grids[sizeof(grids)/sizeof(Grid<32>)-1];
+matrixField<T,N> A(grid);
 
 template<class T, unsigned N, unsigned numRHS>
 void runBenchmark() {
