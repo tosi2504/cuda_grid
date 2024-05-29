@@ -1,10 +1,10 @@
 #pragma once
 
 #include "lattice.h"
+#include "stopwatch.h"
 
 #include <array>
 #include <stdexcept>
-#include <chrono>
 
 
 // optimized arithmetic operations
@@ -186,7 +186,7 @@ __global__ void ker_matmul_mrhs3
 	}
 }
 
-template<class lobj, unsigned N, unsigned batchsize, unsigned delta_i = 4, unsigned delta_b = 4>
+template<class lobj, unsigned N, unsigned batchsize, unsigned delta_i = 2, unsigned delta_b = 2>
 void matmul_mrhs3(VectorBatch<lobj,N,batchsize> & batch_res
 		, const Lattice< iMatrix<lobj,N> > & lhs
 		, const VectorBatch<lobj,N,batchsize> & batch_rhs) 
@@ -198,6 +198,7 @@ void matmul_mrhs3(VectorBatch<lobj,N,batchsize> & batch_res
 	if ((not check_grid_compatible<lobj, N, batchsize>(batch_res, lhs.grid)) or (not check_grid_compatible<lobj, N, batchsize>(batch_rhs, lhs.grid))) {
 		throw std::logic_error("Grids not compatible");
 	}
+
 
 	// prepare arrays of pointers to batch data
 	iVector<lobj, N> * h_batch_res[batchsize], * h_batch_rhs[batchsize];
@@ -213,6 +214,8 @@ void matmul_mrhs3(VectorBatch<lobj,N,batchsize> & batch_res
 	CCE(  cudaMemcpy(d_batch_res, h_batch_res, sizeof(iVector<lobj,N>*)*batchsize, cudaMemcpyHostToDevice)  );
 	CCE(  cudaMemcpy(d_batch_rhs, h_batch_rhs, sizeof(iVector<lobj,N>*)*batchsize, cudaMemcpyHostToDevice)  );
 
+    stopwatch.press();
+
 	// kernel call!
 	unsigned lanes_per_block = blocksize / lobj::_lenLane;
 	unsigned blocks = (lhs.sizeVNodes*N*batchsize + lanes_per_block - 1)/lanes_per_block;
@@ -226,6 +229,8 @@ void matmul_mrhs3(VectorBatch<lobj,N,batchsize> & batch_res
 	ker_matmul_mrhs3<lobj, N, batchsize, delta_i, delta_b><<< blocks , blocksize >>>(d_batch_res, lhs.d_data, d_batch_rhs, lhs.sizeVNodes);
     CLCE();
 	CCE(cudaDeviceSynchronize());
+
+    stopwatch.press();
 
 	cudaFree(d_batch_res);
 	cudaFree(d_batch_rhs);

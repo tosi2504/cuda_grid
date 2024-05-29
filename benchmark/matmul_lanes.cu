@@ -4,7 +4,6 @@
 #include "cugrid/matmul.h"
 #include "cugrid/stopwatch.h"
 #include "cugrid/datatypes.h"
-#include "cugrid/stencil.h"
 
 
 constexpr unsigned reps = 100; 
@@ -12,21 +11,13 @@ using T = realF;
 constexpr unsigned N = 128;
 constexpr unsigned numRHS = 60;
 const Grid grid(8,8,8,8);
-const unsigned mu = 0;
-const unsigned isForward = true;
-
-
 VectorBatch<Lane<T,32>, N, numRHS> xs, ys;
 matrixField<T,N> A(grid);
-
-SimpleStencil stencil(mu, isForward);
 
 const Grid<32> grids[] = {Grid<32>(4,4,4,4)
                         , Grid<32>(4,4,8,8)
                         , Grid<32>(8,8,8,8)};
                         //, Grid<32>(16,16,16,16)};
-
-
 
 template<class T, unsigned N, unsigned numRHS>
 void runBenchmark() {
@@ -41,9 +32,15 @@ void runBenchmark() {
         for (unsigned i = 0; i<reps; i++) {
             stopwatch.reset();
             // perform the call 
-            stencil.run_mrhs<Lane<T,32>,N,numRHS>(ys_temp
-                                                  , A_temp
-                                                  , xs_temp);
+            if constexpr (numRHS == 1) {
+                matmul_mrhs3<Lane<T,32>,N,numRHS,1,1>(ys_temp
+                                                      , A_temp
+                                                      , xs_temp);
+            } else {
+                matmul_mrhs3<Lane<T,32>,N,numRHS>(ys_temp
+                                                      , A_temp
+                                                      , xs_temp);
+            }
             // read out stopwatch
             std::cout << i << ",";
             std::cout << grids[i_grid].Lx << ".";
@@ -52,7 +49,7 @@ void runBenchmark() {
             std::cout << grids[i_grid].Lt << ",";
             std::cout << N << ",";
             std::cout << numRHS << ",";
-            std::cout << 256 << ",";
+            std::cout << 9999 << ",";
             std::cout << stopwatch.getdiff(1) << std::endl;
         }
         for (unsigned i_rhs = 0; i_rhs < numRHS; ++i_rhs) {

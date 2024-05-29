@@ -3,7 +3,6 @@
 #include <random>
 #include "cublas_v2.h"
 #include "cugrid2/bLattice.h"
-#include "cugrid2/bStencil.h"
 #include "cugrid2/errorcheck.h"
 #include "cugrid2/stopwatch.h"
 
@@ -14,9 +13,6 @@ const bGrid grids[] = {bGrid(4,4,4,4)
                     , bGrid(4,4,8,8)
                     , bGrid(8,8,8,8)};
                     //, bGrid(16,16,16,16)};
-
-constexpr unsigned mu = 0;
-constexpr bool isForward = true;
 
 template<class T, unsigned N, unsigned numRHS, unsigned blkSize>
 void runBenchmark(cublasHandle_t & handle
@@ -32,16 +28,15 @@ void runBenchmark(cublasHandle_t & handle
             xs_temp[i_rhs] = new bVectorField<T,N>(grids[i_grid], *(xs[i_rhs]));
         }
         bMatrixField<T,N> A_temp(grids[i_grid], A);
-        
-        bMuStencil stencil(grids[i_grid], mu, isForward);
-
         for (unsigned i = 0; i<reps; i++) {
             stopwatch.reset();
             // perform the call 
-            stencil.execute<T,N,numRHS,blkSize>(handle
+            matmul_mrhs::gemm<T,N,numRHS,blkSize>(handle
                                                   , ys_temp
                                                   , A_temp
-                                                  , xs_temp);
+                                                  , xs_temp
+                                                  , d_Y
+                                                  , d_X);
             // read out stopwatch
             std::cout << i << ",";
             std::cout << grids[i_grid].Lx << ".";
@@ -53,8 +48,7 @@ void runBenchmark(cublasHandle_t & handle
             std::cout << blkSize << ",";
             std::cout << stopwatch.getdiff(1) << ",";
             std::cout << stopwatch.getdiff(2) << ",";
-            std::cout << stopwatch.getdiff(3) << ",";
-            std::cout << stopwatch.getdiff(4) << std::endl;
+            std::cout << stopwatch.getdiff(3) << std::endl;
         }
         for (unsigned i_rhs = 0; i_rhs < numRHS; ++i_rhs) {
             delete ys_temp[i_rhs];

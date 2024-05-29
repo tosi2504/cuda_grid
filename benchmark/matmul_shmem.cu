@@ -3,7 +3,7 @@
 #include <random>
 #include "cublas_v2.h"
 #include "cugrid2/bLattice.h"
-#include "cugrid2/bStencil.h"
+#include "cugrid2/bMatmul.h"
 #include "cugrid2/errorcheck.h"
 #include "cugrid2/stopwatch.h"
 
@@ -15,15 +15,39 @@ const bGrid grids[] = {bGrid(4,4,4,4)
                     , bGrid(8,8,8,8)};
                     //, bGrid(16,16,16,16)};
 
-constexpr unsigned mu = 0;
-constexpr bool isForward = true;
+constexpr unsigned get_blkSize(unsigned N, unsigned numRHS) {
+    switch(numRHS) {
+        case 1:
+            return N;
+            break;
+        case 12:
+            return (N >= 64) ? 256 : 128;
+            break;
+        case 24:
+            return 256;
+            break;
+        case 36:
+            return  (N >= 64) ? 256 : 128;
+            break;
+        case 48:
+            return 256;
+            break;
+        case 60:
+            return (N >= 64) ? 256 : 128;
+            break;
+        default:
+            return -1;
+    }
+}
 
-template<class T, unsigned N, unsigned numRHS, unsigned blkSize>
+
+template<class T, unsigned N, unsigned numRHS>
 void runBenchmark(cublasHandle_t & handle
                   , bVectorField<T, 128> ** ys
                   , const bMatrixField<T, 128> & A
                   , bVectorField<T, 128> ** xs
                   , T * d_Y, T * d_X) {
+    // need to calculate blocksize; target blocksize 256
     for (unsigned i_grid = 0; i_grid < sizeof(grids)/sizeof(bGrid); ++i_grid) {
         bVectorField<T,N> ** ys_temp = new bVectorField<T,N>*[numRHS];
         bVectorField<T,N> ** xs_temp = new bVectorField<T,N>*[numRHS];
@@ -32,16 +56,12 @@ void runBenchmark(cublasHandle_t & handle
             xs_temp[i_rhs] = new bVectorField<T,N>(grids[i_grid], *(xs[i_rhs]));
         }
         bMatrixField<T,N> A_temp(grids[i_grid], A);
-        
-        bMuStencil stencil(grids[i_grid], mu, isForward);
-
         for (unsigned i = 0; i<reps; i++) {
             stopwatch.reset();
             // perform the call 
-            stencil.execute<T,N,numRHS,blkSize>(handle
-                                                  , ys_temp
-                                                  , A_temp
-                                                  , xs_temp);
+            matmul_mrhs::cacheMatrix<T,N,numRHS,get_blkSize(N,numRHS)>(ys_temp
+                                                              , A_temp
+                                                              , xs_temp);
             // read out stopwatch
             std::cout << i << ",";
             std::cout << grids[i_grid].Lx << ".";
@@ -50,11 +70,8 @@ void runBenchmark(cublasHandle_t & handle
             std::cout << grids[i_grid].Lt << ",";
             std::cout << N << ",";
             std::cout << numRHS << ",";
-            std::cout << blkSize << ",";
-            std::cout << stopwatch.getdiff(1) << ",";
-            std::cout << stopwatch.getdiff(2) << ",";
-            std::cout << stopwatch.getdiff(3) << ",";
-            std::cout << stopwatch.getdiff(4) << std::endl;
+            std::cout << get_blkSize(N,numRHS) << ",";
+            std::cout << stopwatch.getdiff(1) << std::endl;
         }
         for (unsigned i_rhs = 0; i_rhs < numRHS; ++i_rhs) {
             delete ys_temp[i_rhs];
@@ -71,12 +88,12 @@ void iterate_over_numRHS(cublasHandle_t & handle
                   , const bMatrixField<T,128> & A
                   , bVectorField<T, 128> ** xs
                   , T * d_Y, T * d_X) {
-    runBenchmark<T, N, 1, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 12, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 24, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 36, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 48, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 60, 256>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 1>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 12>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 24>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 36>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 48>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 60>(handle,ys,A,xs,d_Y,d_X);
 }
 
 template<class T>
@@ -87,7 +104,7 @@ void iterate_over_N(cublasHandle_t & handle
                   , T * d_Y, T * d_X) {
     iterate_over_numRHS<T, 32>(handle,ys,A,xs,d_Y,d_X);
     iterate_over_numRHS<T, 64>(handle,ys,A,xs,d_Y,d_X);
-    iterate_over_numRHS<T, 128>(handle,ys,A,xs,d_Y,d_X);
+    // iterate_over_numRHS<T, 128>(handle,ys,A,xs,d_Y,d_X);
 }
 
 

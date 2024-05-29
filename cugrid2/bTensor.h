@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <type_traits>
 #include "bRandom.h"
 
 template<class T, unsigned N>
@@ -107,3 +108,13 @@ bVector<T,N> debugMatmul(const bMatrix<T,N> & A, const bVector<T,N> & x) {
 	}
 	return y;
 }
+
+// typetraits to check whether two objects are both tensor or matrix
+template<class left, class right>
+struct is_both_vector_or_matrix : public std::false_type {};
+
+template<class T, unsigned N_left, unsigned N_right>
+struct is_both_vector_or_matrix<bVector<T,N_left>, bVector<T,N_right>> : public std::true_type {};
+
+template<class T, unsigned N_left, unsigned N_right>
+struct is_both_vector_or_matrix<bMatrix<T,N_left>, bMatrix<T,N_right>> : public std::true_type {};

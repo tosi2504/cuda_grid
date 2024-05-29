@@ -134,3 +134,13 @@ template<class lobj, unsigned N> struct is_Vector<iVector<lobj, N>> : public std
 
 template<class tobj> struct is_Matrix : public std::false_type {};
 template<class lobj, unsigned N> struct is_Matrix<iMatrix<lobj, N>> : public std::true_type {};
+
+// type traits to check whether two objects are both tensor or matrix
+template<class left, class right>
+struct is_both_vector_or_matrix : public std::false_type {};
+
+template<class lobj, unsigned N_left, unsigned N_right>
+struct is_both_vector_or_matrix<iVector<lobj,N_left>, iVector<lobj,N_right>> : public std::true_type {};
+
+template<class lobj, unsigned N_left, unsigned N_right>
+struct is_both_vector_or_matrix<iMatrix<lobj,N_left>, iMatrix<lobj,N_right>> : public std::true_type {};

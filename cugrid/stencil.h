@@ -6,6 +6,7 @@
 #include "grid.h"
 #include "lane.h"
 #include "matmul.h"
+#include "stopwatch.h"
 
 template<class lobj, unsigned N>
 using GaugeField = std::array< Lattice<iMatrix<lobj, N>> * , 4 >;
@@ -166,6 +167,9 @@ class SimpleStencil {
 		if ((not check_grid_compatible<lobj, N, batchsize>(batch_res, targetfield.grid)) or (not check_grid_compatible<lobj, N, batchsize>(batch_rhs, targetfield.grid))) {
 			throw std::logic_error("Grids not compatible");
 		}
+
+        stopwatch.press();
+
 		Grid<lobj::_lenLane> grid = targetfield.grid;
 
 		// create laneIdxMap
@@ -215,6 +219,8 @@ class SimpleStencil {
 
 		cudaFree(d_laneIdxMap);
 		cudaFree(d_stinfo);
+
+        stopwatch.press();
 	}
 };
 

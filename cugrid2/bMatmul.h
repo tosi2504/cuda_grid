@@ -8,7 +8,9 @@
 
 #include "blasWrapper.h"
 #include "errorcheck.h"
-#include "datatypes.h"
+#include "cugrid2.h"
+#include "stopwatch.h"
+
 
 namespace matmul_srhs{
 	template<class T, unsigned N>
@@ -237,6 +239,7 @@ namespace mrhs_helper {
 		CCE(  cudaFree(d_vecfields)  );
 	}
 
+    // matrixfield to batch of vectorfields
 	template<class T, unsigned N, unsigned numRHS>
 	__global__ void ker_fillBatchFromMatrixfield(T * const * const d_vecfields, const T * const d_matfield, const unsigned numSites) {
 		const unsigned gIdx = blockIdx.x*blockDim.x + threadIdx.x;
@@ -351,10 +354,12 @@ namespace matmul_mrhs {
 		T ** d_ys = mrhs_helper::createBatchDvcPtr<bVector<T,N>,numRHS>(ys);
 		T ** d_xs = mrhs_helper::createBatchDvcPtr<bVector<T,N>,numRHS>(xs);
 
+        stopwatch.press();
 		// call the kernel -> a block for every lattice site
 		matmul_mrhs::ker_cacheMatrix <T,N,numRHS,blkSize> <<<A.grid.numSites,blkSize>>> (d_ys, &A.d_data->data[0][0], d_xs);
 		CLCE();
 		CCE(  cudaDeviceSynchronize()  );
+        stopwatch.press();
 
 
 		// free the device pointers to pointers of data
@@ -378,9 +383,10 @@ namespace matmul_mrhs {
 		// CCE(  cudaMalloc(&d_X, sizeof(T)*numRHS*grid.numSites*N)  );
 		// CCE(  cudaMalloc(&d_Y, sizeof(T)*numRHS*grid.numSites*N)  );
 
+        stopwatch.press();
 		// copy inputs to matrixfield X
 		mrhs_helper::fillMatrixfieldFromBatch<T,N,numRHS,blkSize>(d_X, xs);
-		
+		stopwatch.press();
 		// call gemm on d_X, d_Y and A.d_data
 		T alpha = 1;
 		T beta = 0;
@@ -395,9 +401,11 @@ namespace matmul_mrhs {
 												, d_Y, N, N*numRHS
 												, grid.numSites)  );
 		CCE(  cudaDeviceSynchronize()  );
+        stopwatch.press();
 
 		// copy result to vectorfields ys
 		mrhs_helper::fillBatchFromMatrixfield<T,N,numRHS,blkSize>(ys, d_Y);
+        stopwatch.press();
 
 		// free temporary matfields
 		// CCE(  cudaFree(d_X)  );

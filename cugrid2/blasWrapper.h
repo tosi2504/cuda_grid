@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cublas_v2.h>
+#include "datatypes.h"
 
 namespace gemvStridedBatched {
 	template<class T>

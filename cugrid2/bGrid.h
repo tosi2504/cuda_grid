@@ -1,7 +1,7 @@
 #pragma once
 
-#include "cugrid2.h"
 #include <vector>
+#include <stdexcept>
 
 struct cartesian {
 	unsigned x, y, z, t;

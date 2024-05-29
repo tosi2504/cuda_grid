@@ -3,7 +3,9 @@
 #include "bTensor.h"
 #include <random>
 #include "errorcheck.h"
-#include <vector>
+#include "bGrid.h"
+#include <type_traits>
+#include <cassert>
 
 
 
@@ -15,21 +17,36 @@ struct bLattice {
 	tensor * h_data;
 	tensor * d_data;
 	const bGrid grid;
+    const bool isOwner;
 
 	// constructors and destructors
-	bLattice(const bGrid & grid) : grid(grid) {
+	bLattice(const bGrid & grid) : grid(grid), isOwner(true) {
 		// construct on host mem
 		h_data = new tensor[grid.numSites];
 
 		// construct on devc mem
 		CCE(  cudaMalloc(&d_data, sizeof(tensor)*grid.numSites)  );
 	}
+    template<class othertensor>
+	bLattice(const bGrid & grid, const bLattice<othertensor> & other) : grid(grid), isOwner(false) {
+        // check that getting a view is memory conform
+        static_assert(std::is_same_v<T, typename othertensor::_T>);
+        static_assert(is_both_vector_or_matrix<tensor, othertensor>::value);
+        static_assert(tensor::_N <= othertensor::_N);
+        assert(grid.numSites <= other.grid.numSites);
+        
+        // get data pointers
+        h_data = (tensor*)other.h_data;
+        d_data = (tensor*)other.d_data;
+    }
 	~bLattice() {
-		// free host mem
-		delete[] h_data;
+        if (isOwner) {
+            // free host mem
+            delete[] h_data;
 
-		// free devc mem
-		CCE(  cudaFree(d_data)  );
+            // free devc mem
+            CCE(  cudaFree(d_data)  );
+        }
 	}
 
 	// upload and download

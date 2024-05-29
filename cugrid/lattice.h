@@ -4,7 +4,9 @@
 #include <type_traits>
 #include <stdexcept>
 #include <omp.h>
+#include <cassert>
 
+#include "cugrid/lane.h"
 #include "errorcheck.h"
 #include "grid.h"
 #include "tensor.h"
@@ -19,6 +21,7 @@ class Lattice {
 	constexpr static unsigned lenLane = tobj::_lobj::_lenLane; 
 	constexpr static unsigned N = tobj::_N; 
 	const Grid<lenLane> grid;
+    const bool isOwner = true;
 
 	unsigned sizeVNodes;
 	tobj * d_data, * h_data;
@@ -33,9 +36,26 @@ class Lattice {
 		h_data = new tobj[sizeVNodes];
 		CCE(cudaMalloc(&d_data, sizeVNodes*sizeof(tobj)));
 	}
+    template<class othertobj>
+    Lattice(const Grid<lenLane> & grid, const Lattice<othertobj> & other):
+        grid(grid), isOwner(false) 
+    {
+        // check that a view is memory conform   
+        static_assert(std::is_same_v<typename tobj::_lobj, typename othertobj::_lobj>);
+        static_assert(is_both_vector_or_matrix<tobj, othertobj>::value);
+        static_assert(tobj::_N <= othertobj::_N);
+        assert(grid.numSites <= other.grid.numSites);
+        
+        sizeVNodes = grid.calcSizeVNodes();
+        // get data pointers
+        h_data = (tobj*)other.h_data;
+        d_data = (tobj*)other.d_data;
+    }
 	~Lattice() {
-		delete[] h_data;
-		CCE(cudaFree(d_data));
+        if (isOwner) {
+            delete[] h_data;
+            CCE(cudaFree(d_data));
+        }
 	}
 	Lattice(const Lattice<tobj> & other):
 		grid(other.grid)
@@ -119,6 +139,9 @@ class Lattice {
 		}
 	}
 };
+
+template<class T, unsigned N, unsigned lenLane = 32> using vectorField = Lattice<iVector<Lane<T,lenLane>,N>>;
+template<class T, unsigned N, unsigned lenLane = 32> using matrixField = Lattice<iMatrix<Lane<T,lenLane>,N>>;
 
 // arithmetic operations
 template<class lobj, unsigned N, unsigned blocksize = 256>

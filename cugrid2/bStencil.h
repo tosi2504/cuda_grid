@@ -2,6 +2,9 @@
 
 #include <stdexcept>
 #include <vector>
+#include "bLattice.h"
+#include "bMatmul.h"
+#include "stopwatch.h"
 
 
 
@@ -42,11 +45,14 @@ struct bMuStencil {
 		if( not bLatticeHelpers::areGridsCompatible<T,N,numRHS>(ys,A,xs) ) throw std::invalid_argument("Grids not compatible");
 		if( not grid.isCompatible(A.grid) ) throw std::invalid_argument("Grids not compatible");
 		
+
 		// prepare device pointers and layout changes
+        stopwatch.press();
 		T * d_X, * d_Y;
 		CCE(  cudaMalloc(&d_X, sizeof(T)*numRHS*grid.numSites*N)  );
 		CCE(  cudaMalloc(&d_Y, sizeof(T)*numRHS*grid.numSites*N)  );
 
+        stopwatch.press();
 		// copy inputs to matrixfield X
 		mrhs_helper::fillMatrixfieldFromBatch<T,N,numRHS,blkSize>(d_X, xs);
 		
@@ -57,6 +63,7 @@ struct bMuStencil {
 		T ** d_d_Y = createDevicePointerArray<T,N*numRHS>(d_Y, false);
 
 		// call gemmBatched on d_d_X, d_d_Y and A.d_data
+        stopwatch.press();
 		const T alpha = 1;
 		const T beta = 0;
 		cublasCCE(
@@ -72,9 +79,10 @@ struct bMuStencil {
 								, grid.numSites)
 		);
 		CCE(  cudaDeviceSynchronize()  );
-
+        stopwatch.press();
 		// copy result to vectorfields ys
 		mrhs_helper::fillBatchFromMatrixfield<T,N,numRHS,blkSize>(ys, d_Y);
+        stopwatch.press();
 
 		// free temporary device arrays
 		CCE(  cudaFree(d_d_X)  );
