@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cugrid2/bLattice.h"
+#include "bLattice.h"
 #include <chrono>
 #include <type_traits>
 #include <iostream>

@@ -1,12 +1,10 @@
 #include "../cugrid2/cugrid2.h"
-#include "cugrid2/bTensor.h"
-#include "cugrid2/benchmark.h"
 #include <cstdlib>
 #include <cstring>
 #include <cublas_v2.h>
 
 using T = realF;
-constexpr unsigned N = 33;//128;
+constexpr unsigned N = 64;//128;
 constexpr unsigned numRHS = 1;
 constexpr unsigned blkSize = N;
 const bGrid grid = bGrid(8,8,8,8);
@@ -48,6 +46,7 @@ int main() {
     debugMatmulAccumulate(y, A.h_data[grid.shift(site, 2, false)], xs[iRHS]->h_data[site]);
     debugMatmulAccumulate(y, A.h_data[grid.shift(site, 3, true)], xs[iRHS]->h_data[site]);
     debugMatmulAccumulate(y, A.h_data[grid.shift(site, 3, false)], xs[iRHS]->h_data[site]);
+
 
     std::cout << "Comparison: " << std::endl;
     for (unsigned n = 0; n < N; n++) {

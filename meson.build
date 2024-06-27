@@ -3,6 +3,8 @@ project('cugrid'
   , 'cuda'
   , default_options : ['buildtype=release', 'cpp_std=c++20'])
 
+cuda = meson.get_compiler('cuda')
+
 # load dependency
 cuda_dep = dependency('cuda', version : '>=12', modules : ['cublas'])
 
