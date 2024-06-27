@@ -2,10 +2,15 @@
 
 #include <vector>
 #include <stdexcept>
+#include <iostream>
 
 struct cartesian {
-	unsigned x, y, z, t;
+  unsigned x, y, z, t;
 };
+
+std::ostream & operator << (std::ostream & s, const cartesian & c) {
+  return s<<"{"<<c.x<<","<<c.y<<","<<c.z<<","<<c.t<<"}";
+}
 
 struct bGrid {
 	const unsigned Lx, Ly, Lz, Lt;
@@ -28,6 +33,31 @@ struct bGrid {
 		res.t = site%Lt;
 		return res;
 	}
+
+  cartesian shift(const cartesian & c, unsigned mu, bool isForward) const {
+    cartesian res(c);
+    switch (mu) {
+      case 0:
+        res.x = isForward ? (c.x+1)%Lx : (c.x+Lx-1)%Lx;
+        break;
+      case 1:
+        res.y = isForward ? (c.y+1)%Ly : (c.y+Ly-1)%Ly;
+        break;
+      case 2:
+        res.z = isForward ? (c.z+1)%Lz : (c.z+Lz-1)%Lz;
+        break;
+      case 3:
+        res.t = isForward ? (c.t+1)%Lt : (c.t+Lt-1)%Lt;
+        break;
+      default:
+        throw std::invalid_argument("mu must be 0,1,2,3");
+    }
+    return res;
+  }
+
+  unsigned shift(unsigned site, unsigned mu, bool isForward) const {
+    return toFlat(shift(toCartesian(site), mu, isForward));
+  }
 
 	std::vector<unsigned> calcTargetMap(const unsigned mu, bool isForward) const {
 		std::vector<unsigned> res(numSites);

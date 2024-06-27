@@ -354,12 +354,12 @@ namespace matmul_mrhs {
 		T ** d_ys = mrhs_helper::createBatchDvcPtr<bVector<T,N>,numRHS>(ys);
 		T ** d_xs = mrhs_helper::createBatchDvcPtr<bVector<T,N>,numRHS>(xs);
 
-        stopwatch.press();
+    stopwatch.press();
 		// call the kernel -> a block for every lattice site
 		matmul_mrhs::ker_cacheMatrix <T,N,numRHS,blkSize> <<<A.grid.numSites,blkSize>>> (d_ys, &A.d_data->data[0][0], d_xs);
 		CLCE();
 		CCE(  cudaDeviceSynchronize()  );
-        stopwatch.press();
+    stopwatch.press();
 
 
 		// free the device pointers to pointers of data

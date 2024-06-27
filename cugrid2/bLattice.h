@@ -17,7 +17,7 @@ struct bLattice {
 	tensor * h_data;
 	tensor * d_data;
 	const bGrid grid;
-    const bool isOwner;
+  const bool isOwner;
 
 	// constructors and destructors
 	bLattice(const bGrid & grid) : grid(grid), isOwner(true) {

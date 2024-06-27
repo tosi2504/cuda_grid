@@ -109,6 +109,15 @@ bVector<T,N> debugMatmul(const bMatrix<T,N> & A, const bVector<T,N> & x) {
 	return y;
 }
 
+template<class T, unsigned N>
+void debugMatmulAccumulate(bVector<T, N> & y, const bMatrix<T, N> &A, const bVector<T, N> & x) {
+	for (unsigned i = 0; i < N; i++) {
+		for (unsigned j = 0; j < N; j++) {
+			y.data[i] += A.data[i][j] * x.data[j];
+		}
+	}
+}
+
 // typetraits to check whether two objects are both tensor or matrix
 template<class left, class right>
 struct is_both_vector_or_matrix : public std::false_type {};
