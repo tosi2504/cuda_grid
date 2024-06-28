@@ -22,7 +22,7 @@ test2_files = {'test_tensor'  : 'test2/test_tensor.cu'
                 , 'complexStencil'     : 'test2/complexStencil.cu'
                 , 'main2mrhs' : 'test2/main2mrhs.cu'}
 foreach key, value : test2_files
-  executable(key, value, dependencies: cuda_dep)
+  executable(key, value, dependencies: cuda_dep, cuda_args : ['-lineinfo'])
 endforeach
 
 # build benchmark_stencil tests

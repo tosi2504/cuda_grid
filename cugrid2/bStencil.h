@@ -109,23 +109,24 @@ __global__ void ker_stencilShmemProperlyDone(T * const * const g_d_ys
                             , unsigned numSites) {
     const unsigned site = blockIdx.x;
     const unsigned tIdx = threadIdx.x;
-
+    
     const unsigned dRhs = tIdx % N;
     const unsigned dRow = tIdx / N;
     const unsigned iCol = tIdx % N; // for matrix loading only!
-
+    
     constexpr unsigned rowStride = blkSize/N;
     constexpr unsigned rhsStride = N;
-
+    
     __shared__ T shmemX[N*numRHS]; // column major (lol)
     __shared__ T shmemY[N*numRHS]; // column major (lol)
     __shared__ T shmemA[blkSize];  // row major (no lol) 
+    
     for (unsigned i = tIdx; i < N*numRHS; i+=blkSize) {
         const unsigned iRhs = i / N;
         const unsigned n    = i % N;
         shmemX[colm(n, iRhs, numRHS, N)] = g_d_xs[iRhs][N*site + n];
     }
-
+    
     for (unsigned iDir = 0; iDir < 9; iDir++) {
         const unsigned targetSite = g_indexmap[iDir*numSites + site];
         for (unsigned iiRow = 0; iiRow < N; iiRow += rowStride) {
@@ -138,7 +139,7 @@ __global__ void ker_stencilShmemProperlyDone(T * const * const g_d_ys
                 if (iRhs >= numRHS) continue; // access guard
                 T tempRes = 0;
                 for (unsigned k = 0; k < N; k++) {
-                    tempRes += shmemA[rowm(iRow, k, N, N)] * shmemX[colm(k, iRhs, numRHS, N)]; 
+                    tempRes += shmemA[rowm(dRow, k, N, N)] * shmemX[colm(k, iRhs, numRHS, N)]; 
                 }
                 if (iDir == 0) shmemY[colm(iRow, iRhs, numRHS, N)]  = tempRes;
                 else           shmemY[colm(iRow, iRhs, numRHS, N)] += tempRes;
@@ -146,138 +147,12 @@ __global__ void ker_stencilShmemProperlyDone(T * const * const g_d_ys
             __syncthreads();
         }
     }
-
+    
     for (unsigned i = tIdx; i < N*numRHS; i+=blkSize) {
         const unsigned iRhs = i / N;
         const unsigned n    = i % N;
         g_d_ys[iRhs][N*site + n] = shmemY[colm(n, iRhs, numRHS, N)];
     }
-}
-
-
-template<class T, unsigned N, unsigned numRHS, unsigned blkSize>
-__global__ void ker_stencilShmemDebug(T * const * const g_d_ys
-                            , const T * const d_A
-                            , const T * const * const g_d_xs
-                            , const unsigned * const g_indexmap
-                            , unsigned numSites) {
-    const unsigned site = blockIdx.x;
-    const unsigned tIdx = threadIdx.x;
-    constexpr unsigned rowStrideA = blkSize/N;
-    const unsigned dRow = tIdx/N;
-    const unsigned iCol = tIdx%N;
-    const unsigned dRhs = dRow;
-    
-    __shared__ T shmemX[N*numRHS]; // column major (lol)
-    __shared__ T shmemY[N*numRHS]; // column major (lol)
-    __shared__ T shmemA[blkSize];  // row major (no lol) 
-    for (unsigned i = tIdx; i < N*numRHS; i+=blkSize) {
-        const unsigned iRhs = i / N;
-        const unsigned n    = i % N;
-        shmemX[colm(n, iRhs, numRHS, N)] = g_d_xs[iRhs][N*site + n];
-    }
-    
-    for (unsigned iDir = 0; iDir < 9; iDir++) {
-        const unsigned targetSite = g_indexmap[iDir*numSites + site];
-
-        for (unsigned iiRow = 0; iiRow < N; iiRow+=rowStrideA) {
-
-            shmemA[rowm(dRow,iCol,N,rowStrideA)] = d_A[targetSite*N*N + rowm(iiRow+dRow, iCol, N, N)];
-            __syncthreads();
-
-            for (unsigned iiRhs = 0; iiRhs < numRHS; iiRhs+=rowStrideA) {
-
-                if (iiRhs + dRow < numRHS) { // access guard saves one static assert statement
-                    T tempRes = 0;
-
-                    for (unsigned k = 0; k < N; k++) {
-                        tempRes += shmemA[rowm(dRow,k,N,rowStrideA)] * shmemX[colm(k, iiRhs+dRhs, numRHS, N)];
-                    }
-                    if (iDir == 0) {
-                        shmemY[colm(iiRow+dRow, iiRhs+dRhs, numRHS, N)] = tempRes; // WARNING: dRow == dRhs!!!!! THIS CANT BE CORRECT
-                    } else {
-                        shmemY[colm(iiRow+dRow, iiRhs+dRhs, numRHS, N)] += tempRes; // WARNING: dRow == dRhs!!!!! THIS CANT BE CORRECT
-                    }
-                }
-                __syncthreads();
-            }
-            __syncthreads();
-        }
-    }
-
-    for (unsigned i = tIdx; i < N*numRHS; i+=blkSize) {
-        const unsigned iRhs = i / N;
-        const unsigned n    = i % N;
-        g_d_ys[iRhs][N*site + n] = shmemY[colm(n, iRhs, numRHS, N)];
-    }
-}
-
-
-
-template<class T, unsigned N, unsigned numRHS, unsigned blkSize>
-__global__ void ker_stencilShmem(T * const * const g_d_ys
-                            , const T * const d_A
-                            , const T * const * const g_d_xs
-                            , const unsigned * const g_indexmap
-                            , unsigned numSites) {
-    const unsigned site = blockIdx.x;
-    const unsigned tIdx = threadIdx.x;
-    constexpr unsigned rowStrideA = blkSize/N;
-    const unsigned dRow = tIdx/N;
-    const unsigned iCol = tIdx%N;
-    const unsigned dRhs = dRow;
-    // const unsigned iVec = iCol;
-    
-    __shared__ T shmemX[N*numRHS]; // column major (lol)
-    __shared__ T shmemY[N*numRHS]; // column major (lol)
-    __shared__ T shmemA[blkSize];  // row major (no lol) 
-    for (unsigned i = tIdx; i < N*numRHS; i+=blkSize) {
-        const unsigned iRhs = i / N;
-        const unsigned n    = i % N;
-        shmemX[i] = g_d_xs[iRhs][N*site + n];
-    }
-    
-    for (unsigned iDir = 0; iDir < 9; iDir++) {
-
-        const unsigned targetSite = g_indexmap[iDir*numSites + site];
-
-        for (unsigned iiRow = 0; iiRow < N; iiRow+=rowStrideA) {
-
-            // __syncthreads(); // DEBUG
-            shmemA[tIdx] = d_A[targetSite*N*N + (iiRow+dRow)*N + iCol];
-            __syncthreads();
-
-            for (unsigned iiRhs = 0; iiRhs < numRHS; iiRhs+=rowStrideA) {
-
-                if (iiRhs + dRow < numRHS) { // access guard saves one static assert statement
-                    T tempRes = 0;
-
-                    // __syncthreads(); // DEBUG
-
-                    for (unsigned k = 0; k < N; k++) {
-                        tempRes += shmemA[dRow*N + k] * shmemX[(iiRhs+dRhs)*N + k];
-                    }
-                    // TODO: CONTINUE DEBUGGING HERE: WHY IS THE STATEMENT IMPORTANT
-                    // __syncthreads(); // DEBUG -> THIS IS THE IMPORTANT ONE FOR SOME BLOODY REASON
-                    if (iDir == 0)
-                        shmemY[(iiRhs+dRhs)*N + iiRow + dRow] = tempRes;
-                    else
-                        shmemY[(iiRhs+dRhs)*N + iiRow + dRow] += tempRes;
-                    __syncthreads();
-                }
-            }
-        }
-    }
-
-    // __syncthreads(); // DEBUG
-    // need to write out results
-    __syncthreads(); // DEBUG
-    for (unsigned i = tIdx; i < N*numRHS; i+=blkSize) {
-        const unsigned iRhs = i / N;
-        const unsigned n    = i % N;
-        g_d_ys[iRhs][N*site + n] = shmemY[i];
-    }
-    __syncthreads(); // DEBUG
 }
 
 struct bFullStencil {

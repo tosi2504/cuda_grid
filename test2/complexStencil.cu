@@ -5,8 +5,8 @@
 
 using T = realF;
 constexpr unsigned N = 64;//128;
-constexpr unsigned numRHS = 1;
-constexpr unsigned blkSize = N;
+constexpr unsigned numRHS = 60;
+constexpr unsigned blkSize = 4*N;
 const bGrid grid = bGrid(8,8,8,8);
 
 int main() {
@@ -35,24 +35,28 @@ int main() {
     std::cout << "Fields downloaded" << std::endl;
 
     // check the results
-    unsigned iRHS = 0;
-    unsigned site = grid.toFlat({1,1,1,1});
-    bVector<T,N> y = debugMatmul(A.h_data[site], xs[iRHS]->h_data[site]);
-    debugMatmulAccumulate(y, A.h_data[grid.shift(site, 0, true)], xs[iRHS]->h_data[site]);
-    debugMatmulAccumulate(y, A.h_data[grid.shift(site, 0, false)], xs[iRHS]->h_data[site]);
-    debugMatmulAccumulate(y, A.h_data[grid.shift(site, 1, true)], xs[iRHS]->h_data[site]);
-    debugMatmulAccumulate(y, A.h_data[grid.shift(site, 1, false)], xs[iRHS]->h_data[site]);
-    debugMatmulAccumulate(y, A.h_data[grid.shift(site, 2, true)], xs[iRHS]->h_data[site]);
-    debugMatmulAccumulate(y, A.h_data[grid.shift(site, 2, false)], xs[iRHS]->h_data[site]);
-    debugMatmulAccumulate(y, A.h_data[grid.shift(site, 3, true)], xs[iRHS]->h_data[site]);
-    debugMatmulAccumulate(y, A.h_data[grid.shift(site, 3, false)], xs[iRHS]->h_data[site]);
+    for (unsigned iRHS = 0; iRHS < numRHS; iRHS++) {
+        for (unsigned site = 0; site < grid.numSites; site++) {
+            // unsigned iRHS = 68;
+            // unsigned site = grid.toFlat({1,1,1,1});
+            bVector<T,N> y = debugMatmul(A.h_data[site], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 0, true)], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 0, false)], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 1, true)], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 1, false)], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 2, true)], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 2, false)], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 3, true)], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 3, false)], xs[iRHS]->h_data[site]);
 
 
-    std::cout << "Comparison: " << std::endl;
-    for (unsigned n = 0; n < N; n++) {
-        T diff = y.data[n] - ys[iRHS]->h_data[site].data[n];
-        if (std::abs(diff) > 0.001f) {
-            std::cout << n << ": " << std::abs(diff) << std::endl;
+            // std::cout << "Comparison: " << iRHS << std::endl;
+            for (unsigned n = 0; n < N; n++) {
+                T diff = y.data[n] - ys[iRHS]->h_data[site].data[n];
+                if (std::abs(diff) > 0.001f) {
+                    std::cout << n << ": " << std::abs(diff) << std::endl;
+                }
+            }
         }
     }
     // y.print();
