@@ -90,16 +90,70 @@ struct bMuStencil {
 };
 
 
-__device__ unsigned rowm(unsigned iRow, unsigned iCol, unsigned lenRows, unsigned lenCols) {
+__device__ inline unsigned rowm(unsigned iRow, unsigned iCol, unsigned lenRows, unsigned lenCols) {
     const unsigned flat = iRow * lenRows + iCol;
-    // if (flat >= lenRows * lenCols) printf("--FROM-GPU--: OUT OF BOUNDS");
+    if (flat >= lenRows * lenCols) printf("--FROM-GPU--: OUT OF BOUNDS");
     return flat;
 }
-__device__ unsigned colm(unsigned iRow, unsigned iCol, unsigned lenRows, unsigned lenCols) {
+__device__ inline unsigned colm(unsigned iRow, unsigned iCol, unsigned lenRows, unsigned lenCols) {
     const unsigned flat = iCol * lenCols + iRow;
-    // if (flat >= lenRows * lenCols) printf("--FROM-GPU--: OUT OF BOUNDS");
+    if (flat >= lenRows * lenCols) printf("--FROM-GPU--: OUT OF BOUNDS");
     return flat;
 }
+
+template<class T, unsigned N, unsigned numRHS, unsigned blkSize>
+__global__ void ker_stencilShmemProperlyDone(T * const * const g_d_ys
+                            , const T * const d_A
+                            , const T * const * const g_d_xs
+                            , const unsigned * const g_indexmap
+                            , unsigned numSites) {
+    const unsigned site = blockIdx.x;
+    const unsigned tIdx = threadIdx.x;
+
+    const unsigned dRhs = tIdx % N;
+    const unsigned dRow = tIdx / N;
+    const unsigned iCol = tIdx % N; // for matrix loading only!
+
+    constexpr unsigned rowStride = blkSize/N;
+    constexpr unsigned rhsStride = N;
+
+    __shared__ T shmemX[N*numRHS]; // column major (lol)
+    __shared__ T shmemY[N*numRHS]; // column major (lol)
+    __shared__ T shmemA[blkSize];  // row major (no lol) 
+    for (unsigned i = tIdx; i < N*numRHS; i+=blkSize) {
+        const unsigned iRhs = i / N;
+        const unsigned n    = i % N;
+        shmemX[colm(n, iRhs, numRHS, N)] = g_d_xs[iRhs][N*site + n];
+    }
+
+    for (unsigned iDir = 0; iDir < 9; iDir++) {
+        const unsigned targetSite = g_indexmap[iDir*numSites + site];
+        for (unsigned iiRow = 0; iiRow < N; iiRow += rowStride) {
+            const unsigned iRow = iiRow + dRow;
+            shmemA[rowm(dRow,iCol,N,rowStride)] =
+                d_A[targetSite*N*N + rowm(iRow, iCol, N, N)];
+            __syncthreads();
+            for (unsigned iiRhs = 0; iiRhs < numRHS; iiRhs += rhsStride) {
+                const unsigned iRhs = iiRhs + dRhs;
+                if (iRhs >= numRHS) continue; // access guard
+                T tempRes = 0;
+                for (unsigned k = 0; k < N; k++) {
+                    tempRes += shmemA[rowm(iRow, k, N, N)] * shmemX[colm(k, iRhs, numRHS, N)]; 
+                }
+                if (iDir == 0) shmemY[colm(iRow, iRhs, numRHS, N)]  = tempRes;
+                else           shmemY[colm(iRow, iRhs, numRHS, N)] += tempRes;
+            }
+            __syncthreads();
+        }
+    }
+
+    for (unsigned i = tIdx; i < N*numRHS; i+=blkSize) {
+        const unsigned iRhs = i / N;
+        const unsigned n    = i % N;
+        g_d_ys[iRhs][N*site + n] = shmemY[colm(n, iRhs, numRHS, N)];
+    }
+}
+
 
 template<class T, unsigned N, unsigned numRHS, unsigned blkSize>
 __global__ void ker_stencilShmemDebug(T * const * const g_d_ys
@@ -154,9 +208,7 @@ __global__ void ker_stencilShmemDebug(T * const * const g_d_ys
     for (unsigned i = tIdx; i < N*numRHS; i+=blkSize) {
         const unsigned iRhs = i / N;
         const unsigned n    = i % N;
-__syncthreads(); // DEBUG
         g_d_ys[iRhs][N*site + n] = shmemY[colm(n, iRhs, numRHS, N)];
-__syncthreads(); // DEBUG
     }
 }
 
@@ -363,7 +415,7 @@ struct bFullStencil {
                    , sizeof(unsigned)*grid.numSites);
         }
         
-        ker_stencilShmemDebug
+        ker_stencilShmemProperlyDone
             <T, N, numRHS, blkSize>
             <<<grid.numSites, blkSize>>>
             ((T*const*)g_d_ys
