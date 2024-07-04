@@ -45,6 +45,14 @@ struct bVector{
             data[i] = 0;
         }
     }
+
+    static bVector<T, N> Unit() {
+        bVector<T, N> res;
+        for (unsigned i = 0; i < N; i++) {
+            res.data[i] = 1;
+        }
+        return res;
+    }
 };
 
 

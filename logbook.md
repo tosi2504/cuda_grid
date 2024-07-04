@@ -88,8 +88,32 @@ But in my code, the gmem accesses are already coalesced (thanks to the column-ma
 
 ##### Shmem
 Okay, this is obvious and we have fixed it.
+Using `T=realF`, `N=32`, `numRHS=60`, `grid=8.8.8.8` and `tileLen=4`:
+```
+Kernel-Stats:
+    Bandwidth(MB/s): 56724.9
+    Flops(MFlops): 1.20123e+06
+```
 
 ##### 1D Blocktiling
+To implement 1D Blocktiling efficiently into my framework, I had to change up the geometry a bit.
+With tileLen=4 we get the best performance.
+Using `T=realF`, `N=32`, `numRHS=60`, `grid=8.8.8.8` and `tileLen=4`:
+```
+Kernel-Stats:
+    Bandwidth(MB/s): 69497.8
+    Flops(MFlops): 1.47172e+06
+```
+This is almost twice as good as cuBLAS!
+But I am sure we can get even better performance using 2D blocktiling, so lets get to it.
+
+##### 2D Blocktiling
+Let's consider `N=32`. 
+If I am correct in the assumption, that we need to split the `N*N` area into quadratic tiles, we might have a problem.
+If we do `tileLen=4` we get only 64 threads!
+That's really bad occupancy :/
+If we do `tileLen=2` we get 256 threads which is okayish.
+Whatever, let's try.
 
 
 
