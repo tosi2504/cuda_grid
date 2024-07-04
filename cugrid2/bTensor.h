@@ -39,6 +39,12 @@ struct bVector{
 	void fill_random(std::mt19937 & gen, T min, T max) {
 		fill_buffer_random<T, N>(gen, data, min, max);	
 	}
+
+    void fill_zero() {
+        for (unsigned i = 0; i < N; i++) {
+            data[i] = 0;
+        }
+    }
 };
 
 
@@ -95,6 +101,25 @@ struct bMatrix{
 	void fill_random(std::mt19937 & gen, T min, T max) {
 		fill_buffer_random<T, N*N>(gen, (T*)data, min, max);	
 	}
+
+    void fill_zero() {
+        for (unsigned i = 0; i < N; i++) {
+            for (unsigned j = 0; j < N; j++) {
+                data[i][j] = 0;
+            }
+        }
+    }
+
+    static bMatrix Unit() {
+        bMatrix<T, N> res;
+        for (unsigned i = 0; i < N; i++) {
+            for (unsigned j = 0; j < N; j++) {
+                if (i == j) res.data[i][j] = 1;
+                else        res.data[i][j] = 0;
+            }
+        }
+        return res;
+    }
 };
 
 template<class T, unsigned N>

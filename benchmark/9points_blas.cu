@@ -12,8 +12,8 @@ constexpr unsigned reps = 100;
 
 const bGrid grids[] = {bGrid(4,4,4,4)
                     , bGrid(4,4,8,8)
-                    , bGrid(8,8,8,8)
-                    , bGrid(16,16,16,16)};
+                    , bGrid(8,8,8,8)};
+                    //, bGrid(16,16,16,16)};
 
 constexpr unsigned mu = 0;
 constexpr bool isForward = true;

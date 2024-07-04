@@ -1,0 +1,105 @@
+## 9-point stencil
+
+### shmem implementation
+
+#### Uncoalesced shmem access (memory bank conflicts)
+Performance is horrible, most likely due to memory bank conflicts of shmem in the dot-product line.
+Need to think about options to solve this problem.
+Maybe first need to understand how these memory bank conflicts really emerge.
+See `https://developer.nvidia.com/blog/efficient-matrix-transpose-cuda-cc/` as source.
+Not that the transposeCoalesced kernel of this blog shows the exact same symptom in nsight-compute(under 'Details'):
+'Uncoalesced shared accesses'.
+So, what do we do now?
+The blog suggests adding a padding to the shared memory to offset memory bank accesses.
+That's smart but I am not sure whether that works.
+Let's dive deeper into the exact access pattern.
+First for the transpose kernel, then for the stencil.
+
+##### Transpose Kernel
+```
+  x = blockIdx.y * TILE_DIM + threadIdx.x;  // transpose block offset
+  y = blockIdx.x * TILE_DIM + threadIdx.y;
+
+  for (int j = 0; j < TILE_DIM; j += BLOCK_ROWS)
+     odata[(y+j)*width + x] = tile[threadIdx.x][threadIdx.y + j];
+```
+
+In the first iteration (`j = 0`) only `BLOCK_ROWS(= 8)` memory banks are accessed.
+Why does padding (`__shared__ float tile[TILE_DIM][TILE_DIM+1]`) fix this problem?
+It can be displayed like this (let's assume 8 memory banks and `TILE_DIM = 8` and `BLOCK_ROWS = 4`):
+```
+     b0  b1  b2  b3  b4  b5  b6  b7
+0x00 x   x   x   x   o   o   o   o
+0x08 p   x   x   x   x   o   o   o
+0x10 o   p   x   x   x   x   o   o
+0x18 o   o   p   x   x   x   x   o
+0x20 o   o   o   p   x   x   x   x
+0x28 o   o   o   o   p   x   x   x
+0x30 x   o   o   o   o   p   x   x
+0x38 x   x   o   o   o   o   p   x
+0x40 x   x   x   o   o   o   o   p
+```
+Where `x's` are accesses and `o's` are not.
+`p` are padding addresses without any meaningful content.
+Very nice, I actually understand what is happening.
+
+##### 9-point Stencil
+I was able to get massive improvements done using two optimizations regarding memory bank conflicts:
+
+
+Firstly line `tempRes += shmemA[rowm(dRow, k, N, N)] * shmemX[colm(k, iRhs, numRHS, N)]`:
+I modified it to
+```
+const unsigned _k = (iRhs + k) % N;
+tempRes += shmemA[rowm(dRow, _k, N, N)] * shmemX[colm(_k, iRhs, numRHS, N)]; 
+```
+which gave a performance of factor 2.
+
+
+Secondly, I made `shmemY` row-major, i.e., `shmemY[colm(...)]` -> `shmemY[rowm(...)]`
+Which was a further 25% improvement and nsight-compute is happy now :)
+
+
+#### Another benchmark
+Let's benchmark the code so far on my machine.
+We use: 
+- type: realF
+- N: 32
+- numRHS: 60
+- grid: 8.8.8.8
+Result: 5200 usec.
+Compared to the blas implementation: 872+409+6681+410 = 8372 usec.
+That is a 35% improvement!!!!!!!!
+
+#### Calculating bandwidth and arithmetic performance
+Here are the basic formulas (for realF):
+- data_srhs  = numSites (9 N^2 + 18 N numRHS) sizeof(T)
+- data_mrhs  = numSites (9 N^2 +  2 N numRHS) sizeof(T)
+- flops_real = numSites (18 N^2 numRHS)
+- flops_cplx = numSites (72 N^2 numRHS)
+
+#### Further optimizations: https://siboehm.com/articles/22/CUDA-MMM
+
+##### Global mem coalescing
+Threads in a warp should access consecutive gmem addresses during one lockstep.
+The threads do not need to be consecutive.
+This has implications for the filling of shmem in my case.
+But in my code, the gmem accesses are already coalesced (thanks to the column-majorness of vec batches).
+
+##### Shmem
+Okay, this is obvious and we have fixed it.
+
+##### 1D Blocktiling
+
+
+
+
+
+
+
+
+
+
+
+
+

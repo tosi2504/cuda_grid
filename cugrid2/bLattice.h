@@ -17,7 +17,7 @@ struct bLattice {
 	tensor * h_data;
 	tensor * d_data;
 	const bGrid grid;
-  const bool isOwner;
+    const bool isOwner;
 
 	// constructors and destructors
 	bLattice(const bGrid & grid) : grid(grid), isOwner(true) {
@@ -62,6 +62,12 @@ struct bLattice {
 			h_data[site].fill_random(gen, min, max);
 		}
 	}
+
+    void fill_zero() {
+        for (unsigned i = 0; i < grid.numSites; i++) {
+            h_data[i].fill_zero();
+        }
+    }
 }; 
 
 template<class T, unsigned N> using bVectorField = bLattice<bVector<T,N>>;

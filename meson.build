@@ -31,7 +31,8 @@ bench_files = {'matmul_blas' : 'benchmark/matmul_blas.cu'
                 , 'matmul_lanes' : 'benchmark/matmul_lanes.cu'
                 , 'stencil_blas' : 'benchmark/stencil_blas.cu'
                 , 'stencil_lanes' : 'benchmark/stencil_lanes.cu'
-                , '9points_blas' : 'benchmark/9points_blas.cu'}
+                , '9points_blas' : 'benchmark/9points_blas.cu'
+                , '9points_shmem' : 'benchmark/9points_shmem.cu'}
 foreach key, value : bench_files
   executable(key, value, dependencies: cuda_dep)
 endforeach

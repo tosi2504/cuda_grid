@@ -73,10 +73,7 @@ void runBenchmark(cublasHandle_t & handle
             std::cout << N << ",";
             std::cout << numRHS << ",";
             std::cout << blkSize << ",";
-            std::cout << stopwatch.getdiff(1) << ",";
-            std::cout << stopwatch.getdiff(2) << ",";
-            std::cout << stopwatch.getdiff(3) << ",";
-            std::cout << stopwatch.getdiff(4) << std::endl;
+            std::cout << stopwatch.getdiff(1) << std::endl;
         }
         for (unsigned i_rhs = 0; i_rhs < numRHS; ++i_rhs) {
             delete ys_temp[i_rhs];
@@ -109,7 +106,7 @@ void iterate_over_N(cublasHandle_t & handle
                   , T * d_Y, T * d_X) {
     iterate_over_numRHS<T, 32>(handle,ys,A,xs,d_Y,d_X);
     iterate_over_numRHS<T, 64>(handle,ys,A,xs,d_Y,d_X);
-    iterate_over_numRHS<T, 128>(handle,ys,A,xs,d_Y,d_X);
+    // iterate_over_numRHS<T, 128>(handle,ys,A,xs,d_Y,d_X);
 }
 
 
