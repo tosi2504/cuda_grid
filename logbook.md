@@ -78,7 +78,12 @@ Here are the basic formulas (for realF):
 - flops_real = numSites (18 N^2 numRHS)
 - flops_cplx = numSites (72 N^2 numRHS)
 
-#### Further optimizations: https://siboehm.com/articles/22/CUDA-MMM
+#### Further optimizations: 
+See
+- https://siboehm.com/articles/22/CUDA-MMM
+- https://on-demand.gputechconf.com/gtc/2018/presentation/s8854-cutlass-software-primitives-for-dense-linear-algebra-at-all-levels-and-scales-within-cuda.pdf
+- https://developer.nvidia.com/blog/cutlass-linear-algebra-cuda/
+- https://github.com/NVIDIA/cutlass/blob/main/media/docs/efficient_gemm.md#pipelining
 
 ##### Global mem coalescing
 Threads in a warp should access consecutive gmem addresses during one lockstep.
