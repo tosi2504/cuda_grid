@@ -5,9 +5,9 @@
 #include <cstring>
 #include <cublas_v2.h>
 
-using T = realF;
+using T = complexF;
 constexpr unsigned N = 32;
-constexpr unsigned numRHS = 60;
+constexpr unsigned numRHS = 64;
 // constexpr unsigned blkSize = 8*N;
 const bGrid grid = bGrid(8,8,8,8);
 
@@ -17,10 +17,6 @@ int main() {
         createAndFillAndUploadBatchVecFields<T, N>(numRHS, grid, gen, 0, 1);
     bVectorField<T, N> **ys = createBatchVecFields<T, N>(numRHS, grid);
     bMatrixField<T, N> A(grid);
-    // xs[0]->h_data[grid.toFlat({0,0,0,0})] = bVector<T, N>::Unit();
-    // xs[0]->upload();
-    // A.fill_zero();
-    // A.h_data[grid.toFlat({0,0,0,0})].fill_random(gen, 0, 1);// = bMatrix<T, N>::Unit();
     A.fill_random(gen, 0, 1);
     A.upload();
     std::cout << "Fields filled and uploaded" << std::endl;
@@ -46,16 +42,13 @@ int main() {
         // execTime += stopwatch.getdiff(2);
         // execTime += stopwatch.getdiff(3);
         // execTime += stopwatch.getdiff(4);
-        // std::cout << stopwatch.getdiff(1) << ",";
-        // std::cout << stopwatch.getdiff(2) << ",";
-        // std::cout << stopwatch.getdiff(3) << ",";
-        // std::cout << stopwatch.getdiff(4) << ",";
     }
     cublasCCE(  cublasDestroy(handle)  );
     std::cout << "Kernel-Stats:\n    Bandwidth(MB/s): ";
     std::cout << (long) reps * (long) grid.numSites * sizeof(T) * (long)(9 * N*N + 2*N*numRHS) / execTime << std::endl;
     std::cout << "    Flops(MFlops): ";
-    std::cout << (long)grid.numSites * (long)(18*N*N*numRHS) * reps / execTime << std::endl;
+    const long complexfactor = (is_complex_v<T>) ? 4 : 1;
+    std::cout << (long)grid.numSites * (long)complexfactor * (long)(18*N*N*numRHS) * reps / execTime << std::endl;
 
     // download it
     downloadBatchVecFields<T, N>(numRHS, ys);
@@ -63,12 +56,9 @@ int main() {
     std::cout << "Fields downloaded" << std::endl;
 
      // check the results
+    std::cout << "Checking results" << std::endl;
      for (unsigned iRHS = 0; iRHS < numRHS; iRHS++) {
-     // for (unsigned iRHS = 0; iRHS < 1; iRHS++) {
          for (unsigned site = 0; site < grid.numSites; site++) {
-         // for (unsigned site = 0; site < 1; site++) {
-             // unsigned iRHS = 0;
-             // unsigned site = grid.toFlat({0,0,0,0});
              bVector<T,N> y = debugMatmul(A.h_data[site], xs[iRHS]->h_data[site]);
              debugMatmulAccumulate(y, A.h_data[grid.shift(site, 0, true)], xs[iRHS]->h_data[site]);
              debugMatmulAccumulate(y, A.h_data[grid.shift(site, 0, false)], xs[iRHS]->h_data[site]);
@@ -79,15 +69,14 @@ int main() {
              debugMatmulAccumulate(y, A.h_data[grid.shift(site, 3, true)], xs[iRHS]->h_data[site]);
              debugMatmulAccumulate(y, A.h_data[grid.shift(site, 3, false)], xs[iRHS]->h_data[site]);
  
-             // std::cout << "Comparison: " << iRHS << std::endl;
              for (unsigned n = 0; n < N; n++) {
                  T diff = y.data[n] - ys[iRHS]->h_data[site].data[n];
-                 if (std::abs(diff) > 0.001f) {
-                     std::cout << "site: " << site;
-                     std::cout << "    iRHS: " << iRHS;
-                     std::cout << "    n: " << n;
-                     std::cout << "    diff: " << std::abs(diff) << std::endl;
-                 }
+                 // if (std::abs(diff) > 0.001f) {
+                 //     std::cout << "site: " << site;
+                 //     std::cout << "    iRHS: " << iRHS;
+                 //     std::cout << "    n: " << n;
+                 //     std::cout << "    diff: " << std::abs(diff) << std::endl;
+                 // }
              }
          }
      }

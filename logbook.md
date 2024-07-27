@@ -114,10 +114,26 @@ If we do `tileLen=4` we get only 64 threads!
 That's really bad occupancy :/
 If we do `tileLen=2` we get 256 threads which is okayish.
 Whatever, let's try.
+I have successfully implemented it and performance is very good.
+We got another factor of 2!
+I had to enable dynamic shared memory to increase the maximally possible size.
+Now we can comfortably do N=64, numRHS=64 and T=complexF without running into memory issues
+Anyway: Using `T=realF`, `N=32`, `numRHS=64`, `grid=8.8.8.8`, `rowStride=4`, `rhsStride=8`, `tileHeight=4`, `tileWidth=4`:
+```
+Kernel-Stats:
+    Bandwidth(MB/s): 108841
+    Flops(MFlops): 2.84965e+06
+```
+That is getting very good, though technically were are no-where close to what my GPU should be capable of (but why????).
 
 
 
-
+#### Complex numbers
+The performance is horrific for complex numbers, and I am not sure why.
+I have a feeling that one might be able to fix this by storing real and imaginary parts in seperate arrays.
+That could potentially help with both the strided-gmem access and shared memory bank conflicts.
+Maybe I try this in a more controlled environment, namely, the sgemm repo.
+Lets do it.
 
 
 

@@ -3,6 +3,7 @@
 #include "bLattice.h"
 #include "bMatmul.h"
 #include "blasWrapper.h"
+#include "cugrid2/datatypes.h"
 #include "errorcheck.h"
 #include "stopwatch.h"
 #include <cstring>
@@ -114,7 +115,6 @@ __global__ void ker_stencilShmem(T * const * const g_d_ys
     constexpr unsigned rhsStride = N;
     
     __shared__ T shmemX[N*numRHS]; // column major (lol)
-    // __shared__ T shmemY[N*numRHS]; // column major (lol)
     __shared__ T shmemY[numRHS*N]; // row major (lol)
     __shared__ T shmemA[blkSize];  // row major (no lol) 
     
@@ -226,7 +226,6 @@ __global__ void ker_stencil1DBlocktiling(T * const * const g_d_ys
     }
 }
 
-
 template<class T>
 __device__ void printMatrixRowMajor(const T * mat, unsigned N, unsigned M, const char * indenter) {
     if (blockIdx.x != 0) return;
@@ -269,9 +268,13 @@ __global__ void ker_stencil2DBlocktiling(T * const * const g_d_ys
     const unsigned dRhs = (tIdx % rhsStride) * tileWidth;
     const unsigned dRow = (tIdx / rhsStride) * tileHeight; // mul and div not commutative LOLOLOL
     
-    __shared__ T shmemX[N*numRHS]; // column major (lol)
-    __shared__ T shmemY[numRHS*N]; // row major (lol)
-    __shared__ T shmemA[N * rowStride * tileHeight];  // row major (no lol) 
+    extern __shared__ T shmem[]; // size = sizeof(T)*(2*numRHS*N + N*rowStride*tileHeight)
+    T * shmemX = shmem; // column major (lol)
+    T * shmemY = shmemX + N*numRHS; // row major (lol)
+    T * shmemA = shmemY + N*numRHS;  // row major (no lol) 
+    // __shared__ T shmemX[N*numRHS]; // column major (lol)
+    // __shared__ T shmemY[numRHS*N]; // row major (lol)
+    // __shared__ T shmemA[N * rowStride * tileHeight];  // row major (no lol) 
     
     for (unsigned i = tIdx; i < N*numRHS; i+=numThreads) {
         const unsigned iRhs = i / N;
@@ -283,7 +286,6 @@ __global__ void ker_stencil2DBlocktiling(T * const * const g_d_ys
     // for (unsigned iDir = 0; iDir < 1; iDir++) { // DEBUG
         const unsigned targetSite = g_indexmap[iDir*numSites + site];
         for (unsigned iiRow = 0; iiRow < N; iiRow += rowStride*tileHeight) {
-// if (site==0) printf("iiRow loop: iiRow=%u, dRow=%u\n", iiRow, dRow);
             for (unsigned  i = tIdx; i < N*rowStride*tileHeight; i+=numThreads) {
                 const unsigned iCol = i % N;
                 const unsigned iRow = i / N;
@@ -291,35 +293,21 @@ __global__ void ker_stencil2DBlocktiling(T * const * const g_d_ys
             }
             __syncthreads();
 
-// if (site == 0) printf("--> Checking shmemA\n");
-// printMatrixRowMajor(shmemA, rowStride*tileHeight, N, "    ");
-
             for (unsigned iiRhs = 0; iiRhs < numRHS; iiRhs += rhsStride*tileWidth) {
-            // for (unsigned iiRhs = 0; iiRhs < 1; iiRhs += rhsStride*tileWidth) { // DEBUG
                 const unsigned iidRhs = iiRhs + dRhs;
                 if (iidRhs >= numRHS) continue; // access guard
                 const unsigned iidRow = iiRow + dRow;
-                // Could add access guard for row as well but would also need to add access guard for loading A if I wanted to relax assert statements
-                
-// if (site==0) printf("--> iiRhs Loop: iiRhs=%u\n", iiRhs);
                 
                 T regRes[tileHeight][tileWidth] = {0.0};
                 T regX[tileWidth]  = {0.0}; // values of shmemX
                 T regA[tileHeight] = {0.0}; // values of shmemA
                 for (unsigned _k = 0; _k < N; _k++) {
                     const unsigned k = (tIdx + _k) % N;
-// if(site==0) printf("--> --> k Loop: k=%u\n", k);
-                    // fill regA and regX
                     for (unsigned iTileRow = 0; iTileRow < tileHeight; iTileRow++) {
                         regA[iTileRow] = shmemA[rowm(dRow+iTileRow, k, N, rowStride*tileHeight)];
-//  if(site==0) printf("--> --> --> iTileRow Loop: iTileRow=%u\n", iTileRow);
-//  if(site==0) printf("--> --> --> --> accessing shmemA at %u\n", rowm(dRow+iTileRow, k, N, rowStride*tileHeight));
-// if(site==0) printf("--> --> --> --> regA[%u]=%f\n", iTileRow, regA[iTileRow]);
                     }
                     for (unsigned iTileRhs = 0; iTileRhs < tileWidth; iTileRhs++) {
                         regX[iTileRhs] = shmemX[colm(k, iidRhs+iTileRhs, numRHS, N)];
-// if(site==0) printf("--> --> --> iTileRhs Loop: iTileRhs=%u\n", iTileRhs);
-// if(site==0) printf("--> --> --> --> regX[%u]=%f\n", iTileRhs, regX[iTileRhs]);
                     }
 
                     // perform the arithmetics :)
@@ -352,10 +340,20 @@ __global__ void ker_stencil2DBlocktiling(T * const * const g_d_ys
         }
     }
     
-    for (unsigned i = tIdx; i < N*numRHS; i+=numThreads) {
-        const unsigned iRhs = i / N;
-        const unsigned n    = i % N;
-        g_d_ys[iRhs][N*site + n] = shmemY[rowm(n, iRhs, numRHS, N)];
+    if constexpr (is_complex_v<T>) {
+        typename T::T_base * shmemYBaseType = reinterpret_cast<typename T::T_base *>(shmemY);
+        typename T::T_base *const*const g_d_ysBaseType = reinterpret_cast<typename T::T_base *const*> (g_d_ys);
+        for (unsigned i = tIdx; i < 2*N*numRHS; i+=numThreads) {
+            const unsigned iRhs = i / (2*N);
+            const unsigned n    = i % (2*N);
+            g_d_ysBaseType[iRhs][N*site + n] = shmemYBaseType[rowm(n, iRhs, numRHS, N)];
+        }
+    } else {
+        for (unsigned i = tIdx; i < N*numRHS; i+=numThreads) {
+            const unsigned iRhs = i / N;
+            const unsigned n    = i % N;
+            g_d_ys[iRhs][N*site + n] = shmemY[rowm(n, iRhs, numRHS, N)];
+        }
     }
 }
 
@@ -600,10 +598,14 @@ struct bFullStencil {
                    , sizeof(unsigned)*grid.numSites);
         }
         
-        std::cout << "Launching kernel with <<< " << grid.numSites << " , " << rowStride*rhsStride << " >>>" << std::endl;
+        const unsigned sizeShmem = sizeof(T)*(2*numRHS*N + N*rowStride*tileHeight);
+        CCE(cudaFuncSetAttribute(ker_stencil2DBlocktiling<T, N, numRHS, rowStride, rhsStride, tileHeight, tileWidth>
+                                 , cudaFuncAttributeMaxDynamicSharedMemorySize
+                                 , sizeShmem));
+        std::cout << "Launching kernel with <<< " << grid.numSites << " , " << rowStride*rhsStride << " , " << sizeShmem << " >>>" << std::endl;
         ker_stencil2DBlocktiling
             <T, N, numRHS, rowStride, rhsStride, tileHeight, tileWidth>
-            <<<grid.numSites, rowStride*rhsStride>>>
+            <<<grid.numSites , rowStride*rhsStride , sizeShmem>>>
             ((T*const*)g_d_ys
                 , (const T*)A.d_data
                 , (const T*const*)g_d_xs
