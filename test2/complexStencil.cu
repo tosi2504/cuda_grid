@@ -6,8 +6,9 @@
 #include <cublas_v2.h>
 
 using T = complexF;
+// using T = realF;
 constexpr unsigned N = 32;
-constexpr unsigned numRHS = 64;
+constexpr unsigned numRHS = 32;
 // constexpr unsigned blkSize = 8*N;
 const bGrid grid = bGrid(8,8,8,8);
 
@@ -32,9 +33,10 @@ int main() {
     for (uint8_t i = 0; i < reps; i++) { 
         stopwatch.reset();
 
-        stencil.execute_2DBT<T, N, numRHS, 8, 16, 4, 4>(ys, A, xs);
-        // stencil.execute_1DBT<T, N, numRHS, 8, 4>(ys, A, xs);
-        // stencil.execute_shmem<T, N, numRHS, blkSize>(ys, A, xs);
+        // stencil.execute_2DBTV2<T, N, numRHS, 32, 32, 2, 2>(ys, A, xs);
+        // stencil.execute_2DBT<T, N, numRHS, 8, 16, 4, 4>(ys, A, xs);
+        stencil.execute_1DBT<T, N, numRHS, 8, 4>(ys, A, xs);
+        // stencil.execute_shmem<T, N, numRHS, 256>(ys, A, xs);
         execTime += stopwatch.getdiff(1);
 
         // stencil.execute_blas<T, N, numRHS>(handle, ys, A, xs);
@@ -57,29 +59,29 @@ int main() {
 
      // check the results
     std::cout << "Checking results" << std::endl;
-     for (unsigned iRHS = 0; iRHS < numRHS; iRHS++) {
-         for (unsigned site = 0; site < grid.numSites; site++) {
-             bVector<T,N> y = debugMatmul(A.h_data[site], xs[iRHS]->h_data[site]);
-             debugMatmulAccumulate(y, A.h_data[grid.shift(site, 0, true)], xs[iRHS]->h_data[site]);
-             debugMatmulAccumulate(y, A.h_data[grid.shift(site, 0, false)], xs[iRHS]->h_data[site]);
-             debugMatmulAccumulate(y, A.h_data[grid.shift(site, 1, true)], xs[iRHS]->h_data[site]);
-             debugMatmulAccumulate(y, A.h_data[grid.shift(site, 1, false)], xs[iRHS]->h_data[site]);
-             debugMatmulAccumulate(y, A.h_data[grid.shift(site, 2, true)], xs[iRHS]->h_data[site]);
-             debugMatmulAccumulate(y, A.h_data[grid.shift(site, 2, false)], xs[iRHS]->h_data[site]);
-             debugMatmulAccumulate(y, A.h_data[grid.shift(site, 3, true)], xs[iRHS]->h_data[site]);
-             debugMatmulAccumulate(y, A.h_data[grid.shift(site, 3, false)], xs[iRHS]->h_data[site]);
+    for (unsigned iRHS = 0; iRHS < numRHS; iRHS++) {
+        for (unsigned site = 0; site < grid.numSites; site++) {
+            bVector<T,N> y = debugMatmul(A.h_data[site], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 0, true)], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 0, false)], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 1, true)], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 1, false)], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 2, true)], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 2, false)], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 3, true)], xs[iRHS]->h_data[site]);
+            debugMatmulAccumulate(y, A.h_data[grid.shift(site, 3, false)], xs[iRHS]->h_data[site]);
  
-             for (unsigned n = 0; n < N; n++) {
-                 T diff = y.data[n] - ys[iRHS]->h_data[site].data[n];
-                 // if (std::abs(diff) > 0.001f) {
-                 //     std::cout << "site: " << site;
-                 //     std::cout << "    iRHS: " << iRHS;
-                 //     std::cout << "    n: " << n;
-                 //     std::cout << "    diff: " << std::abs(diff) << std::endl;
-                 // }
-             }
-         }
-     }
+            for (unsigned n = 0; n < N; n++) {
+                T diff = y.data[n] - ys[iRHS]->h_data[site].data[n];
+                if (std::abs(diff) > 0.001f) {
+                    std::cout << "site: " << site;
+                    std::cout << "    iRHS: " << iRHS;
+                    std::cout << "    n: " << n;
+                    std::cout << "    diff: " << std::abs(diff) << std::endl;
+                }
+            }
+        }
+    }
 }
 
 

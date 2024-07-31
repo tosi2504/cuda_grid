@@ -68,6 +68,12 @@ std::ostream & operator<<(std::ostream & left, const complexF & right) {
 std::ostream & operator<<(std::ostream & left, const complexD & right) {
 	return left << "(" << right.real << "," << right.imag << ")";
 }
+namespace std {
+template<class T> 
+T abs(const complex<T> & in) {
+    return std::sqrt(in.real*in.real + in.imag*in.imag);
+}
+}
 
 
 template<class T> class is_real : public std::false_type {};

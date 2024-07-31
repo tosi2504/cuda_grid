@@ -140,7 +140,18 @@ That could potentially help with both the strided-gmem access and shared memory 
 Maybe I try this in a more controlled environment, namely, the sgemm repo.
 Lets do it.
 
+Alright, after a lot of testing, I found a set of optimizations, that could help to get the performance for complex numbers to an acceptable level.
 
+TODO: I need to implement the following optimizations:
+- 2D blocktiling
+- implement own version of complex numbers
+- using fma intrinsics to write a multiply accumulate routine for complex numbers
+- optimize blocktiling parameters for max number of threads (ideal: 1024)
+
+HOW's it going:
+- started to make Xs row-major. Not sure what that will bring
+- the 2dbt and 2dbtv2 kernels are not working correctly with complex numbers ...
+- but the shmem-naive kernel does work, which means that the complex number implementation is correct
 
 
 

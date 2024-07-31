@@ -283,7 +283,6 @@ __global__ void ker_stencil2DBlocktiling(T * const * const g_d_ys
     }
     
     for (unsigned iDir = 0; iDir < 9; iDir++) {
-    // for (unsigned iDir = 0; iDir < 1; iDir++) { // DEBUG
         const unsigned targetSite = g_indexmap[iDir*numSites + site];
         for (unsigned iiRow = 0; iiRow < N; iiRow += rowStride*tileHeight) {
             for (unsigned  i = tIdx; i < N*rowStride*tileHeight; i+=numThreads) {
@@ -357,7 +356,108 @@ __global__ void ker_stencil2DBlocktiling(T * const * const g_d_ys
     }
 }
 
+// assert (N % tileHeight == 0)
+// assert (numRHS % tileWidth == 0)
+// numThreads = rowStride * rhsStride
+template<class T, unsigned N, unsigned numRHS
+                , unsigned rowStride // in units of tiles
+                , unsigned rhsStride // in units of tiles
+                , unsigned tileHeight// in units of index
+                , unsigned tileWidth>// in units of index
+__global__ void ker_stencil2DBlocktilingV2(T * const * const g_d_ys
+                            , const T * const d_A
+                            , const T * const * const g_d_xs
+                            , const unsigned * const g_indexmap
+                            , unsigned numSites) {
+    const unsigned site = blockIdx.x;
+    const unsigned tIdx = threadIdx.x;
+    constexpr unsigned numThreads = rowStride * rhsStride;
+    assert(numThreads == blockDim.x);
+    
+    const unsigned dRhs = (tIdx % rhsStride) * tileWidth;  // in units of index
+    const unsigned dRow = (tIdx / rhsStride) * tileHeight; // in units of index
+    
+    extern __shared__ T shmem[]; // size = sizeof(T)*(2*numRHS*N + N*rowStride*tileHeight)
+    T * shmemX = shmem; // row major (lol)
+    T * shmemY = shmemX + N*numRHS; // row major (lol)
+    T * shmemA = shmemY + N*numRHS;  // row major (no lol) 
+    
+    for (unsigned i = tIdx; i < N*numRHS; i+=numThreads) {
+        const unsigned iRhs = i / N;
+        const unsigned n    = i % N;
+        // this could perform bad -> need to check in the profiler and on its own
+        // gmem accesses are coalesced but
+        // shmem writes might lead to membank conflicts
+        shmemX[rowm(n, iRhs, numRHS, N)] = g_d_xs[iRhs][N*site + n]; 
+    }
+    
+    for (unsigned iDir = 0; iDir < 9; iDir++) {
+        const unsigned targetSite = g_indexmap[iDir*numSites + site];
+        for (unsigned iiRow = 0; iiRow < N; iiRow += rowStride*tileHeight) {
+            for (unsigned  i = tIdx; i < N*rowStride*tileHeight; i+=numThreads) {
+                const unsigned iCol = i % N;
+                const unsigned iRow = i / N;
+                shmemA[rowm(iRow,iCol,N,rowStride*tileHeight)] = d_A[targetSite*N*N + rowm(iiRow + iRow, iCol, N, N)];
+            }
+            __syncthreads();
 
+            const unsigned iidRow = iiRow + dRow; // in units of index
+            if (iidRow >= N) continue; // access guard
+
+            for (unsigned iiRhs = 0; iiRhs < numRHS; iiRhs += rhsStride*tileWidth) {
+                const unsigned iidRhs = iiRhs + dRhs; // in units of index
+                if (iidRhs >= numRHS) continue; // access guard
+                
+                T regRes[tileHeight][tileWidth] = {0.0};
+                T regX[tileWidth]  = {0.0}; // values of shmemX
+                T regA[tileHeight] = {0.0}; // values of shmemA
+                for (unsigned _k = 0; _k < N; _k++) {
+                    const unsigned k = _k;
+                    // const unsigned k = (tIdx + _k) % N;
+                    for (unsigned iTileRow = 0; iTileRow < tileHeight; iTileRow++) {
+                        regA[iTileRow] = shmemA[rowm(dRow+iTileRow, k, N, rowStride*tileHeight)];
+                    }
+                    for (unsigned iTileRhs = 0; iTileRhs < tileWidth; iTileRhs++) {
+                        regX[iTileRhs] = shmemX[rowm(k, iidRhs+iTileRhs, numRHS, N)];
+                    }
+
+                    // perform the arithmetics :)
+                    for (unsigned iTileRow = 0; iTileRow < tileHeight; iTileRow++) {
+                        for (unsigned iTileRhs = 0; iTileRhs < tileWidth; iTileRhs++) {
+                            regRes[iTileRow][iTileRhs] += regA[iTileRow] * regX[iTileRhs];
+                        }
+                    }
+                }
+
+                if (iDir == 0) {
+                    for (unsigned iTileRow = 0; iTileRow < tileHeight; iTileRow++) {
+                        for (unsigned iTileRhs = 0; iTileRhs < tileWidth; iTileRhs++) {
+                            const unsigned iRow = iidRow + iTileRow;
+                            const unsigned iRhs = iidRhs + iTileRhs;
+                            shmemY[rowm(iRow, iRhs, numRHS, N)]  = regRes[iTileRow][iTileRhs];
+                        }
+                    }
+                } else { 
+                    for (unsigned iTileRow = 0; iTileRow < tileHeight; iTileRow++) {
+                        for (unsigned iTileRhs = 0; iTileRhs < tileWidth; iTileRhs++) {
+                            const unsigned iRow = iidRow + iTileRow;
+                            const unsigned iRhs = iidRhs + iTileRhs;
+                            shmemY[rowm(iRow, iRhs, numRHS, N)] += regRes[iTileRow][iTileRhs];
+                        }
+                    }
+                }
+            }
+            __syncthreads();
+        }
+    }
+    
+
+    for (unsigned i = tIdx; i < N*numRHS; i+=numThreads) {
+        const unsigned iRhs = i / N;
+        const unsigned n    = i % N;
+        g_d_ys[iRhs][N*site + n] = shmemY[rowm(n, iRhs, numRHS, N)];
+    }
+}
 
 struct bFullStencil {
     const bGrid grid;
@@ -620,6 +720,67 @@ struct bFullStencil {
         CCE(cudaFree(g_d_xs));
         CCE(cudaFree(g_d_ys));
     }
+
+    template<class T, unsigned N, unsigned numRHS
+                , unsigned rowStride
+                , unsigned rhsStride
+                , unsigned tileHeight
+                , unsigned tileWidth>
+    void execute_2DBTV2(
+        bVectorField<T, N> * const * const ys, 
+        const bMatrixField<T, N> & A, 
+        const bVectorField<T, N> * const * const xs
+    ) const {
+        // check template parameter compatibility
+        static_assert(N%tileHeight==0);
+        static_assert(numRHS%tileWidth==0);
+        // check grid compatibility 
+        if (not bLatticeHelpers::areGridsCompatible<T, N, numRHS>(ys, A, xs))
+            throw std::invalid_argument("Grids not compatible");
+        if (not grid.isCompatible(A.grid))
+            throw std::invalid_argument("Grids not compatible");
+
+        stopwatch.press();
+
+        T ** g_d_xs, ** g_d_ys; 
+        CCE(cudaMallocManaged(&g_d_xs, sizeof(T*)*numRHS));
+        CCE(cudaMallocManaged(&g_d_ys, sizeof(T*)*numRHS));
+        for (unsigned iRHS = 0; iRHS < numRHS; iRHS++) {
+            g_d_xs[iRHS] = (T*)xs[iRHS]->d_data;
+            g_d_ys[iRHS] = (T*)ys[iRHS]->d_data;
+        }
+        
+        unsigned * g_indexmap;
+        CCE(cudaMallocManaged(&g_indexmap, sizeof(unsigned*)*9*grid.numSites));
+        for (unsigned i_dir = 0; i_dir < 9; i_dir++) {
+            memcpy(&g_indexmap[i_dir*grid.numSites]
+                   , &targetmap[i_dir][0]
+                   , sizeof(unsigned)*grid.numSites);
+        }
+        
+        const unsigned sizeShmem = sizeof(T)*(2*numRHS*N + N*rowStride*tileHeight);
+        CCE(cudaFuncSetAttribute(ker_stencil2DBlocktilingV2<T, N, numRHS, rowStride, rhsStride, tileHeight, tileWidth>
+                                 , cudaFuncAttributeMaxDynamicSharedMemorySize
+                                 , sizeShmem));
+        std::cout << "Launching kernel with <<< " << grid.numSites << " , " << rowStride*rhsStride << " , " << sizeShmem << " >>>" << std::endl;
+        ker_stencil2DBlocktilingV2
+            <T, N, numRHS, rowStride, rhsStride, tileHeight, tileWidth>
+            <<<grid.numSites , rowStride*rhsStride , sizeShmem>>>
+            ((T*const*)g_d_ys
+                , (const T*)A.d_data
+                , (const T*const*)g_d_xs
+                , (const unsigned*)g_indexmap
+                , grid.numSites);
+        CLCE();
+        CCE(cudaDeviceSynchronize());
+
+        stopwatch.press();
+        
+        CCE(cudaFree(g_indexmap));
+        CCE(cudaFree(g_d_xs));
+        CCE(cudaFree(g_d_ys));
+    }
+
 };
 
 
