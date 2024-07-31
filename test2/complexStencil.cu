@@ -7,8 +7,8 @@
 
 using T = complexF;
 // using T = realF;
-constexpr unsigned N = 32;
-constexpr unsigned numRHS = 32;
+constexpr unsigned N = 64;
+constexpr unsigned numRHS = 60;// 32;
 // constexpr unsigned blkSize = 8*N;
 const bGrid grid = bGrid(8,8,8,8);
 
@@ -29,13 +29,13 @@ int main() {
     cublasHandle_t handle;
     cublasCCE(  cublasCreate(&handle)  );
     double execTime = 0;
-    const unsigned reps = 100; 
-    for (uint8_t i = 0; i < reps; i++) { 
+    const unsigned reps = 200; 
+    for (uint16_t i = 0; i < reps; i++) { 
         stopwatch.reset();
 
-        // stencil.execute_2DBTV2<T, N, numRHS, 32, 32, 2, 2>(ys, A, xs);
-        // stencil.execute_2DBT<T, N, numRHS, 8, 16, 4, 4>(ys, A, xs);
-        stencil.execute_1DBT<T, N, numRHS, 8, 4>(ys, A, xs);
+        stencil.execute_2DBTV2<T, N, numRHS, 32, 30, 2, 2>(ys, A, xs);
+        // stencil.execute_2DBT<T, N, numRHS, 32, 32, 2, 2>(ys, A, xs);
+        // stencil.execute_1DBT<T, N, numRHS, 8, 4>(ys, A, xs);
         // stencil.execute_shmem<T, N, numRHS, 256>(ys, A, xs);
         execTime += stopwatch.getdiff(1);
 

@@ -13,9 +13,9 @@ constexpr unsigned reps = 100;
 const bGrid grids[] = {bGrid(4,4,4,4)
                     , bGrid(4,4,8,8)
                     , bGrid(8,8,8,8)};
-                    //, bGrid(16,16,16,16)};
+                    // , bGrid(16,16,16,16)};
 
-template<class T, unsigned N, unsigned numRHS, unsigned blkSize>
+template<class T, unsigned N, unsigned numRHS>
 void runBenchmark(
         cublasHandle_t & handle,
         bVectorField<T, 128> ** ys,
@@ -36,11 +36,21 @@ void runBenchmark(
 
         for (unsigned i = 0; i<reps; i++) {
             stopwatch.reset();
+
             // perform the call 
-            stencil.execute_blas<T,N,numRHS,blkSize>(handle
-                                                  , ys_temp
-                                                  , A_temp
-                                                  , xs_temp);
+            unsigned blkSize;
+            if constexpr (numRHS == 1) {
+                stencil.execute_2DBTV2
+                    <T,N,numRHS, N/2, 1, 2, 1>
+                    (ys_temp , A_temp , xs_temp);
+                blkSize = (N/2);
+            } else {
+                stencil.execute_2DBTV2
+                    <T,N,numRHS, N/2, numRHS/2, 2, 2>
+                    (ys_temp , A_temp , xs_temp);
+                blkSize = (N/2) * (numRHS/2);
+            }
+
             // read out stopwatch
             std::cout << i << ",";
             std::cout << grids[i_grid].Lx << ".";
@@ -50,10 +60,10 @@ void runBenchmark(
             std::cout << N << ",";
             std::cout << numRHS << ",";
             std::cout << blkSize << ",";
+            std::cout << 0 << ","; // spacer for compatibility
+            std::cout << 0 << ","; // spacer for compatibility
             std::cout << stopwatch.getdiff(1) << ",";
-            std::cout << stopwatch.getdiff(2) << ",";
-            std::cout << stopwatch.getdiff(3) << ",";
-            std::cout << stopwatch.getdiff(4) << std::endl;
+            std::cout << 0 << std::endl; // spacer for compatibility
         }
         for (unsigned i_rhs = 0; i_rhs < numRHS; ++i_rhs) {
             delete ys_temp[i_rhs];
@@ -72,12 +82,12 @@ void iterate_over_numRHS(
         bVectorField<T, 128> ** xs,
         T * d_Y, T * d_X
 ) {
-    runBenchmark<T, N, 1, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 12, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 24, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 36, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 48, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 60, 256>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 1>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 12>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 24>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 36>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 48>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 60>(handle,ys,A,xs,d_Y,d_X);
 }
 
 template<class T>
@@ -95,7 +105,7 @@ void iterate_over_N(
 
 
 
-using T = complexF;
+using T = realF;
 constexpr unsigned N = 128;
 constexpr unsigned numRHS = 60;
 const bGrid grid = grids[sizeof(grids)/sizeof(bGrid)-1];

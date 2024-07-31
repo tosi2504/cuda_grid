@@ -74,6 +74,15 @@ T abs(const complex<T> & in) {
     return std::sqrt(in.real*in.real + in.imag*in.imag);
 }
 }
+template<class T> __device__ inline void multiply_accumulate(T & accu, const T & a, const T & b);
+template<> __device__ inline void multiply_accumulate(realF & accu, const realF & a, const realF & b) {
+    accu += a * b;
+}
+template<> __device__ inline void multiply_accumulate(complexF & accu, const complexF & a, const complexF & b) {
+    complexF::T_base temp = accu.real - a.imag*b.imag;
+    accu.real = __fmaf_rn(a.real, b.real, temp);
+    accu.imag = __fmaf_rn(a.real, b.imag, __fmaf_rn(a.imag, b.real, accu.imag));
+}
 
 
 template<class T> class is_real : public std::false_type {};

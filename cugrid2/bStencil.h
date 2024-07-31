@@ -6,6 +6,7 @@
 #include "cugrid2/datatypes.h"
 #include "errorcheck.h"
 #include "stopwatch.h"
+#include <cstdio>
 #include <cstring>
 #include <stdexcept>
 #include <vector>
@@ -272,10 +273,7 @@ __global__ void ker_stencil2DBlocktiling(T * const * const g_d_ys
     T * shmemX = shmem; // column major (lol)
     T * shmemY = shmemX + N*numRHS; // row major (lol)
     T * shmemA = shmemY + N*numRHS;  // row major (no lol) 
-    // __shared__ T shmemX[N*numRHS]; // column major (lol)
-    // __shared__ T shmemY[numRHS*N]; // row major (lol)
-    // __shared__ T shmemA[N * rowStride * tileHeight];  // row major (no lol) 
-    
+
     for (unsigned i = tIdx; i < N*numRHS; i+=numThreads) {
         const unsigned iRhs = i / N;
         const unsigned n    = i % N;
@@ -339,20 +337,10 @@ __global__ void ker_stencil2DBlocktiling(T * const * const g_d_ys
         }
     }
     
-    if constexpr (is_complex_v<T>) {
-        typename T::T_base * shmemYBaseType = reinterpret_cast<typename T::T_base *>(shmemY);
-        typename T::T_base *const*const g_d_ysBaseType = reinterpret_cast<typename T::T_base *const*> (g_d_ys);
-        for (unsigned i = tIdx; i < 2*N*numRHS; i+=numThreads) {
-            const unsigned iRhs = i / (2*N);
-            const unsigned n    = i % (2*N);
-            g_d_ysBaseType[iRhs][N*site + n] = shmemYBaseType[rowm(n, iRhs, numRHS, N)];
-        }
-    } else {
-        for (unsigned i = tIdx; i < N*numRHS; i+=numThreads) {
-            const unsigned iRhs = i / N;
-            const unsigned n    = i % N;
-            g_d_ys[iRhs][N*site + n] = shmemY[rowm(n, iRhs, numRHS, N)];
-        }
+    for (unsigned i = tIdx; i < N*numRHS; i+=numThreads) {
+        const unsigned iRhs = i / N;
+        const unsigned n    = i % N;
+        g_d_ys[iRhs][N*site + n] = shmemY[rowm(n, iRhs, numRHS, N)];
     }
 }
 
@@ -392,6 +380,7 @@ __global__ void ker_stencil2DBlocktilingV2(T * const * const g_d_ys
     }
     
     for (unsigned iDir = 0; iDir < 9; iDir++) {
+    // for (unsigned iDir = 0; iDir < 1; iDir++) { // DEBUG
         const unsigned targetSite = g_indexmap[iDir*numSites + site];
         for (unsigned iiRow = 0; iiRow < N; iiRow += rowStride*tileHeight) {
             for (unsigned  i = tIdx; i < N*rowStride*tileHeight; i+=numThreads) {
@@ -424,7 +413,8 @@ __global__ void ker_stencil2DBlocktilingV2(T * const * const g_d_ys
                     // perform the arithmetics :)
                     for (unsigned iTileRow = 0; iTileRow < tileHeight; iTileRow++) {
                         for (unsigned iTileRhs = 0; iTileRhs < tileWidth; iTileRhs++) {
-                            regRes[iTileRow][iTileRhs] += regA[iTileRow] * regX[iTileRhs];
+                            // regRes[iTileRow][iTileRhs] += regA[iTileRow] * regX[iTileRhs];
+                            multiply_accumulate(regRes[iTileRow][iTileRhs], regA[iTileRow], regX[iTileRhs]);
                         }
                     }
                 }
@@ -451,7 +441,6 @@ __global__ void ker_stencil2DBlocktilingV2(T * const * const g_d_ys
         }
     }
     
-
     for (unsigned i = tIdx; i < N*numRHS; i+=numThreads) {
         const unsigned iRhs = i / N;
         const unsigned n    = i % N;
@@ -644,7 +633,7 @@ struct bFullStencil {
                    , sizeof(unsigned)*grid.numSites);
         }
         
-        std::cout << "Launching kernel with <<< " << grid.numSites << " , " << N*rowStride << " >>>" << std::endl;
+        // std::cout << "Launching kernel with <<< " << grid.numSites << " , " << N*rowStride << " >>>" << std::endl;
         ker_stencil1DBlocktiling
             <T, N, numRHS, rowStride, tileLen>
             <<<grid.numSites, N*rowStride>>>
@@ -702,7 +691,7 @@ struct bFullStencil {
         CCE(cudaFuncSetAttribute(ker_stencil2DBlocktiling<T, N, numRHS, rowStride, rhsStride, tileHeight, tileWidth>
                                  , cudaFuncAttributeMaxDynamicSharedMemorySize
                                  , sizeShmem));
-        std::cout << "Launching kernel with <<< " << grid.numSites << " , " << rowStride*rhsStride << " , " << sizeShmem << " >>>" << std::endl;
+        // std::cout << "Launching kernel with <<< " << grid.numSites << " , " << rowStride*rhsStride << " , " << sizeShmem << " >>>" << std::endl;
         ker_stencil2DBlocktiling
             <T, N, numRHS, rowStride, rhsStride, tileHeight, tileWidth>
             <<<grid.numSites , rowStride*rhsStride , sizeShmem>>>
@@ -762,7 +751,7 @@ struct bFullStencil {
         CCE(cudaFuncSetAttribute(ker_stencil2DBlocktilingV2<T, N, numRHS, rowStride, rhsStride, tileHeight, tileWidth>
                                  , cudaFuncAttributeMaxDynamicSharedMemorySize
                                  , sizeShmem));
-        std::cout << "Launching kernel with <<< " << grid.numSites << " , " << rowStride*rhsStride << " , " << sizeShmem << " >>>" << std::endl;
+        // std::cout << "Launching kernel with <<< " << grid.numSites << " , " << rowStride*rhsStride << " , " << sizeShmem << " >>>" << std::endl;
         ker_stencil2DBlocktilingV2
             <T, N, numRHS, rowStride, rhsStride, tileHeight, tileWidth>
             <<<grid.numSites , rowStride*rhsStride , sizeShmem>>>

@@ -12,8 +12,8 @@ constexpr unsigned reps = 100;
 
 const bGrid grids[] = {bGrid(4,4,4,4)
                     , bGrid(4,4,8,8)
-                    , bGrid(8,8,8,8)
-                    , bGrid(16,16,16,16)};
+                    , bGrid(8,8,8,8)};
+                    // , bGrid(16,16,16,16)};
 
 constexpr unsigned get_blkSize(unsigned N, unsigned numRHS) {
     switch(numRHS) {
@@ -41,11 +41,13 @@ constexpr unsigned get_blkSize(unsigned N, unsigned numRHS) {
 }
 
 template<class T, unsigned N, unsigned numRHS>
-void runBenchmark(cublasHandle_t & handle
-                  , bVectorField<T, 128> ** ys
-                  , const bMatrixField<T, 128> & A
-                  , bVectorField<T, 128> ** xs
-                  , T * d_Y, T * d_X) {
+void runBenchmark(
+        cublasHandle_t & handle,
+        bVectorField<T, 128> ** ys,
+        const bMatrixField<T, 128> & A,
+        bVectorField<T, 128> ** xs,
+        T * d_Y, T * d_X
+) {
     constexpr unsigned blkSize = get_blkSize(N, numRHS);
     for (unsigned i_grid = 0; i_grid < sizeof(grids)/sizeof(bGrid); ++i_grid) {
         bVectorField<T,N> ** ys_temp = new bVectorField<T,N>*[numRHS];
@@ -85,11 +87,13 @@ void runBenchmark(cublasHandle_t & handle
 }
 
 template<class T, unsigned N>
-void iterate_over_numRHS(cublasHandle_t & handle
-                  , bVectorField<T, 128> ** ys
-                  , const bMatrixField<T,128> & A
-                  , bVectorField<T, 128> ** xs
-                  , T * d_Y, T * d_X) {
+void iterate_over_numRHS(
+        cublasHandle_t & handle,
+        bVectorField<T, 128> ** ys,
+        const bMatrixField<T,128> & A,
+        bVectorField<T, 128> ** xs,
+        T * d_Y, T * d_X
+) {
     runBenchmark<T, N, 1>(handle,ys,A,xs,d_Y,d_X);
     runBenchmark<T, N, 12>(handle,ys,A,xs,d_Y,d_X);
     runBenchmark<T, N, 24>(handle,ys,A,xs,d_Y,d_X);
@@ -99,11 +103,13 @@ void iterate_over_numRHS(cublasHandle_t & handle
 }
 
 template<class T>
-void iterate_over_N(cublasHandle_t & handle
-                  , bVectorField<T, 128> ** ys
-                  , const bMatrixField<T,128> & A
-                  , bVectorField<T, 128> ** xs
-                  , T * d_Y, T * d_X) {
+void iterate_over_N(
+        cublasHandle_t & handle,
+        bVectorField<T, 128> ** ys,
+        const bMatrixField<T,128> & A,
+        bVectorField<T, 128> ** xs,
+        T * d_Y, T * d_X
+) {
     iterate_over_numRHS<T, 32>(handle,ys,A,xs,d_Y,d_X);
     iterate_over_numRHS<T, 64>(handle,ys,A,xs,d_Y,d_X);
     // iterate_over_numRHS<T, 128>(handle,ys,A,xs,d_Y,d_X);
