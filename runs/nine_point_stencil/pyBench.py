@@ -7,11 +7,17 @@ pp = pprint.PrettyPrinter(indent=2)
 
 # constants
 targets = ["2dbtv2", "blas"]
-data_len = 3600 # larger after big grid and n=128 addition
 Ns = [32, 64]#, 128]
 numRHSs = [1, 12, 24, 36, 48, 60]
-grids = ["4.4.4.4", "4.4.8.8", "8.8.8.8"]#, "16.16.16.16"]
+grids = ["4.4.4.4", "4.4.8.8", "8.8.8.8", "16.16.16.16"]
+numSites = {
+    "4.4.4.4": 4*4*4*4,
+    "4.4.8.8": 4*4*8*8,
+    "8.8.8.8": 8*8*8*8,
+    "16.16.16.16": 16*16*16*16
+}
 n_reps = 100
+data_len = n_reps * len(Ns) * len(numRHSs) * len(grids) # 3600 # larger after big grid and n=128 addition
 data_len_reduced = data_len // 100
 n_time_slices = 4
 n_targets = len(targets)
@@ -107,18 +113,25 @@ class Plotter:
             figsize=(12, 6),
         )
 
+        units = "time in us"
+        if normalization == "flops":
+            units = "time in us per flop"
+        elif normalization == "bandwidth":
+            units =  "time in us per byte"
+
         cols_labels = [f"numRHS = {str(numRHS)}" for numRHS in numRHSs]
-        rows_labels = [f"N = {str(N)}\ntime in us" for N in Ns]
+        rows_labels = [f"N = {str(N)}\n"+units for N in Ns]
         for ax, col in zip(axs[0], cols_labels):
             ax.set_title(col)
         for ax, row in zip(axs[:, 0], rows_labels):
             ax.set_ylabel(row)  # , rotation=0, size='large')
 
-        norm_factor_func = lambda N, numRHS: 1
+        norm_factor_func = lambda N, numRHS, grid: 1
         if normalization == "flops":
-            norm_factor_func = lambda N, numRHS: numRHS * N**2
+            norm_factor_func = lambda N, numRHS, grid: 8 * 9 * numRHS * N**2 * numSites[grid]
+
         elif normalization == "bandwidth":
-            norm_factor_func = lambda N, numRHS: N**2 + 2 * N * numRHS
+            norm_factor_func = lambda N, numRHS, grid: 8 * (9*N**2 + 2 * N * numRHS) * numSites[grid]
 
         for N, axs_fixed_N in zip(Ns, axs):
             for numRHS, ax in zip(numRHSs, axs_fixed_N):
@@ -129,7 +142,7 @@ class Plotter:
                     slice_data[i] = self.get_reduced_time_slices(
                         target, N, numRHS, grid
                     )
-                slice_data = slice_data.T / norm_factor_func(N, numRHS)
+                slice_data = slice_data.T / norm_factor_func(N, numRHS, grid)
                 bottom = np.zeros(n_targets, dtype=np.float64)
                 for i, slice_label in enumerate(slice_labels):
                     ax.bar(
