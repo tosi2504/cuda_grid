@@ -6,50 +6,56 @@ pp = pprint.PrettyPrinter(indent=2)
 
 
 # constants
-targets = ["2dbtv2", "blas"]
+targets = ["grid"]
 Ns = [32, 64]#, 128]
-numRHSs = [1, 12, 24, 36, 48, 60]
-numRHSsGrid = [8, 16, 24, 32, 40, 48, 56, 64]
-grids = ["4.4.4.4", "4.4.8.8", "8.8.8.8", "16.16.16.16"]
+numRHSs = [8, 16, 24, 32, 40, 48, 56, 64]
+grids = ["8.8.8.8"]
 numSites = {
-    "4.4.4.4": 4*4*4*4,
-    "4.4.8.8": 4*4*8*8,
     "8.8.8.8": 8*8*8*8,
-    "16.16.16.16": 16*16*16*16
 }
 n_reps = 100
 data_len = n_reps * len(Ns) * len(numRHSs) * len(grids) # 3600 # larger after big grid and n=128 addition
 data_len_reduced = data_len // 100
 n_time_slices = 4
 n_targets = len(targets)
-slice_labels = ["malloc", "cp_in", "op", "cp_out"]
-
-
+slice_labels = ["exchange", "g to b", "mul", "b to g"]
 
 def load():
-    raw_data = dict()
-    for target in targets:
-        reps, Ns, numRHSs = [np.zeros(data_len, dtype=np.int32) for _ in range(3)]
-        grids = np.zeros(data_len, dtype=np.dtype("<U11"))
-        times = np.zeros((data_len, 4), dtype=np.int32)
-        with open(target + ".out", "r") as file:
-            for i, raw_line in enumerate(file.readlines()[1:]):
-                line = raw_line.strip().split(",")
-                reps[i] = int(line[0])
-                grids[i] = line[1]
-                Ns[i] = int(line[2])
-                numRHSs[i] = int(line[3])
-                times[i, 0] = int(line[5])
-                times[i, 1] = int(line[6])
-                times[i, 2] = int(line[7])
-                times[i, 3] = int(line[8])
-        raw_data[target] = dict()
-        raw_data[target]["rep"] = np.array(reps)
-        raw_data[target]["grid"] = np.array(grids)
-        raw_data[target]["N"] = np.array(Ns)
-        raw_data[target]["numRHS"] = np.array(numRHSs)
-        raw_data[target]["time"] = np.array(times)
-    return raw_data
+    reps, Ns, numRHSs = [np.zeros(data_len, dtype=np.int32) for _ in range(3)]
+    grids = np.zeros(data_len, dtype=np.dtype("<U11"))
+    times = np.zeros((data_len, 4), dtype=np.int32)
+    with open("grid.out", "r") as file:
+        lines = [line.strip() for line in file.readlines()]
+
+    iLines = 0
+    iMeas = 0
+    while iLines < len(lines):
+        if lines[iLines][:10] == "Iteration:":
+            grids[iMeas] = "8.8.8.8"
+            reps[iMeas] = int(lines[iLines][11:])
+            numRHSs[iMeas] = int(lines[iLines+1][8:])
+            Ns[iMeas] = int(lines[iLines+2][8:])
+            times[iMeas, 0] = int(lines[iLines+3][17:]) # exch
+            times[iMeas, 1] = int(lines[iLines+5][17:]) # 
+            times[iMeas, 2] = int(lines[iLines+4][17:]) #
+            times[iMeas, 3] = int(lines[iLines+6][17:]) #
+
+            iMeas += 1
+            iLines += 7
+
+        else:
+            iLines += 1
+
+    print(f"Found {iMeas} measurements")
+    raw_data_grid = dict()
+    raw_data_grid["rep"] = np.array(reps)
+    raw_data_grid["grid"] = np.array(grids)
+    raw_data_grid["N"] = np.array(Ns)
+    raw_data_grid["numRHS"] = np.array(numRHSs)
+    raw_data_grid["time"] = np.array(times)
+
+    return {"grid": raw_data_grid}
+
 
 
 class Plotter:
@@ -99,9 +105,9 @@ class Plotter:
             self.reduced_data[target] = reduced_data_target
 
     def get_reduced_time_slices(self, target: str, N: int, numRHS: int, grid: str):
-        N_mask = self.reduced_data["blas"]["N"] == N
-        numRHS_mask = self.reduced_data["blas"]["numRHS"] == numRHS
-        grid_mask = self.reduced_data["blas"]["grid"] == grid
+        N_mask = self.reduced_data["grid"]["N"] == N
+        numRHS_mask = self.reduced_data["grid"]["numRHS"] == numRHS
+        grid_mask = self.reduced_data["grid"]["grid"] == grid
         index = np.argwhere(np.all([N_mask, numRHS_mask, grid_mask], axis=0))[0]
         return self.reduced_data[target]["time"][index]
 
