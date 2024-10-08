@@ -6,34 +6,34 @@ pp = pprint.PrettyPrinter(indent=2)
 
 
 # constants
-targets = ["2dbtv2", "blas"]
+targets = ["2dbtv2", "blas", "grid"]
 Ns = [32, 64]#, 128]
-numRHSs = [1, 12, 24, 36, 48, 60]
-numRHSsGrid = [8, 16, 24, 32, 40, 48, 56, 64]
-grids = ["4.4.4.4", "4.4.8.8", "8.8.8.8", "16.16.16.16"]
+numRHSs = [8, 16, 24, 32, 40, 48, 56, 64]
+# grids = ["4.4.4.4", "4.4.8.8", "8.8.8.8", "16.16.16.16"]
+grids = ["8.8.8.8"]
 numSites = {
-    "4.4.4.4": 4*4*4*4,
-    "4.4.8.8": 4*4*8*8,
+    # "4.4.4.4": 4*4*4*4,
+    # "4.4.8.8": 4*4*8*8,
     "8.8.8.8": 8*8*8*8,
-    "16.16.16.16": 16*16*16*16
+    # "16.16.16.16": 16*16*16*16
 }
 n_reps = 100
 data_len = n_reps * len(Ns) * len(numRHSs) * len(grids) # 3600 # larger after big grid and n=128 addition
 data_len_reduced = data_len // 100
 n_time_slices = 4
 n_targets = len(targets)
-slice_labels = ["malloc", "cp_in", "op", "cp_out"]
+slice_labels = ["exchange/malloc", "g to b", "mul", "b to g"]
 
 
 
 def load():
     raw_data = dict()
-    for target in targets:
+    for target in targets[:2]:
         reps, Ns, numRHSs = [np.zeros(data_len, dtype=np.int32) for _ in range(3)]
         grids = np.zeros(data_len, dtype=np.dtype("<U11"))
         times = np.zeros((data_len, 4), dtype=np.int32)
         with open(target + ".out", "r") as file:
-            for i, raw_line in enumerate(file.readlines()[1:]):
+            for i, raw_line in enumerate(file.readlines()):
                 line = raw_line.strip().split(",")
                 reps[i] = int(line[0])
                 grids[i] = line[1]
@@ -51,6 +51,41 @@ def load():
         raw_data[target]["time"] = np.array(times)
     return raw_data
 
+def loadGrid():
+    reps, Ns, numRHSs = [np.zeros(data_len, dtype=np.int32) for _ in range(3)]
+    grids = np.zeros(data_len, dtype=np.dtype("<U11"))
+    times = np.zeros((data_len, 4), dtype=np.int32)
+    with open("grid.out", "r") as file:
+        lines = [line.strip() for line in file.readlines()]
+
+    iLines = 0
+    iMeas = 0
+    while iLines < len(lines):
+        if lines[iLines][:10] == "Iteration:":
+            grids[iMeas] = "8.8.8.8"
+            reps[iMeas] = int(lines[iLines][11:])
+            numRHSs[iMeas] = int(lines[iLines+1][8:])
+            Ns[iMeas] = int(lines[iLines+2][8:])
+            times[iMeas, 0] = int(lines[iLines+3][17:]) # exch
+            times[iMeas, 1] = int(lines[iLines+5][17:]) # 
+            times[iMeas, 2] = int(lines[iLines+4][17:]) #
+            times[iMeas, 3] = int(lines[iLines+6][17:]) #
+
+            iMeas += 1
+            iLines += 7
+
+        else:
+            iLines += 1
+
+    print(f"Found {iMeas} measurements")
+    raw_data_grid = dict()
+    raw_data_grid["rep"] = np.array(reps)
+    raw_data_grid["grid"] = np.array(grids)
+    raw_data_grid["N"] = np.array(Ns)
+    raw_data_grid["numRHS"] = np.array(numRHSs)
+    raw_data_grid["time"] = np.array(times)
+
+    return {"grid": raw_data_grid}
 
 class Plotter:
     def __init__(self, data: dict):
@@ -120,7 +155,7 @@ class Plotter:
         elif normalization == "bandwidth":
             units =  "time in us per byte"
 
-        cols_labels = [f"numRHS = {str(numRHS)}" for numRHS in numRHSs]
+        cols_labels = [f"M = {str(numRHS)}" for numRHS in numRHSs]
         rows_labels = [f"N = {str(N)}\n"+units for N in Ns]
         for ax, col in zip(axs[0], cols_labels):
             ax.set_title(col)
@@ -156,12 +191,12 @@ class Plotter:
         axs[0][-1].legend()
 
         fig.suptitle(f"BENCHMARKS: TYPE=complexF, GRID={grid}, NORM={normalization}")
-        fig.tight_layout()
+        # fig.tight_layout()
         plt.show()
-
 
 if __name__ == "__main__":
     data = load()
+    data.update(loadGrid())
     pp.pprint(data)
     plotter = Plotter(data)
     plotter.reduce()

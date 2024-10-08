@@ -10,10 +10,11 @@
 
 constexpr unsigned reps = 100; 
 
-const bGrid grids[] = {bGrid(4,4,4,4)
-                    , bGrid(4,4,8,8)
-                    , bGrid(8,8,8,8)};
-                    //, bGrid(16,16,16,16)};
+// const bGrid grids[] = {bGrid(4,4,4,4)
+//                     , bGrid(4,4,8,8)
+//                     , bGrid(8,8,8,8)};
+//                     //, bGrid(16,16,16,16)};
+const bGrid grids[] = {bGrid(8,8,8,8)};
 
 template<class T, unsigned N, unsigned numRHS, unsigned blkSize>
 void runBenchmark(
@@ -72,12 +73,14 @@ void iterate_over_numRHS(
         bVectorField<T, 128> ** xs,
         T * d_Y, T * d_X
 ) {
-    runBenchmark<T, N, 1, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 12, 256>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 8, 256>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 16, 256>(handle,ys,A,xs,d_Y,d_X);
     runBenchmark<T, N, 24, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 36, 256>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 32, 256>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 40, 256>(handle,ys,A,xs,d_Y,d_X);
     runBenchmark<T, N, 48, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 60, 256>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 56, 256>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 64, 256>(handle,ys,A,xs,d_Y,d_X);
 }
 
 template<class T>
@@ -97,7 +100,7 @@ void iterate_over_N(
 
 using T = complexF;
 constexpr unsigned N = 128;
-constexpr unsigned numRHS = 60;
+constexpr unsigned numRHS = 64;
 const bGrid grid = grids[sizeof(grids)/sizeof(bGrid)-1];
 
 int main () {
@@ -110,7 +113,6 @@ int main () {
 	bMatrixField<T,N> A(grid);
 	A.fill_random(gen, 0, 1);
 	A.upload();
-	std::cout << "Fields allocated and randomly filled" << std::endl;
 
 	// run benchmark
 	cublasHandle_t handle;
