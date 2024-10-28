@@ -156,5 +156,8 @@ Next to do: Write down findings.
 
 
 
+#### 
+9 -> 1 point stencil (constant problem size)
+separate timing for BLAS (proof constant time?)
 
 
