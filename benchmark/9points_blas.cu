@@ -51,10 +51,14 @@ void runBenchmark(
             std::cout << N << ",";
             std::cout << numRHS << ",";
             std::cout << blkSize << ",";
-            std::cout << stopwatch.getdiff(1) << ",";
-            std::cout << stopwatch.getdiff(2) << ",";
-            std::cout << stopwatch.getdiff(3) << ",";
-            std::cout << stopwatch.getdiff(4) << std::endl;
+            // std::cout << stopwatch.getdiff(1) << ",";
+            // std::cout << stopwatch.getdiff(2) << ",";
+            // std::cout << stopwatch.getdiff(3) << ",";
+            // std::cout << stopwatch.getdiff(4) << std::endl;
+            for (unsigned j = 1; j < stopwatch.getSize()-1; j++) {
+                std::cout << stopwatch.getdiff(j) << ",";
+            }
+            std::cout << stopwatch.getdiff(stopwatch.getSize()-1) << std::endl;
         }
         for (unsigned i_rhs = 0; i_rhs < numRHS; ++i_rhs) {
             delete ys_temp[i_rhs];

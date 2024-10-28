@@ -30,6 +30,9 @@ public:
     int getdiff(unsigned i) {
         return diffs[i];
     }
+    unsigned getSize() const {
+        return diffs.size();
+    }
 };
 
 Stopwatch stopwatch;

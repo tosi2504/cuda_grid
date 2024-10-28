@@ -20,41 +20,67 @@ numSites = {
 n_reps = 100
 data_len = n_reps * len(Ns) * len(numRHSs) * len(grids) # 3600 # larger after big grid and n=128 addition
 data_len_reduced = data_len // 100
-n_time_slices = 4
 n_targets = len(targets)
-slice_labels = ["exchange/malloc", "g to b", "mul", "b to g"]
+slice_labels = ["exchange/malloc", "g to b", "mul", "b to g", "pMap"]
+n_time_slices = len(slice_labels)
 
-
-
-def load():
+def loadBlas():
     raw_data = dict()
-    for target in targets[:2]:
-        reps, Ns, numRHSs = [np.zeros(data_len, dtype=np.int32) for _ in range(3)]
-        grids = np.zeros(data_len, dtype=np.dtype("<U11"))
-        times = np.zeros((data_len, 4), dtype=np.int32)
-        with open(target + ".out", "r") as file:
-            for i, raw_line in enumerate(file.readlines()):
-                line = raw_line.strip().split(",")
-                reps[i] = int(line[0])
-                grids[i] = line[1]
-                Ns[i] = int(line[2])
-                numRHSs[i] = int(line[3])
-                times[i, 0] = int(line[5])
-                times[i, 1] = int(line[6])
-                times[i, 2] = int(line[7])
-                times[i, 3] = int(line[8])
-        raw_data[target] = dict()
-        raw_data[target]["rep"] = np.array(reps)
-        raw_data[target]["grid"] = np.array(grids)
-        raw_data[target]["N"] = np.array(Ns)
-        raw_data[target]["numRHS"] = np.array(numRHSs)
-        raw_data[target]["time"] = np.array(times)
+    reps, Ns, numRHSs = [np.zeros(data_len, dtype=np.int32) for _ in range(3)]
+    grids = np.zeros(data_len, dtype=np.dtype("<U11"))
+    times = np.zeros((data_len, n_time_slices), dtype=np.int32)
+    with open("blas.out", "r") as file:
+        for i, raw_line in enumerate(file.readlines()):
+            line = raw_line.strip().split(",")
+            reps[i] = int(line[0])
+            grids[i] = line[1]
+            Ns[i] = int(line[2])
+            numRHSs[i] = int(line[3])
+            times[i, 0] = int(line[5]) # malloc
+            times[i, 1] = int(line[6]) # cp in
+            times[i, 2] = int(line[7]) # gemmStrided call
+            times[i, 4] = int(line[8]) # constant time thingy
+            for j in range(8):
+                times[i, 4] += int(line[j*2 + 9])
+                times[i, 2] += int(line[j*2 + 10])
+            times[i, 3] = int(line[-1]) # cp out
+    raw_data["blas"] = dict()
+    raw_data["blas"]["rep"] = np.array(reps)
+    raw_data["blas"]["grid"] = np.array(grids)
+    raw_data["blas"]["N"] = np.array(Ns)
+    raw_data["blas"]["numRHS"] = np.array(numRHSs)
+    raw_data["blas"]["time"] = np.array(times)
+    return raw_data
+
+def load2dbtv2():
+    raw_data = dict()
+    target = "2dbtv2"
+    reps, Ns, numRHSs = [np.zeros(data_len, dtype=np.int32) for _ in range(3)]
+    grids = np.zeros(data_len, dtype=np.dtype("<U11"))
+    times = np.zeros((data_len, n_time_slices), dtype=np.int32)
+    with open("2dbtv2.out", "r") as file:
+        for i, raw_line in enumerate(file.readlines()):
+            line = raw_line.strip().split(",")
+            reps[i] = int(line[0])
+            grids[i] = line[1]
+            Ns[i] = int(line[2])
+            numRHSs[i] = int(line[3])
+            times[i, 0] = int(line[5])
+            times[i, 1] = int(line[6])
+            times[i, 2] = int(line[7])
+            times[i, 3] = int(line[8])
+    raw_data["2dbtv2"] = dict()
+    raw_data["2dbtv2"]["rep"] = np.array(reps)
+    raw_data["2dbtv2"]["grid"] = np.array(grids)
+    raw_data["2dbtv2"]["N"] = np.array(Ns)
+    raw_data["2dbtv2"]["numRHS"] = np.array(numRHSs)
+    raw_data["2dbtv2"]["time"] = np.array(times)
     return raw_data
 
 def loadGrid():
     reps, Ns, numRHSs = [np.zeros(data_len, dtype=np.int32) for _ in range(3)]
     grids = np.zeros(data_len, dtype=np.dtype("<U11"))
-    times = np.zeros((data_len, 4), dtype=np.int32)
+    times = np.zeros((data_len, n_time_slices), dtype=np.int32)
     with open("grid.out", "r") as file:
         lines = [line.strip() for line in file.readlines()]
 
@@ -195,8 +221,9 @@ class Plotter:
         plt.show()
 
 if __name__ == "__main__":
-    data = load()
+    data = loadBlas()
     data.update(loadGrid())
+    data.update(load2dbtv2())
     pp.pprint(data)
     plotter = Plotter(data)
     plotter.reduce()

@@ -524,13 +524,15 @@ struct bFullStencil {
                                            , &beta
                                            , d_Y, N, N*numRHS
                                            , grid.numSites));
-        
-
+        CCE(cudaDeviceSynchronize());
+        stopwatch.press(); // REMOVE ME
         fillDevicePointerArray<T, N*numRHS>(d_d_Y, d_Y);
         fillDevicePointerArray<T, N*numRHS>(d_d_X, d_X);
         beta = 1;
         for (unsigned i_dir = 1; i_dir < 9; i_dir++) {
+            stopwatch.press(); // REMOVE ME
             fillDevicePointerArrayPermute<T, N*N>(d_d_A, (T*)A.d_data, i_dir);
+            stopwatch.press(); // REMOVE ME
             cublasCCE(gemmBatched::call<T>(handle
                                            , CUBLAS_OP_T
                                            , CUBLAS_OP_N
