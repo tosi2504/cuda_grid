@@ -20,7 +20,7 @@ template<class T, unsigned N, unsigned numRHS, unsigned blkSize>
 void runBenchmark(
         cublasHandle_t & handle,
         bVectorField<T, 128> ** ys,
-        const bMatrixField<T, 128> & A,
+        const bMatrixField<T, 128> * const * As,
         bVectorField<T, 128> ** xs,
         T * d_Y, T * d_X
 ) {
@@ -31,8 +31,12 @@ void runBenchmark(
             ys_temp[i_rhs] = new bVectorField<T,N>(grids[i_grid], *(ys[i_rhs]));
             xs_temp[i_rhs] = new bVectorField<T,N>(grids[i_grid], *(xs[i_rhs]));
         }
-        bMatrixField<T,N> A_temp(grids[i_grid], A);
         
+        bMatrixField<T,N> ** As_temp = new bMatrixField<T,N>*[9];
+        for (unsigned iDir = 0; iDir < 9; iDir++) {
+            As_temp[iDir] = new bMatrixField<T, N>(grids[i_grid], *(As[iDir]));
+        }
+
         bFullStencil stencil(grids[i_grid]);
 
         for (unsigned i = 0; i<reps; i++) {
@@ -40,7 +44,7 @@ void runBenchmark(
             // perform the call 
             stencil.execute_blas<T,N,numRHS,blkSize>(handle
                                                   , ys_temp
-                                                  , A_temp
+                                                  , As_temp
                                                   , xs_temp);
             // read out stopwatch
             std::cout << i << ",";
@@ -73,30 +77,30 @@ template<class T, unsigned N>
 void iterate_over_numRHS(
         cublasHandle_t & handle,
         bVectorField<T, 128> ** ys,
-        const bMatrixField<T,128> & A,
+        const bMatrixField<T,128> * const * As,
         bVectorField<T, 128> ** xs,
         T * d_Y, T * d_X
 ) {
-    runBenchmark<T, N, 8, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 16, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 24, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 32, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 40, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 48, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 56, 256>(handle,ys,A,xs,d_Y,d_X);
-    runBenchmark<T, N, 64, 256>(handle,ys,A,xs,d_Y,d_X);
+    runBenchmark<T, N, 8, 256>(handle,ys,As,xs,d_Y,d_X);
+    runBenchmark<T, N, 16, 256>(handle,ys,As,xs,d_Y,d_X);
+    runBenchmark<T, N, 24, 256>(handle,ys,As,xs,d_Y,d_X);
+    runBenchmark<T, N, 32, 256>(handle,ys,As,xs,d_Y,d_X);
+    runBenchmark<T, N, 40, 256>(handle,ys,As,xs,d_Y,d_X);
+    runBenchmark<T, N, 48, 256>(handle,ys,As,xs,d_Y,d_X);
+    runBenchmark<T, N, 56, 256>(handle,ys,As,xs,d_Y,d_X);
+    runBenchmark<T, N, 64, 256>(handle,ys,As,xs,d_Y,d_X);
 }
 
 template<class T>
 void iterate_over_N(
         cublasHandle_t & handle,
         bVectorField<T, 128> ** ys,
-        const bMatrixField<T,128> & A,
+        const bMatrixField<T,128> * const * As,
         bVectorField<T, 128> ** xs,
         T * d_Y, T * d_X
 ) {
-    iterate_over_numRHS<T, 32>(handle,ys,A,xs,d_Y,d_X);
-    iterate_over_numRHS<T, 64>(handle,ys,A,xs,d_Y,d_X);
+    iterate_over_numRHS<T, 32>(handle,ys,As,xs,d_Y,d_X);
+    iterate_over_numRHS<T, 64>(handle,ys,As,xs,d_Y,d_X);
     // iterate_over_numRHS<T, 128>(handle,ys,A,xs,d_Y,d_X);
 }
 
@@ -114,9 +118,12 @@ int main () {
     // prepare fields
 	bVectorField<T,N> ** xs = createAndFillAndUploadBatchVecFields<T,N>(numRHS, grid, gen, 0, 1);
 	bVectorField<T,N> ** ys = createBatchVecFields<T,N>(numRHS, grid);
-	bMatrixField<T,N> A(grid);
-	A.fill_random(gen, 0, 1);
-	A.upload();
+	bMatrixField<T,N> ** As = (bMatrixField<T,N> **) malloc (sizeof(bMatrixField<T,N>*)*9);
+    for (unsigned iDir = 0; iDir < 9; iDir++) {
+        As[iDir] = new bMatrixField<T, N>(grid);
+        As[iDir]->fill_random(gen, 0, 1);
+        As[iDir]->upload();
+    }
 
 	// run benchmark
 	cublasHandle_t handle;
@@ -126,7 +133,7 @@ int main () {
 	CCE(  cudaMalloc(&d_X, sizeof(T)*numRHS*grid.numSites*N)  );
 	CCE(  cudaMalloc(&d_Y, sizeof(T)*numRHS*grid.numSites*N)  );
 
-    iterate_over_N<T>(handle,ys,A,xs,d_Y,d_X);
+    iterate_over_N<T>(handle,ys,As,xs,d_Y,d_X);
 
 	CCE(  cudaFree(d_X)  );
 	CCE(  cudaFree(d_Y)  );

@@ -347,16 +347,19 @@ __global__ void ker_stencil2DBlocktiling(T * const * const g_d_ys
 // assert (N % tileHeight == 0)
 // assert (numRHS % tileWidth == 0)
 // numThreads = rowStride * rhsStride
-template<class T, unsigned N, unsigned numRHS
-                , unsigned rowStride // in units of tiles
-                , unsigned rhsStride // in units of tiles
-                , unsigned tileHeight// in units of index
-                , unsigned tileWidth>// in units of index
-__global__ void ker_stencil2DBlocktilingV2(T * const * const g_d_ys
-                            , const T * const d_A
-                            , const T * const * const g_d_xs
-                            , const unsigned * const g_indexmap
-                            , unsigned numSites) {
+template <
+    class T, unsigned N, unsigned numRHS,
+    unsigned rowStride,  // in units of tiles
+    unsigned rhsStride,  // in units of tiles
+    unsigned tileHeight, // in units of index
+    unsigned tileWidth
+> __global__ void ker_stencil2DBlocktilingV2 (
+    T * const * const g_d_ys,
+    const T * const * const g_d_A,
+    const T * const * const g_d_xs,
+    const unsigned * const g_indexmap,
+    unsigned numSites,
+) {
     const unsigned site = blockIdx.x;
     const unsigned tIdx = threadIdx.x;
     constexpr unsigned numThreads = rowStride * rhsStride;
@@ -380,7 +383,7 @@ __global__ void ker_stencil2DBlocktilingV2(T * const * const g_d_ys
     }
     
     for (unsigned iDir = 0; iDir < 9; iDir++) {
-    // for (unsigned iDir = 0; iDir < 1; iDir++) { // DEBUG
+        const T * const d_A = g_d_A[iDir];
         const unsigned targetSite = g_indexmap[iDir*numSites + site];
         for (unsigned iiRow = 0; iiRow < N; iiRow += rowStride*tileHeight) {
             for (unsigned  i = tIdx; i < N*rowStride*tileHeight; i+=numThreads) {
@@ -484,14 +487,18 @@ struct bFullStencil {
     }
 
     template<class T, unsigned N, unsigned numRHS, unsigned blkSize = 256>
-    void execute_blas(cublasHandle_t handle,
-                 bVectorField<T, N> * const * const ys,
-                 const bMatrixField<T, N> & A,
-                 const bVectorField<T, N> * const * const xs) const {
+    void execute_blas(
+        cublasHandle_t handle,
+        bVectorField<T, N> * const * const ys,
+        const bMatrixField<T, N> * const * const As,
+        const bVectorField<T, N> * const * const xs
+    ) const {
         // check grid compatibility 
-        if (not bLatticeHelpers::areGridsCompatible<T, N, numRHS>(ys, A, xs))
-            throw std::invalid_argument("Grids not compatible");
-        if (not grid.isCompatible(A.grid))
+        for (unsigned iDir = 0; iDir < 9; iDir++) {
+            if (not grid.isCompatible(As[iDir]->grid))
+                throw std::invalid_argument("Grids not compatible");
+        }
+        if (not bLatticeHelpers::areGridsCompatible<T, N, numRHS>(ys, *(As[0]), xs))
             throw std::invalid_argument("Grids not compatible");
 
         // prepare device pointers and layout changes
@@ -519,7 +526,7 @@ struct bFullStencil {
                                            , CUBLAS_OP_N
                                            , N, numRHS, N
                                            , &alpha
-                                           , (T*)A.d_data, N, N*N
+                                           , (T*)As[0]->d_data, N, N*N
                                            , d_X, N, N*numRHS
                                            , &beta
                                            , d_Y, N, N*numRHS
@@ -531,7 +538,7 @@ struct bFullStencil {
         beta = 1;
         for (unsigned i_dir = 1; i_dir < 9; i_dir++) {
             stopwatch.press(); // REMOVE ME
-            fillDevicePointerArrayPermute<T, N*N>(d_d_A, (T*)A.d_data, i_dir);
+            fillDevicePointerArrayPermute<T, N*N>(d_d_A, (T*)As[i_dir]->d_data, i_dir);
             stopwatch.press(); // REMOVE ME
             cublasCCE(gemmBatched::call<T>(handle
                                            , CUBLAS_OP_T
@@ -719,19 +726,27 @@ struct bFullStencil {
                 , unsigned tileWidth>
     void execute_2DBTV2(
         bVectorField<T, N> * const * const ys, 
-        const bMatrixField<T, N> & A, 
+        const bMatrixField<T, N> * const * const As, 
         const bVectorField<T, N> * const * const xs
     ) const {
         // check template parameter compatibility
         static_assert(N%tileHeight==0);
         static_assert(numRHS%tileWidth==0);
         // check grid compatibility 
-        if (not bLatticeHelpers::areGridsCompatible<T, N, numRHS>(ys, A, xs))
-            throw std::invalid_argument("Grids not compatible");
-        if (not grid.isCompatible(A.grid))
+        for (unsigned iDir = 0; iDir < 9; iDir++) {
+            if (not grid.isCompatible(As[iDir]->grid))
+                throw std::invalid_argument("Grids not compatible");
+        }
+        if (not bLatticeHelpers::areGridsCompatible<T, N, numRHS>(ys, *(As[0]), xs))
             throw std::invalid_argument("Grids not compatible");
 
         stopwatch.press();
+
+        T ** g_d_As;
+        CCE(cudaMallocManaged(&g_d_As, 9*sizeof(T*)));
+        for (unsigned iDir = 0; iDir < 9; iDir++) {
+            g_d_As[iDir] = (T*)As[iDir]->d_data;
+        }
 
         T ** g_d_xs, ** g_d_ys; 
         CCE(cudaMallocManaged(&g_d_xs, sizeof(T*)*numRHS));
@@ -758,7 +773,7 @@ struct bFullStencil {
             <T, N, numRHS, rowStride, rhsStride, tileHeight, tileWidth>
             <<<grid.numSites , rowStride*rhsStride , sizeShmem>>>
             ((T*const*)g_d_ys
-                , (const T*)A.d_data
+                , (const T*const*)g_d_As
                 , (const T*const*)g_d_xs
                 , (const unsigned*)g_indexmap
                 , grid.numSites);
@@ -770,6 +785,7 @@ struct bFullStencil {
         CCE(cudaFree(g_indexmap));
         CCE(cudaFree(g_d_xs));
         CCE(cudaFree(g_d_ys));
+        CCE(cudaFree(g_d_As));
     }
 
 };
